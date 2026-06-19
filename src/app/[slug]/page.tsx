@@ -1,6 +1,7 @@
+import CommentSection from "@/components/CommentSection";
 import { db } from "@/db";
-import { posts } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { comments, posts, users } from "@/db/schema";
+import { and, asc, eq } from "drizzle-orm";
 import { marked } from "marked";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -56,6 +57,21 @@ export default async function PostPage({ params }: Props) {
   const html = await marked.parse(post.content);
   const tags = parseTags(post.tags);
 
+  const approvedComments = await db
+    .select({
+      id: comments.id,
+      postId: comments.postId,
+      parentId: comments.parentId,
+      body: comments.body,
+      createdAt: comments.createdAt,
+      authorName: users.name,
+      authorImage: users.image,
+    })
+    .from(comments)
+    .leftJoin(users, eq(comments.authorId, users.id))
+    .where(and(eq(comments.postId, post.id), eq(comments.approved, true)))
+    .orderBy(asc(comments.createdAt));
+
   const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString("en-GB", {
         day: "numeric",
@@ -79,9 +95,7 @@ export default async function PostPage({ params }: Props) {
             {date && (
               <time dateTime={post.publishedAt?.toISOString()}>{date}</time>
             )}
-            {post.readingTime > 0 && (
-              <span>{post.readingTime} min read</span>
-            )}
+            {post.readingTime > 0 && <span>{post.readingTime} min read</span>}
           </div>
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -103,6 +117,8 @@ export default async function PostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </article>
+
+      <CommentSection postId={post.id} initialComments={approvedComments} />
     </main>
   );
 }
