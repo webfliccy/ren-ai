@@ -10,6 +10,11 @@ export const posts = sqliteTable("posts", {
   status: text("status", { enum: ["draft", "published"] })
     .notNull()
     .default("draft"),
+  tags: text("tags").notNull().default("[]"),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  ogImage: text("og_image"),
+  readingTime: integer("reading_time").notNull().default(1),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),

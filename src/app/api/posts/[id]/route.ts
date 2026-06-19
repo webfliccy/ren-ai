@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { posts } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
+import { calculateReadingTime } from "@/lib/reading-time";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
@@ -23,20 +24,20 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { title, content, excerpt, status, slug } = body;
+  const { title, content, excerpt, status, slug, tags, seoTitle, seoDescription, ogImage } = body;
 
-  const existing = await db
+  const [existing] = await db
     .select()
     .from(posts)
     .where(eq(posts.id, Number(id)));
-  if (!existing[0]) return Response.json({ error: "Not found" }, { status: 404 });
+  if (!existing) return Response.json({ error: "Not found" }, { status: 404 });
 
-  const wasPublished = existing[0].status === "published";
   const isNowPublished = status === "published";
+  const wasPublished = existing.status === "published";
   const publishedAt =
-    isNowPublished && !wasPublished
-      ? new Date()
-      : existing[0].publishedAt;
+    isNowPublished && !wasPublished ? new Date() : existing.publishedAt;
+
+  const readingTime = calculateReadingTime(content ?? existing.content);
 
   const [updated] = await db
     .update(posts)
@@ -46,6 +47,11 @@ export async function PATCH(
       content,
       excerpt,
       status,
+      tags: JSON.stringify(tags ?? []),
+      seoTitle,
+      seoDescription,
+      ogImage,
+      readingTime,
       publishedAt,
       updatedAt: new Date(),
     })
