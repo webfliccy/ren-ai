@@ -1,8 +1,11 @@
 "use client";
 
 import { Post } from "@/db/schema";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+
+const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
 
 function slugify(title: string) {
   return title
@@ -35,7 +38,6 @@ export default function PostForm({ post }: { post?: Post }) {
   const [seoTitle, setSeoTitle] = useState(post?.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(post?.seoDescription ?? "");
   const [ogImage, setOgImage] = useState(post?.ogImage ?? "");
-  const [preview, setPreview] = useState(false);
   const [seoOpen, setSeoOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -146,26 +148,8 @@ export default function PostForm({ post }: { post?: Post }) {
       </div>
 
       <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">Content (Markdown)</label>
-          <button type="button" onClick={() => setPreview((p) => !p)} className="text-xs text-blue-600 hover:underline">
-            {preview ? "Edit" : "Preview"}
-          </button>
-        </div>
-        {preview ? (
-          <div
-            className="prose prose-sm min-h-64 w-full rounded-md border border-gray-200 bg-white px-4 py-3"
-            dangerouslySetInnerHTML={{ __html: renderMarkdownSimple(content) }}
-          />
-        ) : (
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={16}
-            placeholder="Write your post in Markdown..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        )}
+        <label className="text-sm font-medium text-gray-700">Content</label>
+        <RichEditor content={content} onChange={setContent} />
       </div>
 
       <div className="space-y-1">
@@ -218,7 +202,9 @@ export default function PostForm({ post }: { post?: Post }) {
         {seoOpen && (
           <div className="space-y-4 border-t border-gray-200 p-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">SEO title <span className="text-gray-400 font-normal">(defaults to post title)</span></label>
+              <label className="text-sm font-medium text-gray-700">
+                SEO title <span className="font-normal text-gray-400">(defaults to post title)</span>
+              </label>
               <input
                 type="text"
                 value={seoTitle}
@@ -228,7 +214,9 @@ export default function PostForm({ post }: { post?: Post }) {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">SEO description <span className="text-gray-400 font-normal">(defaults to excerpt)</span></label>
+              <label className="text-sm font-medium text-gray-700">
+                SEO description <span className="font-normal text-gray-400">(defaults to excerpt)</span>
+              </label>
               <textarea
                 value={seoDescription}
                 onChange={(e) => setSeoDescription(e.target.value)}
@@ -238,7 +226,7 @@ export default function PostForm({ post }: { post?: Post }) {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">OG image URL</label>
+              <label className="text-sm font-medium text-gray-700">OG / cover image URL</label>
               <input
                 type="url"
                 value={ogImage}
@@ -276,16 +264,4 @@ export default function PostForm({ post }: { post?: Post }) {
       </div>
     </form>
   );
-}
-
-function renderMarkdownSimple(md: string): string {
-  return md
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, "<code>$1</code>")
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/^(?!<[h|p|u|o|l|c])(.+)$/gm, "<p>$1</p>");
 }

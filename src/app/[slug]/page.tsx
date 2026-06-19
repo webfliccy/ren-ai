@@ -2,7 +2,6 @@ import CommentSection from "@/components/CommentSection";
 import { db } from "@/db";
 import { comments, posts, users } from "@/db/schema";
 import { and, asc, eq } from "drizzle-orm";
-import { marked } from "marked";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -54,7 +53,6 @@ export default async function PostPage({ params }: Props) {
 
   if (!post || post.status !== "published") notFound();
 
-  const html = await marked.parse(post.content);
   const tags = parseTags(post.tags);
 
   const approvedComments = await db
@@ -87,14 +85,19 @@ export default async function PostPage({ params }: Props) {
       </a>
 
       <article className="mt-8">
+        {post.ogImage && (
+          <img
+            src={post.ogImage}
+            alt={post.title}
+            className="mb-8 w-full rounded-xl object-cover max-h-72"
+          />
+        )}
         <header className="mb-10 space-y-4">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             {post.title}
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-            {date && (
-              <time dateTime={post.publishedAt?.toISOString()}>{date}</time>
-            )}
+            {date && <time dateTime={post.publishedAt?.toISOString()}>{date}</time>}
             {post.readingTime > 0 && <span>{post.readingTime} min read</span>}
           </div>
           {tags.length > 0 && (
@@ -114,7 +117,7 @@ export default async function PostPage({ params }: Props) {
 
         <div
           className="prose prose-gray max-w-none"
-          dangerouslySetInnerHTML={{ __html: html }}
+          dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </article>
 
