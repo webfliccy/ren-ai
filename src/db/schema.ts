@@ -9,6 +9,8 @@ export const posts = sqliteTable("posts", {
   slug: text("slug").notNull().unique(),
   content: text("content").notNull().default(""),
   excerpt: text("excerpt"),
+  prompt: text("prompt"),
+  figSvg: text("fig_svg"),
   status: text("status", { enum: ["draft", "published"] })
     .notNull()
     .default("draft"),
@@ -16,6 +18,8 @@ export const posts = sqliteTable("posts", {
   seoTitle: text("seo_title"),
   seoDescription: text("seo_description"),
   ogImage: text("og_image"),
+  tokens: text("tokens"),
+  references: text("references").notNull().default("[]"),
   readingTime: integer("reading_time").notNull().default(1),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
@@ -100,3 +104,19 @@ export const comments = sqliteTable("comment", {
 });
 
 export type Comment = typeof comments.$inferSelect;
+
+// ── Static pages (about, etc.) ────────────────────────────────────────────────
+
+export const sitePages = sqliteTable("site_page", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  key: text("key").notNull().unique(),
+  title: text("title").notNull().default(""),
+  content: text("content").notNull().default(""),
+  tokens: text("tokens"),
+  prompt: text("prompt"),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export type SitePage = typeof sitePages.$inferSelect;

@@ -1,21 +1,48 @@
 import Providers from "@/components/Providers";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  Courier_Prime,
+  Figtree,
+  Newsreader,
+} from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const cormorant = Cormorant_Garamond({
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   subsets: ["latin"],
+  variable: "--font-cormorant",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const newsreader = Newsreader({
+  weight: "variable",
+  style: ["normal", "italic"],
   subsets: ["latin"],
+  axes: ["opsz"],
+  variable: "--font-newsreader",
+  display: "swap",
+});
+
+const figtree = Figtree({
+  weight: "variable",
+  subsets: ["latin"],
+  variable: "--font-figtree",
+  display: "swap",
+});
+
+const courierPrime = Courier_Prime({
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-courier-prime",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "ren·ai",
-  description: "A blog.",
+  title: "The RenAIssance Fan",
+  description: "Fallibly human, artificially divine.",
 };
 
 export default function RootLayout({
@@ -26,7 +53,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${newsreader.variable} ${figtree.variable} ${courierPrime.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

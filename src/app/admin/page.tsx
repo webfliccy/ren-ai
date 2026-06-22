@@ -37,6 +37,26 @@ export default async function AdminPage() {
 
       <section>
         <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Pages</h2>
+        </div>
+        <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between px-5 py-4">
+            <div className="min-w-0">
+              <span className="font-medium text-gray-900">About the Fan</span>
+              <p className="mt-0.5 text-xs text-gray-400">/about</p>
+            </div>
+            <Link
+              href="/admin/about"
+              className="ml-4 shrink-0 text-sm text-blue-600 hover:underline"
+            >
+              Edit
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">Posts</h2>
           <Link
             href="/admin/posts/new"

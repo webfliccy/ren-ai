@@ -1,6 +1,7 @@
 "use client";
 
 import { Post } from "@/db/schema";
+import { ChicagoWebRef, EMPTY_REF, parseRefs } from "@/lib/references";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -32,9 +33,15 @@ export default function PostForm({ post }: { post?: Post }) {
   const [slug, setSlug] = useState(post?.slug ?? "");
   const [content, setContent] = useState(post?.content ?? "");
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
+  const [prompt, setPrompt] = useState(post?.prompt ?? "");
+  const [figSvg, setFigSvg] = useState(post?.figSvg ?? "");
   const [status, setStatus] = useState<"draft" | "published">(post?.status ?? "draft");
   const [tags, setTags] = useState<string[]>(parseTags(post?.tags ?? "[]"));
   const [tagInput, setTagInput] = useState("");
+  const [tokens, setTokens] = useState(post?.tokens ?? "");
+  const [references, setReferences] = useState<ChicagoWebRef[]>(() =>
+    parseRefs(post?.references ?? "[]")
+  );
   const [seoTitle, setSeoTitle] = useState(post?.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(post?.seoDescription ?? "");
   const [ogImage, setOgImage] = useState(post?.ogImage ?? "");
@@ -71,7 +78,9 @@ export default function PostForm({ post }: { post?: Post }) {
     setError("");
 
     const payload = {
-      title, slug, content, excerpt, status, tags,
+      title, slug, content, excerpt, prompt: prompt || null, figSvg: figSvg || null, status, tags,
+      tokens: tokens || null,
+      references,
       seoTitle: seoTitle || null,
       seoDescription: seoDescription || null,
       ogImage: ogImage || null,
@@ -148,6 +157,52 @@ export default function PostForm({ post }: { post?: Post }) {
       </div>
 
       <div className="space-y-1">
+        <label className="text-sm font-medium text-gray-700">
+          Prompt <span className="font-normal text-gray-400">(shown in Production Record — separate from excerpt)</span>
+        </label>
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          rows={3}
+          placeholder="The prompt or brief given to the AI for this piece"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-sm font-medium text-gray-700">
+          FIG. 1 — Article illustration <span className="font-normal text-gray-400">(.svg)</span>
+        </label>
+        <input
+          type="file"
+          accept=".svg,image/svg+xml"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => setFigSvg((ev.target?.result as string) ?? "");
+            reader.readAsText(file);
+          }}
+          className="block w-full text-sm text-gray-500 file:mr-3 file:rounded-md file:border file:border-gray-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-50"
+        />
+        {figSvg && (
+          <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-3">
+            <div
+              className="flex items-center justify-center [&>svg]:max-h-40 [&>svg]:w-full"
+              dangerouslySetInnerHTML={{ __html: figSvg }}
+            />
+            <button
+              type="button"
+              onClick={() => setFigSvg("")}
+              className="mt-2 text-xs text-red-500 hover:underline"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-1">
         <label className="text-sm font-medium text-gray-700">Content</label>
         <RichEditor content={content} onChange={setContent} />
       </div>
@@ -176,6 +231,82 @@ export default function PostForm({ post }: { post?: Post }) {
           />
         </div>
         <p className="text-xs text-gray-400">Press Enter or comma to add a tag</p>
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-sm font-medium text-gray-700">
+          Tokens <span className="font-normal text-gray-400">(e.g. ~24,000 ⟵ ~8,200)</span>
+        </label>
+        <input
+          type="text"
+          value={tokens}
+          onChange={(e) => setTokens(e.target.value)}
+          placeholder="input ⟵ output"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-gray-700">
+            References <span className="font-normal text-gray-400">(Chicago — web)</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => setReferences((r) => [...r, { ...EMPTY_REF }])}
+            className="text-xs font-medium text-blue-600 hover:text-blue-800"
+          >
+            + Add reference
+          </button>
+        </div>
+        {references.length > 0 && (
+          <ol className="space-y-4 list-none">
+            {references.map((ref, i) => {
+              const field = (key: keyof ChicagoWebRef, placeholder: string, label: string) => (
+                <div className="space-y-0.5">
+                  <span className="text-xs text-gray-400">{label}</span>
+                  <input
+                    type="text"
+                    value={ref[key]}
+                    onChange={(e) =>
+                      setReferences((r) =>
+                        r.map((v, j) => j === i ? { ...v, [key]: e.target.value } : v)
+                      )
+                    }
+                    placeholder={placeholder}
+                    className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              );
+              return (
+                <li key={i} className="rounded-md border border-gray-200 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs text-gray-400 select-none">{i + 1}.</span>
+                    <button
+                      type="button"
+                      onClick={() => setReferences((r) => r.filter((_, j) => j !== i))}
+                      className="text-gray-400 hover:text-red-500 text-lg leading-none"
+                      aria-label="Remove reference"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {field("authorLast", "Doe", "Author last name")}
+                    {field("authorFirst", "John", "Author first name")}
+                  </div>
+                  {field("pageTitle", "The History of Chicago Architecture", "Title of webpage")}
+                  {field("siteName", "Chicago Historical Society", "Name of website")}
+                  {field("date", "Last modified October 12, 2025", "Publication / revision date")}
+                  {field("url", "chicagohistory.org/...", "URL")}
+                </li>
+              );
+            })}
+          </ol>
+        )}
+        {references.length === 0 && (
+          <p className="text-xs text-gray-400">No references yet — click &quot;+ Add reference&quot; to begin.</p>
+        )}
       </div>
 
       <div className="flex items-center gap-3">

@@ -1,20 +1,31 @@
 import CommentSection from "@/components/CommentSection";
+import { RenaiLogo } from "@/components/RenaiLogo";
 import { db } from "@/db";
 import { comments, posts, users } from "@/db/schema";
+import { parseRefs } from "@/lib/references";
 import { and, asc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import styles from "./article.module.css";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-function parseTags(raw: string): string[] {
+function parseJson<T>(raw: string, fallback: T): T {
   try {
     return JSON.parse(raw);
   } catch {
-    return [];
+    return fallback;
   }
+}
+
+function formatDate(d: Date): string {
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -53,7 +64,8 @@ export default async function PostPage({ params }: Props) {
 
   if (!post || post.status !== "published") notFound();
 
-  const tags = parseTags(post.tags);
+  const tags = parseJson<string[]>(post.tags, []);
+  const refs = parseRefs(post.references);
 
   const approvedComments = await db
     .select({
@@ -70,58 +82,213 @@ export default async function PostPage({ params }: Props) {
     .where(and(eq(comments.postId, post.id), eq(comments.approved, true)))
     .orderBy(asc(comments.createdAt));
 
-  const date = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : null;
+  const publishedDate = post.publishedAt ? formatDate(new Date(post.publishedAt)) : null;
+  const kickerTag = tags[0] ?? "Dispatches";
+  const kickerCrumb = post.slug.replace(/-/g, " ").toUpperCase().slice(0, 44);
+
+  const specPrompt =
+    post.prompt ??
+    "Write me something true and uncomfortable about artificial intelligence. Sign the register on the way out.";
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-16">
-      <a href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
-        ← All posts
-      </a>
+    <div className={styles.page}>
+      <div className={styles.sheet}>
 
-      <article className="mt-8">
-        {post.ogImage && (
-          <img
-            src={post.ogImage}
-            alt={post.title}
-            className="mb-8 w-full rounded-xl object-cover max-h-72"
-          />
-        )}
-        <header className="mb-10 space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            {post.title}
-          </h1>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-            {date && <time dateTime={post.publishedAt?.toISOString()}>{date}</time>}
-            {post.readingTime > 0 && <span>{post.readingTime} min read</span>}
-          </div>
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {tags.map((tag) => (
-                <Link
-                  key={tag}
-                  href={`/?tag=${encodeURIComponent(tag)}`}
-                  className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-500 hover:bg-gray-200 transition-colors"
-                >
-                  {tag}
-                </Link>
-              ))}
-            </div>
-          )}
+        {/* ── Masthead ─────────────────────────────────── */}
+        <div className={styles.topbar}>
+          <div className={styles.topbarLine} />
+          <span className={styles.topbarStamp}>
+            The RenAIssance Fan — Dispatches from the digital frontier
+          </span>
+          <div className={styles.topbarLine} />
+        </div>
+
+        <div className={styles.ruleThick} />
+        <div style={{ height: 2 }} />
+        <div className={styles.ruleThin} />
+
+        <header className={styles.masthead}>
+          <Link href="/" className={styles.brand}>
+            <RenaiLogo className={styles.brandLogo} />
+            <div className={styles.brandDivider} />
+          </Link>
+          <p className={styles.mastheadTitle}>
+            The Ren<span className={styles.titleAI}>AI</span>ssance Fan
+          </p>
         </header>
 
-        <div
-          className="prose prose-gray max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-      </article>
+        <div className={styles.ruleThin} />
+        <div style={{ height: 2 }} />
+        <div className={styles.ruleThick} />
 
-      <CommentSection postId={post.id} initialComments={approvedComments} />
-    </main>
+        <nav className={styles.nav}>
+          <Link href="/">Home</Link>
+          <Link href="/?tag=essay">Essays</Link>
+          <Link href="/?tag=analysis">Analysis</Link>
+          <Link href="/?tag=tools">Tools</Link>
+          <Link href="/?tag=dispatches">Dispatches</Link>
+        </nav>
+
+        <div style={{ height: 4 }} />
+        <div className={styles.ruleThin} />
+
+        {/* ── Article ──────────────────────────────────── */}
+        <article className={styles.article}>
+
+          <div className={styles.kicker}>
+            <span className={styles.kickerTag}>{kickerTag}</span>
+            <span className={styles.kickerCrumb}>{kickerCrumb}</span>
+          </div>
+
+          <h1 className={styles.headline}>{post.title}</h1>
+
+          {post.excerpt && (
+            <p className={styles.deck}>{post.excerpt}</p>
+          )}
+
+          <div className={styles.byline}>
+            <span className={styles.bylineWho}>By the Editor</span>
+            <span className={styles.bylineFlesh}>Verified Flesh</span>
+            <span className={styles.bylineDot} />
+            <span>Assisted, suspiciously, by a machine</span>
+            {publishedDate && (
+              <>
+                <span className={styles.bylineDot} />
+                <time dateTime={post.publishedAt?.toISOString()}>
+                  {publishedDate}
+                </time>
+              </>
+            )}
+            {post.readingTime > 0 && (
+              <>
+                <span className={styles.bylineDot} />
+                <span>{post.readingTime} min read</span>
+              </>
+            )}
+          </div>
+
+          {/* ── Prose body ──────────────────────────── */}
+          <div
+            className={styles.prose}
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+
+          {/* ── Specification Sheet ─────────────────── */}
+          <section className={styles.spec} aria-label="Article provenance">
+            <div className={styles.specHead}>
+              <span className={styles.specHeadTitle}>
+                Production Record — Specification Sheet
+              </span>
+              <span className={styles.specHeadFig}>FIG. 1-A</span>
+            </div>
+
+            <div className={styles.specRows}>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Author</span>
+                <span className={styles.specVal}>The Editor, human</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Assisted by</span>
+                <span className={styles.specVal}>Claude Sonnet 4.6</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Model ver.</span>
+                <span className={`${styles.specVal} ${styles.red}`}>
+                  claude-sonnet-4-6
+                </span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Tokens</span>
+                <span className={`${styles.specVal} ${post.tokens ? "" : styles.muted}`}>
+                  {post.tokens ?? "—"}
+                </span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Drawn</span>
+                <span className={styles.specVal}>{publishedDate ?? "—"}</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Revision</span>
+                <span className={styles.specVal}>A — first honest draft</span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Sources cited</span>
+                <span className={`${styles.specVal} ${styles.muted}`}>
+                  see article
+                </span>
+              </div>
+              <div className={styles.specRow}>
+                <span className={styles.specKey}>Scale</span>
+                <span className={styles.specVal}>1:1, honest</span>
+              </div>
+              <div className={`${styles.specRow} ${styles.specRowFull}`}>
+                <span className={styles.specKey}>Prompt</span>
+                <span className={styles.specVal}>{specPrompt}</span>
+              </div>
+            </div>
+
+            <div className={styles.specFoot}>
+              <span className={styles.specFootSig}>The Editor</span>
+              <span className={styles.muted}>&nbsp;—&nbsp;</span>
+              <span>
+                Countersigned in ink, by a hand that can be sued.
+              </span>
+            </div>
+          </section>
+
+        </article>
+
+        {/* ── References ──────────────────────────────── */}
+        {refs.length > 0 && (
+          <section className={styles.refs} aria-label="References">
+            <div className={styles.refsHead}>
+              <h2>References</h2>
+              <div className={styles.refsHeadLine} />
+            </div>
+            <p className={styles.refsNote}>
+              Citations follow Chicago Manual of Style — Notes &amp; Bibliography (web) format.
+            </p>
+            <ol className={styles.bib}>
+              {refs.map((ref, i) => {
+                const author =
+                  ref.authorLast || ref.authorFirst
+                    ? `${ref.authorLast}${ref.authorFirst ? `, ${ref.authorFirst}` : ""}.`
+                    : null;
+                return (
+                  <li key={i}>
+                    {author && <>{author} </>}
+                    {ref.pageTitle && <>&ldquo;{ref.pageTitle}.&rdquo; </>}
+                    {ref.siteName && <><em>{ref.siteName}</em>. </>}
+                    {ref.date && <>{ref.date}. </>}
+                    {ref.url && <>{ref.url}.</>}
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        )}
+
+        {/* ── Comments ────────────────────────────────── */}
+        <section className={styles.commentsSection}>
+          <CommentSection postId={post.id} initialComments={approvedComments} />
+        </section>
+
+        {/* ── Footer ──────────────────────────────────── */}
+        <footer className={styles.colophon}>
+          <div className={styles.ruleThick} style={{ marginBottom: 14 }} />
+          <div className={styles.colophonTop}>
+            <Link href="/" aria-label="Return to homepage">
+              <RenaiLogo className={styles.footerLogo} />
+            </Link>
+            <p className={styles.colophonMeta}>
+              THE REN<span className={styles.red}>AI</span>SSANCE FAN · FALLIBLY HUMAN &amp; ARTIFICIALLY DIVINE
+              <br />
+              Set in Cormorant, Newsreader &amp; Courier Prime · Provenance kept in ink · AD MMXXVI
+            </p>
+          </div>
+        </footer>
+
+      </div>
+    </div>
   );
 }

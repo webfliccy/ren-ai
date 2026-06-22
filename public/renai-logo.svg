@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="238.62" height="211.20" viewBox="0 0 238.62 211.20">
+  <path d="M 100.28 98.50 L 105.60 16.90 L 110.92 98.50 L 106.85 96.82 L 143.23 67.97 L 114.38 104.35 L 112.70 100.28 L 194.30 105.60 L 112.70 110.92 L 114.38 106.85 L 143.23 143.23 L 106.85 114.38 L 110.92 112.70 L 105.60 194.30 L 100.28 112.70 L 104.35 114.38 L 67.97 143.23 L 96.82 106.85 L 98.50 110.92 L 16.90 105.60 L 98.50 100.28 L 96.82 104.35 L 67.97 67.97 L 104.35 96.82 Z" fill="#3A2E1C"/>
+  <text x="170.30" y="89.60" text-anchor="start" dominant-baseline="middle" font-family="Cormorant Garamond, Georgia, serif" font-style="italic" font-size="32" font-weight="500" fill="#3A2E1C">Ren</text>
+  <text x="170.30" y="127.36" text-anchor="start" dominant-baseline="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="32" font-weight="600" fill="#ED1C2E">AI</text>
+</svg>

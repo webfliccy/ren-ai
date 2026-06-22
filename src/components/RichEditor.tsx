@@ -4,6 +4,7 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { Markdown } from "tiptap-markdown";
 
 interface Props {
   content: string;
@@ -16,6 +17,7 @@ export default function RichEditor({ content, onChange }: Props) {
       StarterKit,
       Placeholder.configure({ placeholder: "Write your post…" }),
       Link.configure({ openOnClick: false }),
+      Markdown.configure({ transformPastedText: true }),
     ],
     content,
     onUpdate({ editor }) {
