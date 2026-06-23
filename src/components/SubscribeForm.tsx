@@ -55,8 +55,7 @@ export default function SubscribeForm({ formClass, inputClass, buttonClass, sour
       <h3>Get each issue, footnotes and all.</h3>
       <p>
         One dispatch when there&apos;s something worth saying — never on a
-        schedule, always with its sources attached. Unsubscribing is one click
-        and zero hard feelings.
+        schedule, always with receipts. Unsubscribing is one click and no hard feelings.
       </p>
       <form className={formClass} onSubmit={handleSubmit}>
       {/* Honeypot: hidden from real users, bots fill it in */}

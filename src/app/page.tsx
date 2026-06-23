@@ -1,5 +1,6 @@
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import SubscribeForm from "@/components/SubscribeForm";
-import { RenaiLogo } from "@/components/RenaiLogo";
 import { db } from "@/db";
 import { issues, posts, tools } from "@/db/schema";
 import type { Issue, Post, Tool } from "@/db/schema";
@@ -203,43 +204,7 @@ export default async function Home() {
     <div className={styles.page}>
       <div className={styles.sheet}>
 
-        {/* ════════ MASTHEAD ════════ */}
-        <header>
-          <div className={styles.topbar}>
-            <div className={styles.topbarLine} />
-            <div className={styles.topbarStamp}>
-              Vol. I · No. {currentIssue?.number ?? "—"}{currentIssue?.title ? ` · ${currentIssue.title.toUpperCase()}` : " · Est. by a Fool with Wi-Fi"} · AD MMXXVI
-            </div>
-            <div className={styles.topbarLine} />
-          </div>
-          <div className={styles.ruleThick} />
-          <div style={{ height: 2 }} />
-          <div className={styles.ruleThin} />
-
-          <div className={styles.masthead}>
-            <Link className={styles.brand} href="/" aria-label="The RenAIssance Fan — home">
-              <RenaiLogo className={styles.brandLogo} />
-              <span className={styles.brandDivider} />
-            </Link>
-            <div className={styles.mastheadTitle}>
-              The Ren<span className={styles.titleAI}>AI</span>ssance Fan
-              <span className={styles.titleSub}>
-                Fallibly Human &amp; Artificially Divine
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.ruleThin} />
-          <div style={{ height: 2 }} />
-          <div className={styles.ruleThick} />
-
-          <nav className={styles.nav}>
-            <a href="/" className={styles.navActive}>Dispatches</a>
-            <a href="#tools">Tools &amp; Contraptions</a>
-            <a href="/issues">The Archive</a>
-            <a href="/about">About the Fan</a>
-          </nav>
-        </header>
+        <SiteHeader activePath="/" />
 
         {/* ════════ LEAD / HERO ════════ */}
         <section className={styles.leadGrid} data-screen-label="Lead feature">
@@ -515,46 +480,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ════════ FOOTER ════════ */}
-        <footer className={styles.colophon} data-screen-label="Footer">
-          <div className={styles.colophonTop}>
-            <div className={styles.colophonLhs}>
-              <RenaiLogo className={styles.footerLogo} />
-              <span className={styles.colophonTagline}>
-                Fallibly human, artificially divine.
-              </span>
-            </div>
-            <div className={styles.colophonCols}>
-              <div className={styles.colophonCol}>
-                <h5>The Paper</h5>
-                <a href="/">Dispatches</a>
-                <a href="#tools">Tools &amp; Contraptions</a>
-                <a href="/issues">The Archive</a>
-              </div>
-              <div className={styles.colophonCol}>
-                <h5>The Fan</h5>
-                <a href="/about">About</a>
-                <a href="#">Colophon</a>
-                <a href="#">How this is made</a>
-                <a href="#">Corrections</a>
-              </div>
-              <div className={styles.colophonCol}>
-                <h5>Elsewhere</h5>
-                <a href="/feed.xml">RSS, the honest feed</a>
-                <a href="#">Email the Editor</a>
-                <a href="#">Source &amp; licence</a>
-              </div>
-            </div>
-          </div>
-          <div className={styles.colophonMeta}>
-            THE REN<span className={styles.red}>AI</span>SSANCE FAN · VOL. I · AD
-            MMXXVI · Set in Cormorant, Newsreader &amp; Courier Prime
-            <br />
-            Every issue carries its provenance in ink. The machine helps; the human
-            signs.{" "}
-            <span className={styles.red}>Sources kept, always.</span>
-          </div>
-        </footer>
+        <SiteFooter />
 
       </div>
     </div>

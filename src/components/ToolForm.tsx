@@ -5,13 +5,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const CATEGORIES = [
-  "Writing",
-  "Research",
-  "Fact-checking",
-  "Productivity",
-  "Prompt craft",
-  "Visualisation",
-  "Other",
+  "Command Line Interface",
+  "AI Agent",
+  "Workflow",
+  "Skill",
+  "Prompt",
 ];
 
 export default function ToolForm({

@@ -1,7 +1,9 @@
-import { RenaiLogo } from "@/components/RenaiLogo";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
+import SubscribeForm from "@/components/SubscribeForm";
 import { db } from "@/db";
-import { issues, posts, resources } from "@/db/schema";
-import type { Post } from "@/db/schema";
+import { issues, posts, tools } from "@/db/schema";
+import type { Post, Tool } from "@/db/schema";
 import { and, asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -31,6 +33,15 @@ function firstTag(tagsJson: string): string {
 
 function padCount(n: number): string {
   return String(n).padStart(2, "0");
+}
+
+function refCount(refsJson: string): number {
+  try {
+    const arr = JSON.parse(refsJson);
+    return Array.isArray(arr) ? arr.length : 0;
+  } catch {
+    return 0;
+  }
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -75,6 +86,39 @@ function DispatchCard({ post }: { post: Post }) {
   );
 }
 
+function ToolCard({ tool }: { tool: Tool }) {
+  const inner = (
+    <>
+      {tool.category && (
+        <div className={styles.toolHead}>
+          <span className={styles.toolVersion}>{tool.category}</span>
+        </div>
+      )}
+      {tool.illustration && (
+        <div
+          className={styles.toolSvg}
+          dangerouslySetInnerHTML={{ __html: tool.illustration }}
+        />
+      )}
+      <div className={styles.toolBody}>
+        <h4>{tool.name}</h4>
+        {tool.descriptor && <p>{tool.descriptor}</p>}
+        <span className={styles.toolCta}>
+          Open the tool <span className={styles.arrow}>→</span>
+        </span>
+      </div>
+    </>
+  );
+
+  return tool.url ? (
+    <a className={styles.tool} href={tool.url} target="_blank" rel="noopener noreferrer">
+      {inner}
+    </a>
+  ) : (
+    <div className={styles.tool}>{inner}</div>
+  );
+}
+
 export default async function IssuePage({ params }: Props) {
   const { number } = await params;
   const [issue] = await db
@@ -84,7 +128,7 @@ export default async function IssuePage({ params }: Props) {
 
   if (!issue) notFound();
 
-  const [issuePosts, issueResources] = await Promise.all([
+  const [issuePosts, issueTools] = await Promise.all([
     db
       .select()
       .from(posts)
@@ -92,9 +136,9 @@ export default async function IssuePage({ params }: Props) {
       .orderBy(desc(posts.publishedAt)),
     db
       .select()
-      .from(resources)
-      .where(eq(resources.issueId, issue.id))
-      .orderBy(asc(resources.createdAt)),
+      .from(tools)
+      .where(and(eq(tools.issueId, issue.id), eq(tools.status, "published")))
+      .orderBy(asc(tools.sortOrder), asc(tools.createdAt)),
   ]);
 
   const lead: Post | null = issuePosts[0] ?? null;
@@ -106,56 +150,10 @@ export default async function IssuePage({ params }: Props) {
     <div className={styles.page}>
       <div className={styles.sheet}>
 
-        {/* ════════ MASTHEAD ════════ */}
-        <header>
-          <div className={styles.topbar}>
-            <div className={styles.topbarLine} />
-            <div className={styles.topbarStamp}>
-              Vol. I · No. {issue.number} · {issue.title.toUpperCase()} · AD MMXXVI
-            </div>
-            <div className={styles.topbarLine} />
-          </div>
-          <div className={styles.ruleThick} />
-          <div style={{ height: 2 }} />
-          <div className={styles.ruleThin} />
-
-          <div className={styles.masthead}>
-            <Link className={styles.brand} href="/" aria-label="The RenAIssance Fan — home">
-              <RenaiLogo className={styles.brandLogo} />
-              <span className={styles.brandDivider} />
-            </Link>
-            <div className={styles.mastheadTitle}>
-              The Ren<span className={styles.titleAI}>AI</span>ssance Fan
-              <span className={styles.titleSub}>
-                Fallibly Human &amp; Artificially Divine
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.ruleThin} />
-          <div style={{ height: 2 }} />
-          <div className={styles.ruleThick} />
-
-          <nav className={styles.nav}>
-            <Link href="/">Dispatches</Link>
-            <Link href="/issues" className={styles.navActive}>The Archive</Link>
-            <Link href="/about">About the Fan</Link>
-          </nav>
-        </header>
-
-        {/* ════════ ISSUE HEADER ════════ */}
-        <div className={styles.issueHeader}>
-          <div className={styles.issueNum}>Issue № {padCount(issue.number)}</div>
-          <h2 className={styles.issueTitle}>{issue.title}</h2>
-          {issue.description && (
-            <p className={styles.issueDesc}>{issue.description}</p>
-          )}
-          <div className={styles.issueMeta}>
-            {issue.publishedAt ? formatDate(new Date(issue.publishedAt)) : ""}
-            {" · "}
-            {padCount(issuePosts.length)} dispatches
-          </div>
-        </div>
+        <SiteHeader
+          activePath="/issues"
+          stamp={`Vol. I · No. ${issue.number} · ${issue.title.toUpperCase()} · AD MMXXVI`}
+        />
 
         {/* ════════ LEAD / HERO ════════ */}
         {lead && (
@@ -204,17 +202,57 @@ export default async function IssuePage({ params }: Props) {
               </Link>
             </div>
 
-            {sidebarPosts.length > 0 && (
-              <aside className={styles.leadAside}>
-                <div className={styles.asideLabel}>
-                  <span className={styles.asideLabelText}>Also in this issue</span>
-                  <span className={styles.asideLabelLine} />
+            <aside className={styles.leadAside}>
+              <div className={styles.miniSpec}>
+                <div className={styles.miniSpecHead}>
+                  <span className={styles.miniSpecTitle}>Spec Sheet</span>
+                  <span className={styles.miniSpecFig}>FIG. 0 — PROVENANCE</span>
                 </div>
-                {sidebarPosts.map((post, i) => (
-                  <SidebarPost key={post.id} post={post} index={i} />
-                ))}
-              </aside>
-            )}
+                <div className={styles.specRow}>
+                  <span className={styles.specKey}>Author</span>
+                  <span className={styles.specVal}>
+                    Human <span className={styles.red}>(mostly)</span>
+                  </span>
+                </div>
+                <div className={styles.specRow}>
+                  <span className={styles.specKey}>Model</span>
+                  <span className={styles.specVal}>Claude Sonnet 4.6</span>
+                </div>
+                <div className={styles.specRow}>
+                  <span className={styles.specKey}>Tokens</span>
+                  <span className={styles.specVal}>
+                    {lead.tokens ?? <span className={styles.muted}>—</span>}
+                  </span>
+                </div>
+                <div className={styles.specRow}>
+                  <span className={styles.specKey}>Sources</span>
+                  <span className={styles.specVal}>
+                    {(() => {
+                      const n = refCount(lead.references);
+                      return n > 0
+                        ? <>{n} <span className={styles.red}>(all cited)</span></>
+                        : <span className={styles.muted}>—</span>;
+                    })()}
+                  </span>
+                </div>
+                <div className={styles.specRow}>
+                  <span className={styles.specKey}>Scale</span>
+                  <span className={styles.specVal}>1:1, honest</span>
+                </div>
+              </div>
+
+              {sidebarPosts.length > 0 && (
+                <>
+                  <div className={styles.asideLabel}>
+                    <span className={styles.asideLabelText}>Also in this issue</span>
+                    <span className={styles.asideLabelLine} />
+                  </div>
+                  {sidebarPosts.map((post, i) => (
+                    <SidebarPost key={post.id} post={post} index={i} />
+                  ))}
+                </>
+              )}
+            </aside>
           </section>
         )}
 
@@ -238,74 +276,40 @@ export default async function IssuePage({ params }: Props) {
           </section>
         )}
 
-        {/* ════════ RESOURCES ════════ */}
-        {issueResources.length > 0 && (
-          <section data-screen-label="Resources">
+        {/* ════════ TOOLS & CONTRAPTIONS ════════ */}
+        {issueTools.length > 0 && (
+          <section id="tools" data-screen-label="Tools">
             <div className={styles.sectionHead}>
-              <h3>Further Reading</h3>
+              <h3>Tools &amp; Contraptions</h3>
               <span className={styles.sectionDesc}>
-                links, books, and tools curated for this issue
+                small machines that make the big machine behave
               </span>
               <span className={styles.sectionCount}>
-                {padCount(issueResources.length)} ITEMS
+                {padCount(issueTools.length)} IN THE WORKSHOP
               </span>
             </div>
             <div className={styles.tools}>
-              {issueResources.map((resource) => (
-                <div key={resource.id} className={styles.tool}>
-                  <div className={styles.toolHead}>
-                    <span className={styles.toolTitle}>{resource.title}</span>
-                    <span className={styles.toolVersion}>{resource.type}</span>
-                  </div>
-                  <div className={styles.toolBody}>
-                    <h4>{resource.title}</h4>
-                    {resource.description && <p>{resource.description}</p>}
-                    {resource.url && (
-                      <a
-                        href={resource.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.toolCta}
-                      >
-                        Open <span className={styles.arrow}>→</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
+              {issueTools.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
               ))}
             </div>
           </section>
         )}
 
-        {/* ════════ FOOTER ════════ */}
-        <footer className={styles.colophon} data-screen-label="Footer">
-          <div className={styles.colophonTop}>
-            <div className={styles.colophonLhs}>
-              <RenaiLogo className={styles.footerLogo} />
-              <span className={styles.colophonTagline}>
-                Fallibly human, artificially divine.
-              </span>
-            </div>
-            <div className={styles.colophonCols}>
-              <div className={styles.colophonCol}>
-                <h5>The Paper</h5>
-                <Link href="/">Current Issue</Link>
-                <Link href="/issues">The Archive</Link>
-              </div>
-              <div className={styles.colophonCol}>
-                <h5>The Fan</h5>
-                <Link href="/about">About</Link>
-              </div>
-            </div>
+        {/* ════════ SIGN UP ════════ */}
+        <section className={styles.signup} data-screen-label="Subscribe">
+          <div className={styles.signupEye}>The Standing Invitation</div>
+          <SubscribeForm
+            formClass={styles.signupForm}
+            inputClass={styles.signupInput}
+            buttonClass={styles.signupButton}
+          />
+          <div className={styles.signupFine}>
+            No tracking pixels. No model trained on your inbox. Just letters.
           </div>
-          <div className={styles.colophonMeta}>
-            THE REN<span className={styles.red}>AI</span>SSANCE FAN · VOL. I · ISSUE №{" "}
-            {padCount(issue.number)} · AD MMXXVI
-            <br />
-            Every issue carries its provenance in ink. The machine helps; the human signs.{" "}
-            <span className={styles.red}>Sources kept, always.</span>
-          </div>
-        </footer>
+        </section>
+
+        <SiteFooter />
 
       </div>
     </div>

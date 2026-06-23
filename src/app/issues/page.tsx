@@ -1,4 +1,5 @@
-import { RenaiLogo } from "@/components/RenaiLogo";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
 import { issues, posts } from "@/db/schema";
 import { and, desc, eq, lt } from "drizzle-orm";
@@ -34,37 +35,7 @@ export default async function ArchivePage() {
     <div className={styles.page}>
       <div className={styles.sheet}>
 
-        <div className={styles.topbar}>
-          <div className={styles.topbarLine} />
-          <span className={styles.topbarStamp}>
-            The RenAIssance Fan — The Archive
-          </span>
-          <div className={styles.topbarLine} />
-        </div>
-
-        <div className={styles.ruleThick} />
-        <div style={{ height: 2 }} />
-        <div className={styles.ruleThin} />
-
-        <header className={styles.masthead}>
-          <Link href="/" className={styles.brand}>
-            <RenaiLogo className={styles.brandLogo} />
-            <div className={styles.brandDivider} />
-          </Link>
-          <p className={styles.mastheadTitle}>
-            The Ren<span className={styles.titleAI}>AI</span>ssance Fan
-          </p>
-        </header>
-
-        <div className={styles.ruleThin} />
-        <div style={{ height: 2 }} />
-        <div className={styles.ruleThick} />
-
-        <nav className={styles.nav}>
-          <Link href="/">Dispatches</Link>
-          <Link href="/issues" style={{ fontWeight: 600 }}>The Archive</Link>
-          <Link href="/about">About the Fan</Link>
-        </nav>
+        <SiteHeader activePath="/issues" />
 
         <div style={{ height: 4 }} />
         <div className={styles.ruleThin} />
@@ -159,19 +130,7 @@ export default async function ArchivePage() {
           )}
         </article>
 
-        <footer className={styles.colophon}>
-          <div className={styles.ruleThick} style={{ marginBottom: 14 }} />
-          <div className={styles.colophonTop}>
-            <Link href="/" aria-label="Return to homepage">
-              <RenaiLogo className={styles.footerLogo} />
-            </Link>
-            <p className={styles.colophonMeta}>
-              THE REN<span className={styles.red}>AI</span>SSANCE FAN · FALLIBLY HUMAN &amp; ARTIFICIALLY DIVINE
-              <br />
-              Set in Cormorant, Newsreader &amp; Courier Prime · Provenance kept in ink · AD MMXXVI
-            </p>
-          </div>
-        </footer>
+        <SiteFooter />
 
       </div>
     </div>
