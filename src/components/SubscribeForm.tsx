@@ -5,32 +5,87 @@ interface Props {
   formClass: string;
   inputClass: string;
   buttonClass: string;
+  source?: string;
 }
 
-export default function SubscribeForm({ formClass, inputClass, buttonClass }: Props) {
-  const [submitted, setSubmitted] = useState(false);
-  const [email, setEmail] = useState("");
+type State = "idle" | "loading" | "done" | "error";
 
-  function handleSubmit(e: React.FormEvent) {
+export default function SubscribeForm({ formClass, inputClass, buttonClass, source = "homepage" }: Props) {
+  const [state, setState] = useState<State>("idle");
+  const [email, setEmail] = useState("");
+  const [honeypot, setHoneypot] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
-    setEmail("");
+    if (state === "loading" || state === "done") return;
+    setState("loading");
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, website: honeypot, source }),
+      });
+
+      if (!res.ok && res.status !== 201) {
+        setState("error");
+        return;
+      }
+
+      setState("done");
+      setEmail("");
+    } catch {
+      setState("error");
+    }
   }
 
+  if (state === "done") {
+    return (
+      <>
+        <h3>You&rsquo;re in.</h3>
+        <p>The next dispatch will find you when it&rsquo;s ready.</p>
+      </>
+    );
+  }
+
+  const label = state === "loading" ? "Logging…" : state === "error" ? "Try again" : "Sign the register";
+
   return (
-    <form className={formClass} onSubmit={handleSubmit}>
+    <>
+      <h3>Get each issue, footnotes and all.</h3>
+      <p>
+        One dispatch when there&apos;s something worth saying — never on a
+        schedule, always with its sources attached. Unsubscribing is one click
+        and zero hard feelings.
+      </p>
+      <form className={formClass} onSubmit={handleSubmit}>
+      {/* Honeypot: hidden from real users, bots fill it in */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+        <label htmlFor="subscribe-website">Website</label>
+        <input
+          id="subscribe-website"
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+        />
+      </div>
       <input
         type="email"
         placeholder="you@somewhere.real"
         aria-label="Email address"
         required
+        disabled={state === "loading"}
         className={inputClass}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <button type="submit" className={buttonClass}>
-        {submitted ? "Logged ✓" : "Sign the register"}
+      <button type="submit" className={buttonClass} disabled={state === "loading"}>
+        {label}
       </button>
     </form>
+    </>
   );
 }

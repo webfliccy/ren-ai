@@ -505,12 +505,6 @@ export default async function Home() {
         {/* ════════ SIGN UP ════════ */}
         <section className={styles.signup} data-screen-label="Subscribe">
           <div className={styles.signupEye}>The Standing Invitation</div>
-          <h3>Get each issue, footnotes and all.</h3>
-          <p>
-            One dispatch when there&apos;s something worth saying — never on a
-            schedule, always with its sources attached. Unsubscribing is one click
-            and zero hard feelings.
-          </p>
           <SubscribeForm
             formClass={styles.signupForm}
             inputClass={styles.signupInput}

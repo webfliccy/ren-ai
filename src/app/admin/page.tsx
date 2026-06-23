@@ -1,13 +1,13 @@
 import CommentModerationCard from "@/components/CommentModerationCard";
 import { db } from "@/db";
-import { comments, issues, posts, tools, users } from "@/db/schema";
+import { comments, issues, posts, subscribers, tools, users } from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = { title: "Admin — ren·ai" };
 
 export default async function AdminPage() {
-  const [allIssues, allPosts, allTools, pendingComments] = await Promise.all([
+  const [allIssues, allPosts, allTools, pendingComments, allSubscribers] = await Promise.all([
     db.select().from(issues).orderBy(desc(issues.number)),
     db.select().from(posts).orderBy(desc(posts.updatedAt)),
     db
@@ -36,6 +36,7 @@ export default async function AdminPage() {
       .leftJoin(posts, eq(comments.postId, posts.id))
       .where(eq(comments.approved, false))
       .orderBy(asc(comments.createdAt)),
+    db.select().from(subscribers).orderBy(desc(subscribers.subscribedAt)),
   ]);
 
   return (
@@ -189,6 +190,35 @@ export default async function AdminPage() {
                   }`}
                 >
                   {post.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          Subscribers
+          <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+            {allSubscribers.length}
+          </span>
+        </h2>
+        {allSubscribers.length === 0 ? (
+          <p className="text-gray-400">No subscribers yet.</p>
+        ) : (
+          <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
+            {allSubscribers.map((sub) => (
+              <div key={sub.id} className="flex items-center justify-between px-5 py-3">
+                <span className="font-mono text-sm text-gray-900">{sub.email}</span>
+                <span className="text-xs text-gray-400">
+                  {sub.subscribedAt
+                    ? new Intl.DateTimeFormat("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      }).format(sub.subscribedAt)
+                    : "—"}
                 </span>
               </div>
             ))}

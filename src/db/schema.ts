@@ -191,3 +191,16 @@ export const sitePages = sqliteTable("site_page", {
 });
 
 export type SitePage = typeof sitePages.$inferSelect;
+
+// ── Subscribers ───────────────────────────────────────────────────────────────
+
+export const subscribers = sqliteTable("subscriber", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  email: text("email").notNull().unique(),
+  subscribedAt: integer("subscribed_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  source: text("source").notNull().default("homepage"),
+});
+
+export type Subscriber = typeof subscribers.$inferSelect;
