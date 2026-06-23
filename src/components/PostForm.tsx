@@ -1,6 +1,6 @@
 "use client";
 
-import { Post } from "@/db/schema";
+import { Issue, Post } from "@/db/schema";
 import { ChicagoWebRef, EMPTY_REF, parseRefs } from "@/lib/references";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -25,10 +25,11 @@ function parseTags(raw: string): string[] {
   }
 }
 
-export default function PostForm({ post }: { post?: Post }) {
+export default function PostForm({ post, issues = [] }: { post?: Post; issues?: Pick<Issue, "id" | "number" | "title">[] }) {
   const router = useRouter();
   const isEditing = !!post;
 
+  const [issueId, setIssueId] = useState<number | null>(post?.issueId ?? null);
   const [title, setTitle] = useState(post?.title ?? "");
   const [slug, setSlug] = useState(post?.slug ?? "");
   const [content, setContent] = useState(post?.content ?? "");
@@ -79,6 +80,7 @@ export default function PostForm({ post }: { post?: Post }) {
 
     const payload = {
       title, slug, content, excerpt, prompt: prompt || null, figSvg: figSvg || null, status, tags,
+      issueId: issueId ?? null,
       tokens: tokens || null,
       references,
       seoTitle: seoTitle || null,
@@ -309,16 +311,34 @@ export default function PostForm({ post }: { post?: Post }) {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">Status</label>
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
-        >
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-        </select>
+      <div className="flex flex-wrap items-center gap-6">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "draft" | "published")}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+          >
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">Issue</label>
+          <select
+            value={issueId ?? ""}
+            onChange={(e) => setIssueId(e.target.value ? Number(e.target.value) : null)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+          >
+            <option value="">— No issue —</option>
+            {issues.map((issue) => (
+              <option key={issue.id} value={issue.id}>
+                № {issue.number} — {issue.title}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="rounded-md border border-gray-200">

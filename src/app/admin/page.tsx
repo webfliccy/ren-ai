@@ -1,14 +1,28 @@
 import CommentModerationCard from "@/components/CommentModerationCard";
 import { db } from "@/db";
-import { comments, posts, users } from "@/db/schema";
+import { comments, issues, posts, tools, users } from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = { title: "Admin — ren·ai" };
 
 export default async function AdminPage() {
-  const [allPosts, pendingComments] = await Promise.all([
+  const [allIssues, allPosts, allTools, pendingComments] = await Promise.all([
+    db.select().from(issues).orderBy(desc(issues.number)),
     db.select().from(posts).orderBy(desc(posts.updatedAt)),
+    db
+      .select({
+        id: tools.id,
+        issueId: tools.issueId,
+        name: tools.name,
+        category: tools.category,
+        status: tools.status,
+        issueNumber: issues.number,
+        issueTitle: issues.title,
+      })
+      .from(tools)
+      .leftJoin(issues, eq(tools.issueId, issues.id))
+      .orderBy(desc(issues.number), asc(tools.sortOrder)),
     db
       .select({
         id: comments.id,
@@ -34,6 +48,93 @@ export default async function AdminPage() {
           </button>
         </form>
       </div>
+
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Issues</h2>
+          <Link
+            href="/admin/issues/new"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            New issue
+          </Link>
+        </div>
+        {allIssues.length === 0 ? (
+          <p className="text-gray-400">No issues yet.</p>
+        ) : (
+          <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
+            {allIssues.map((issue) => (
+              <div key={issue.id} className="flex items-center justify-between px-5 py-4">
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/issues/${issue.id}/edit`}
+                    className="block truncate font-medium text-gray-900 hover:text-blue-600"
+                  >
+                    № {issue.number} — {issue.title}
+                  </Link>
+                  {issue.description && (
+                    <p className="mt-0.5 truncate text-xs text-gray-400">{issue.description}</p>
+                  )}
+                </div>
+                <span
+                  className={`ml-4 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    issue.status === "published"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {issue.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Tools &amp; Contraptions</h2>
+          <Link
+            href="/admin/tools/new"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            New tool
+          </Link>
+        </div>
+        {allTools.length === 0 ? (
+          <p className="text-gray-400">No tools yet.</p>
+        ) : (
+          <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
+            {allTools.map((tool) => (
+              <div key={tool.id} className="flex items-center justify-between px-5 py-4">
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/tools/${tool.id}/edit`}
+                    className="block truncate font-medium text-gray-900 hover:text-blue-600"
+                  >
+                    {tool.name}
+                  </Link>
+                  <p className="mt-0.5 truncate text-xs text-gray-400">
+                    {tool.category ? `${tool.category} · ` : ""}
+                    {tool.issueNumber !== null && tool.issueNumber !== undefined
+                      ? `Issue № ${tool.issueNumber} — ${tool.issueTitle}`
+                      : "No issue"}
+                  </p>
+                </div>
+                <span
+                  className={`ml-4 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    tool.status === "published"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {tool.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section>
         <div className="mb-4 flex items-center justify-between">

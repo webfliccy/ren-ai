@@ -1,9 +1,9 @@
 import SubscribeForm from "@/components/SubscribeForm";
 import { RenaiLogo } from "@/components/RenaiLogo";
 import { db } from "@/db";
-import { posts } from "@/db/schema";
-import type { Post } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { issues, posts, tools } from "@/db/schema";
+import type { Issue, Post, Tool } from "@/db/schema";
+import { and, asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import styles from "./homepage.module.css";
 
@@ -42,6 +42,41 @@ function refCount(refsJson: string): number {
   } catch {
     return 0;
   }
+}
+
+// ── Components ───────────────────────────────────────────────────────────────
+
+function ToolCard({ tool }: { tool: Tool }) {
+  const inner = (
+    <>
+      {tool.category && (
+        <div className={styles.toolHead}>
+          <span className={styles.toolVersion}>{tool.category}</span>
+        </div>
+      )}
+      {tool.illustration && (
+        <div
+          className={styles.toolSvg}
+          dangerouslySetInnerHTML={{ __html: tool.illustration }}
+        />
+      )}
+      <div className={styles.toolBody}>
+        <h4>{tool.name}</h4>
+        {tool.descriptor && <p>{tool.descriptor}</p>}
+        <span className={styles.toolCta}>
+          Open the tool <span className={styles.arrow}>→</span>
+        </span>
+      </div>
+    </>
+  );
+
+  return tool.url ? (
+    <a className={styles.tool} href={tool.url} target="_blank" rel="noopener noreferrer">
+      {inner}
+    </a>
+  ) : (
+    <div className={styles.tool}>{inner}</div>
+  );
 }
 
 // ── Static placeholder content shown when the DB is empty ───────────────────
@@ -94,7 +129,7 @@ const PLACEHOLDER_DISPATCHES = [
   },
 ];
 
-// ── Components ───────────────────────────────────────────────────────────────
+// ── Page components ──────────────────────────────────────────────────────────
 
 function SidebarPost({ post, index }: { post: Post; index: number }) {
   return (
@@ -130,12 +165,34 @@ function DispatchCard({ post }: { post: Post }) {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
-  const allPosts = await db
+  const [currentIssue]: (Issue | undefined)[] = await db
     .select()
-    .from(posts)
-    .where(eq(posts.status, "published"))
-    .orderBy(desc(posts.publishedAt))
-    .limit(7);
+    .from(issues)
+    .where(eq(issues.status, "published"))
+    .orderBy(desc(issues.number))
+    .limit(1);
+
+  const [allPosts, issueTools] = await Promise.all([
+    currentIssue
+      ? db
+          .select()
+          .from(posts)
+          .where(and(eq(posts.issueId, currentIssue.id), eq(posts.status, "published")))
+          .orderBy(desc(posts.publishedAt))
+      : db
+          .select()
+          .from(posts)
+          .where(eq(posts.status, "published"))
+          .orderBy(desc(posts.publishedAt))
+          .limit(7),
+    currentIssue
+      ? db
+          .select()
+          .from(tools)
+          .where(and(eq(tools.issueId, currentIssue.id), eq(tools.status, "published")))
+          .orderBy(asc(tools.sortOrder), asc(tools.createdAt))
+      : Promise.resolve([] as Tool[]),
+  ]);
 
   const lead: Post | null = allPosts[0] ?? null;
   const sidebarPosts = allPosts.slice(1, 4);
@@ -151,7 +208,7 @@ export default async function Home() {
           <div className={styles.topbar}>
             <div className={styles.topbarLine} />
             <div className={styles.topbarStamp}>
-              Vol. I · No. 1 · Est. by a Fool with Wi-Fi · AD MMXXVI
+              Vol. I · No. {currentIssue?.number ?? "—"}{currentIssue?.title ? ` · ${currentIssue.title.toUpperCase()}` : " · Est. by a Fool with Wi-Fi"} · AD MMXXVI
             </div>
             <div className={styles.topbarLine} />
           </div>
@@ -179,8 +236,7 @@ export default async function Home() {
           <nav className={styles.nav}>
             <a href="/" className={styles.navActive}>Dispatches</a>
             <a href="#tools">Tools &amp; Contraptions</a>
-            <a href="#register">The Register</a>
-            <a href="#">The Archive</a>
+            <a href="/issues">The Archive</a>
             <a href="/about">About the Fan</a>
           </nav>
         </header>
@@ -343,172 +399,106 @@ export default async function Home() {
             <span className={styles.sectionDesc}>
               small machines that make the big machine behave
             </span>
-            <span className={styles.sectionCount}>03 IN THE WORKSHOP</span>
+            <span className={styles.sectionCount}>
+              {issueTools.length > 0
+                ? `${padCount(issueTools.length)} IN THE WORKSHOP`
+                : "03 IN THE WORKSHOP"}
+            </span>
           </div>
           <div className={styles.tools}>
-
-            <a className={styles.tool} href="#">
-              <div className={styles.toolHead}>
-                <span className={styles.toolTitle}>The Provenance Stamp</span>
-                <span className={styles.toolVersion}>v0.3</span>
-              </div>
-              <div className={styles.toolSvg}>
-                <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
-                  <rect x="22" y="18" width="106" height="74" rx="3" fill="#FAF6EE" stroke="#3A2E1C" strokeWidth="1.1"/>
-                  <line x1="22" y1="34" x2="128" y2="34" stroke="#3A2E1C" strokeWidth="0.8"/>
-                  <text x="30" y="30" fontFamily="'Courier Prime', monospace" fontSize="6.5" fill="#3A2E1C" opacity="0.7">PROVENANCE</text>
-                  <g fontFamily="'Courier Prime', monospace" fontSize="6" fill="#3A2E1C" opacity="0.55">
-                    <text x="30" y="48">AUTHOR ........</text>
-                    <text x="30" y="60">MODEL .........</text>
-                    <text x="30" y="72">TOKENS ........</text>
-                    <text x="30" y="84">PROMPT ........</text>
-                  </g>
-                  <circle cx="108" cy="74" r="15" fill="none" stroke="#ED1C2E" strokeWidth="1.4"/>
-                  <circle cx="108" cy="74" r="11" fill="none" stroke="#ED1C2E" strokeWidth="0.6" strokeDasharray="2 2"/>
-                  <text x="108" y="77" fontFamily="'Cormorant Garamond', serif" fontSize="9" fontStyle="italic" fontWeight="600" fill="#ED1C2E" textAnchor="middle">RenAI</text>
-                </svg>
-              </div>
-              <div className={styles.toolBody}>
-                <h4>The Provenance Stamp</h4>
-                <p>
-                  Paste anything a model helped you make. It returns the spec
-                  sheet — author, version, tokens, prompt — ready to print in
-                  ink.
-                </p>
-                <span className={styles.toolCta}>
-                  Open the tool <span className={styles.arrow}>→</span>
-                </span>
-              </div>
-            </a>
-
-            <a className={styles.tool} href="#">
-              <div className={styles.toolHead}>
-                <span className={styles.toolTitle}>Footnote Forge</span>
-                <span className={styles.toolVersion}>v0.2</span>
-              </div>
-              <div className={styles.toolSvg}>
-                <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
-                  <path d="M40 24 H110 M40 38 H110 M40 52 H92" stroke="#3A2E1C" strokeWidth="1.4" strokeLinecap="round"/>
-                  <text x="40" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[1]</text>
-                  <text x="62" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[2]</text>
-                  <text x="84" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[3]</text>
-                  <line x1="40" y1="88" x2="110" y2="88" stroke="#3A2E1C" strokeWidth="0.6"/>
-                  <text x="40" y="100" fontFamily="'Courier Prime', monospace" fontSize="5.5" fill="#3A2E1C" opacity="0.55">claims → checkable sources</text>
-                </svg>
-              </div>
-              <div className={styles.toolBody}>
-                <h4>Footnote Forge</h4>
-                <p>
-                  Feed it a confident paragraph. It hunts down a real citation
-                  for every claim — and flags the ones it can&apos;t, instead of
-                  inventing them.
-                </p>
-                <span className={styles.toolCta}>
-                  Open the tool <span className={styles.arrow}>→</span>
-                </span>
-              </div>
-            </a>
-
-            <a className={styles.tool} href="#">
-              <div className={styles.toolHead}>
-                <span className={styles.toolTitle}>The Bluff Detector</span>
-                <span className={styles.toolVersion}>v0.1</span>
-              </div>
-              <div className={styles.toolSvg}>
-                <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
-                  <circle cx="62" cy="55" r="30" fill="none" stroke="#3A2E1C" strokeWidth="1.2"/>
-                  <line x1="84" y1="77" x2="104" y2="97" stroke="#3A2E1C" strokeWidth="2.4" strokeLinecap="round"/>
-                  <circle cx="62" cy="55" r="3" fill="#ED1C2E"/>
-                  <path d="M48 55 Q62 42 76 55" stroke="#ED1C2E" strokeWidth="1.2" fill="none" strokeDasharray="2 2"/>
-                  <text x="62" y="92" fontFamily="'Courier Prime', monospace" fontSize="6" fill="#ED1C2E" textAnchor="middle">SOURCE NOT FOUND</text>
-                </svg>
-              </div>
-              <div className={styles.toolBody}>
-                <h4>The Bluff Detector</h4>
-                <p>
-                  Reads a model&apos;s answer and underlines every spot where it
-                  sounds certain but has nothing underneath. A confidence X-ray.
-                </p>
-                <span className={styles.toolCta}>
-                  Open the tool <span className={styles.arrow}>→</span>
-                </span>
-              </div>
-            </a>
-
-          </div>
-        </section>
-
-        {/* ════════ THE REGISTER ════════ */}
-        <section id="register" data-screen-label="The Register">
-          <div className={styles.register}>
-            <div className={styles.registerHead}>
-              <span className={styles.registerHeadTitle}>The Register</span>
-              <span className={styles.registerHeadSub}>
-                A standing ledger of what the machine claimed, and whether it held up
-              </span>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th style={{ width: "42%" }}>Claim, as confidently stated</th>
-                  <th>Offered source</th>
-                  <th className={styles.rAlign}>Verdict</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <span className={styles.registerRowTitle}>
-                      &ldquo;Newton coined &lsquo;standing on shoulders of giants.&rsquo;&rdquo;
+            {issueTools.length > 0 ? (
+              issueTools.map((tool) => <ToolCard key={tool.id} tool={tool} />)
+            ) : (
+              <>
+                <a className={styles.tool} href="#">
+                  <div className={styles.toolHead}>
+                    <span className={styles.toolTitle}>The Provenance Stamp</span>
+                    <span className={styles.toolVersion}>v0.3</span>
+                  </div>
+                  <div className={styles.toolSvg}>
+                    <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
+                      <rect x="22" y="18" width="106" height="74" rx="3" fill="#FAF6EE" stroke="#3A2E1C" strokeWidth="1.1"/>
+                      <line x1="22" y1="34" x2="128" y2="34" stroke="#3A2E1C" strokeWidth="0.8"/>
+                      <text x="30" y="30" fontFamily="'Courier Prime', monospace" fontSize="6.5" fill="#3A2E1C" opacity="0.7">PROVENANCE</text>
+                      <g fontFamily="'Courier Prime', monospace" fontSize="6" fill="#3A2E1C" opacity="0.55">
+                        <text x="30" y="48">AUTHOR ........</text>
+                        <text x="30" y="60">MODEL .........</text>
+                        <text x="30" y="72">TOKENS ........</text>
+                        <text x="30" y="84">PROMPT ........</text>
+                      </g>
+                      <circle cx="108" cy="74" r="15" fill="none" stroke="#ED1C2E" strokeWidth="1.4"/>
+                      <circle cx="108" cy="74" r="11" fill="none" stroke="#ED1C2E" strokeWidth="0.6" strokeDasharray="2 2"/>
+                      <text x="108" y="77" fontFamily="'Cormorant Garamond', serif" fontSize="9" fontStyle="italic" fontWeight="600" fill="#ED1C2E" textAnchor="middle">RenAI</text>
+                    </svg>
+                  </div>
+                  <div className={styles.toolBody}>
+                    <h4>The Provenance Stamp</h4>
+                    <p>
+                      Paste anything a model helped you make. It returns the spec
+                      sheet — author, version, tokens, prompt — ready to print in
+                      ink.
+                    </p>
+                    <span className={styles.toolCta}>
+                      Open the tool <span className={styles.arrow}>→</span>
                     </span>
-                  </td>
-                  <td>Correspondence, 1675</td>
-                  <td className={styles.rAlign}>
-                    <span className={styles.red}>PARTLY — he borrowed it</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span className={styles.registerRowTitle}>
-                      &ldquo;Borges wrote a story that contains every book.&rdquo;
+                  </div>
+                </a>
+
+                <a className={styles.tool} href="#">
+                  <div className={styles.toolHead}>
+                    <span className={styles.toolTitle}>Footnote Forge</span>
+                    <span className={styles.toolVersion}>v0.2</span>
+                  </div>
+                  <div className={styles.toolSvg}>
+                    <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
+                      <path d="M40 24 H110 M40 38 H110 M40 52 H92" stroke="#3A2E1C" strokeWidth="1.4" strokeLinecap="round"/>
+                      <text x="40" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[1]</text>
+                      <text x="62" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[2]</text>
+                      <text x="84" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[3]</text>
+                      <line x1="40" y1="88" x2="110" y2="88" stroke="#3A2E1C" strokeWidth="0.6"/>
+                      <text x="40" y="100" fontFamily="'Courier Prime', monospace" fontSize="5.5" fill="#3A2E1C" opacity="0.55">claims → checkable sources</text>
+                    </svg>
+                  </div>
+                  <div className={styles.toolBody}>
+                    <h4>Footnote Forge</h4>
+                    <p>
+                      Feed it a confident paragraph. It hunts down a real citation
+                      for every claim — and flags the ones it can&apos;t, instead of
+                      inventing them.
+                    </p>
+                    <span className={styles.toolCta}>
+                      Open the tool <span className={styles.arrow}>→</span>
                     </span>
-                  </td>
-                  <td>Ficciones, 1944</td>
-                  <td className={styles.rAlign}>HOLDS</td>
-                </tr>
-                <tr>
-                  <td>
-                    <span className={styles.registerRowTitle}>
-                      &ldquo;A 2021 Stanford study proved citations boost trust 40%.&rdquo;
+                  </div>
+                </a>
+
+                <a className={styles.tool} href="#">
+                  <div className={styles.toolHead}>
+                    <span className={styles.toolTitle}>The Bluff Detector</span>
+                    <span className={styles.toolVersion}>v0.1</span>
+                  </div>
+                  <div className={styles.toolSvg}>
+                    <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
+                      <circle cx="62" cy="55" r="30" fill="none" stroke="#3A2E1C" strokeWidth="1.2"/>
+                      <line x1="84" y1="77" x2="104" y2="97" stroke="#3A2E1C" strokeWidth="2.4" strokeLinecap="round"/>
+                      <circle cx="62" cy="55" r="3" fill="#ED1C2E"/>
+                      <path d="M48 55 Q62 42 76 55" stroke="#ED1C2E" strokeWidth="1.2" fill="none" strokeDasharray="2 2"/>
+                      <text x="62" y="92" fontFamily="'Courier Prime', monospace" fontSize="6" fill="#ED1C2E" textAnchor="middle">SOURCE NOT FOUND</text>
+                    </svg>
+                  </div>
+                  <div className={styles.toolBody}>
+                    <h4>The Bluff Detector</h4>
+                    <p>
+                      Reads a model&apos;s answer and underlines every spot where it
+                      sounds certain but has nothing underneath. A confidence X-ray.
+                    </p>
+                    <span className={styles.toolCta}>
+                      Open the tool <span className={styles.arrow}>→</span>
                     </span>
-                  </td>
-                  <td>
-                    <span className={styles.struck}>Stanford HCI, 2021</span>
-                  </td>
-                  <td className={styles.rAlign}>
-                    <span className={styles.red}>SOURCE NOT FOUND</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span className={styles.registerRowTitle}>
-                      &ldquo;BibTeX predates the web.&rdquo;
-                    </span>
-                  </td>
-                  <td>Lamport / Patashnik, 1985</td>
-                  <td className={styles.rAlign}>HOLDS</td>
-                </tr>
-                <tr>
-                  <td>
-                    <span className={styles.registerRowTitle}>
-                      &ldquo;&lsquo;Renaissance&rsquo; means rebirth in French.&rdquo;
-                    </span>
-                  </td>
-                  <td>Etymology, common</td>
-                  <td className={styles.rAlign}>HOLDS</td>
-                </tr>
-              </tbody>
-            </table>
+                  </div>
+                </a>
+              </>
+            )}
           </div>
         </section>
 
@@ -545,8 +535,7 @@ export default async function Home() {
                 <h5>The Paper</h5>
                 <a href="/">Dispatches</a>
                 <a href="#tools">Tools &amp; Contraptions</a>
-                <a href="#register">The Register</a>
-                <a href="#">The Archive</a>
+                <a href="/issues">The Archive</a>
               </div>
               <div className={styles.colophonCol}>
                 <h5>The Fan</h5>

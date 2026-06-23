@@ -1,10 +1,33 @@
 import { sql } from "drizzle-orm";
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+// ── Issues ────────────────────────────────────────────────────────────────────
+
+export const issues = sqliteTable("issue", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  number: integer("number").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: text("status", { enum: ["draft", "published"] })
+    .notNull()
+    .default("draft"),
+  publishedAt: integer("published_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export type Issue = typeof issues.$inferSelect;
+export type NewIssue = typeof issues.$inferInsert;
+
 // ── Blog posts ────────────────────────────────────────────────────────────────
 
 export const posts = sqliteTable("posts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  issueId: integer("issue_id").references(() => issues.id, { onDelete: "set null" }),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull().default(""),
@@ -32,6 +55,54 @@ export const posts = sqliteTable("posts", {
 
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
+
+// ── Tools & Contraptions (per issue) ─────────────────────────────────────────
+
+export const tools = sqliteTable("tool", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  issueId: integer("issue_id")
+    .notNull()
+    .references(() => issues.id, { onDelete: "cascade" }),
+  category: text("category").notNull().default(""),
+  name: text("name").notNull(),
+  illustration: text("illustration"),
+  descriptor: text("descriptor").notNull().default(""),
+  url: text("url"),
+  status: text("status", { enum: ["draft", "published"] })
+    .notNull()
+    .default("draft"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export type Tool = typeof tools.$inferSelect;
+export type NewTool = typeof tools.$inferInsert;
+
+// ── Resources (curated links, books, tools per issue) ─────────────────────────
+
+export const resources = sqliteTable("resource", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  issueId: integer("issue_id")
+    .notNull()
+    .references(() => issues.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  url: text("url"),
+  description: text("description"),
+  type: text("type", { enum: ["link", "book", "tool", "quote", "other"] })
+    .notNull()
+    .default("link"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export type Resource = typeof resources.$inferSelect;
+export type NewResource = typeof resources.$inferInsert;
 
 // ── Auth.js tables (required by @auth/drizzle-adapter) ───────────────────────
 
