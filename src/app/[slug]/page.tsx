@@ -179,29 +179,11 @@ export default async function PostPage({ params }: Props) {
               <div className={styles.specRow}>
                 <span className={styles.specKey}>Revision</span>
                 <span className={styles.specVal}>A — first honest draft</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Sources cited</span>
-                <span className={`${styles.specVal} ${styles.muted}`}>
-                  see article
-                </span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Scale</span>
-                <span className={styles.specVal}>1:1, honest</span>
-              </div>
+              </div> 
               <div className={`${styles.specRow} ${styles.specRowFull}`}>
                 <span className={styles.specKey}>Prompt</span>
                 <span className={styles.specVal}>{specPrompt}</span>
               </div>
-            </div>
-
-            <div className={styles.specFoot}>
-              <span className={styles.specFootSig}>The Editor</span>
-              <span className={styles.muted}>&nbsp;—&nbsp;</span>
-              <span>
-                Countersigned in ink, by a hand that can be sued.
-              </span>
             </div>
           </section>
 
@@ -229,7 +211,14 @@ export default async function PostPage({ params }: Props) {
                     {ref.pageTitle && <>&ldquo;{ref.pageTitle}.&rdquo; </>}
                     {ref.siteName && <><em>{ref.siteName}</em>. </>}
                     {ref.date && <>{ref.date}. </>}
-                    {ref.url && <>{ref.url}.</>}
+                    {ref.url && (
+                      <>
+                        <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                          {ref.url}
+                        </a>
+                        .
+                      </>
+                    )}
                   </li>
                 );
               })}
