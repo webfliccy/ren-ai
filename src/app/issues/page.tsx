@@ -1,7 +1,7 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
-import { issues, posts } from "@/db/schema";
+import { issues } from "@/db/schema";
 import { and, desc, eq, lt } from "drizzle-orm";
 import Link from "next/link";
 import styles from "../[slug]/article.module.css";

@@ -21,7 +21,7 @@ export default function CommentSection({
   initialComments: CommentRow[];
 }) {
   const { data: session, status } = useSession();
-  const [list, setList] = useState(initialComments);
+  const [list] = useState(initialComments);
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);

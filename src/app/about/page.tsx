@@ -3,7 +3,6 @@ import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
 import { sitePages } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import Link from "next/link";
 import styles from "../[slug]/article.module.css";
 
 export const metadata = {

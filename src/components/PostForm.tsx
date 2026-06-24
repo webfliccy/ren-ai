@@ -4,7 +4,7 @@ import { Issue, Post } from "@/db/schema";
 import { ChicagoWebRef, EMPTY_REF, parseRefs } from "@/lib/references";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
 
@@ -53,9 +53,10 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(isEditing);
   const tagInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!slugManuallyEdited) setSlug(slugify(title));
-  }, [title, slugManuallyEdited]);
+  function handleTitleChange(value: string) {
+    setTitle(value);
+    if (!slugManuallyEdited) setSlug(slugify(value));
+  }
 
   function addTag(value: string) {
     const normalized = value.trim().toLowerCase().replace(/\s+/g, "-");
@@ -129,7 +130,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         <input
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => handleTitleChange(e.target.value)}
           required
           placeholder="My post title"
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"

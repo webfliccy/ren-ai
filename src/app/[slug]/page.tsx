@@ -6,7 +6,6 @@ import { comments, posts, users } from "@/db/schema";
 import { parseRefs } from "@/lib/references";
 import { and, asc, eq } from "drizzle-orm";
 import { marked } from "marked";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import styles from "./article.module.css";
 
