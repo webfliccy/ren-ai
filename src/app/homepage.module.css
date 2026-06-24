@@ -1,14 +1,5 @@
-/* ════════ DESIGN TOKENS ════════ */
+/* ════════ PAGE SHELL ════════ */
 .page {
-  --parchment: #F2ECD8;
-  --paper:     #FAF6EE;
-  --ink:       #3A2E1C;
-  --ink-light: #6B5D4A;
-  --muted:     #9A8E78;
-  --red:       #ED1C2E;
-  --border:    #C9BB9E;
-  --rule:      rgba(58, 46, 28, 0.35);
-
   background:
     repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(58,46,28,0.025) 31px, rgba(58,46,28,0.025) 32px),
     var(--parchment);
@@ -23,85 +14,6 @@
 .page a { color: inherit; }
 
 .sheet { max-width: 1180px; margin: 0 auto; }
-
-/* ════════ MASTHEAD ════════ */
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding-top: 22px;
-  margin-bottom: 5px;
-}
-.topbarLine { flex: 1; height: 1px; background: var(--rule); }
-.topbarStamp {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0.6;
-  white-space: nowrap;
-}
-.ruleThick { height: 3px; background: var(--ink); }
-.ruleThin  { height: 1px; background: var(--ink); }
-
-.masthead {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px 0 16px;
-}
-.brand {
-  position: absolute;
-  left: 0;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-decoration: none;
-}
-.brandLogo { height: 58px; width: auto; display: block; }
-.brandDivider { width: 1px; height: 44px; background: var(--ink); opacity: 0.2; }
-.mastheadTitle {
-  font-family: var(--font-cormorant), Georgia, serif;
-  font-size: 52px;
-  font-weight: 500;
-  font-style: italic;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  text-align: center;
-}
-.titleAI { color: var(--red); }
-.titleSub {
-  display: block;
-  font-family: var(--font-figtree), system-ui, sans-serif;
-  font-style: normal;
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--ink-light);
-  opacity: 0.7;
-  margin-top: 9px;
-}
-
-.nav {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  padding: 12px 0 0;
-}
-.nav a {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  opacity: 0.78;
-  text-decoration: none;
-}
-.nav a:hover { opacity: 1; color: var(--red); }
-.nav .navActive { color: var(--red); opacity: 1; }
 
 /* ════════ ISSUE HEADER (archive issue pages) ════════ */
 .issueHeader {
@@ -638,55 +550,6 @@
   letter-spacing: 0.04em;
 }
 
-/* ════════ FOOTER ════════ */
-.colophon {
-  margin: 64px 0 0;
-  border-top: 3px solid var(--ink);
-  padding: 18px 0 44px;
-}
-.colophonTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-.colophonLhs { display: flex; align-items: center; gap: 16px; }
-.footerLogo { height: 34px; width: auto; display: block; }
-.colophonTagline {
-  font-family: var(--font-cormorant), Georgia, serif;
-  font-style: italic;
-  font-size: 18px;
-  color: var(--ink-light);
-}
-.colophonCols { display: flex; gap: 48px; flex-wrap: wrap; }
-.colophonCol h5 {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-.colophonCol a {
-  display: block;
-  font-size: 12.5px;
-  color: var(--ink-light);
-  text-decoration: none;
-  margin-bottom: 6px;
-}
-.colophonCol a:hover { color: var(--red); }
-.colophonMeta {
-  margin-top: 28px;
-  padding-top: 14px;
-  border-top: 1px solid var(--rule);
-  font-family: var(--font-courier-prime), 'Courier New', monospace;
-  font-size: 9.5px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  line-height: 1.7;
-}
-
 /* ════════ RESPONSIVE ════════ */
 @media (max-width: 900px) {
   .leadGrid { grid-template-columns: 1fr; }
@@ -695,9 +558,6 @@
   .cards3 { grid-template-columns: 1fr; gap: 24px; }
   .dispatch { border-left: none; padding: 0 0 24px; border-bottom: 1px dashed var(--border); }
   .tools { grid-template-columns: 1fr; }
-  .mastheadTitle { font-size: 32px; }
-  .brandLogo { height: 42px; }
   .leadMain h2 { font-size: 42px; }
-  .nav { gap: 20px; flex-wrap: wrap; }
   .signupForm { flex-direction: column; }
 }

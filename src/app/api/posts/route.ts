@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   const body = await request.json();
-  const { title, content, excerpt, prompt, figSvg, status, tags, issueId, tokens, references, seoTitle, seoDescription, ogImage } = body;
+  const { title, content, excerpt, prompt, figSvg, status, featured, tags, issueId, tokens, references, seoTitle, seoDescription, ogImage } = body;
 
   if (!title?.trim()) {
     return Response.json({ error: "Title is required" }, { status: 400 });
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       prompt,
       figSvg,
       status: status ?? "draft",
+      featured: featured ?? false,
       tags: JSON.stringify(tags ?? []),
       issueId: issueId ?? null,
       tokens: tokens || null,

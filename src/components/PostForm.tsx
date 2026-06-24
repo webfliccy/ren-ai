@@ -37,6 +37,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
   const [prompt, setPrompt] = useState(post?.prompt ?? "");
   const [figSvg, setFigSvg] = useState(post?.figSvg ?? "");
   const [status, setStatus] = useState<"draft" | "published">(post?.status ?? "draft");
+  const [featured, setFeatured] = useState(post?.featured ?? false);
   const [tags, setTags] = useState<string[]>(parseTags(post?.tags ?? "[]"));
   const [tagInput, setTagInput] = useState("");
   const [tokens, setTokens] = useState(post?.tokens ?? "");
@@ -79,7 +80,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
     setError("");
 
     const payload = {
-      title, slug, content, excerpt, prompt: prompt || null, figSvg: figSvg || null, status, tags,
+      title, slug, content, excerpt, prompt: prompt || null, figSvg: figSvg || null, status, featured, tags,
       issueId: issueId ?? null,
       tokens: tokens || null,
       references,
@@ -323,6 +324,17 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
             <option value="published">Published</option>
           </select>
         </div>
+
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={featured}
+            onChange={(e) => setFeatured(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span className="text-sm font-medium text-gray-700">Feature story</span>
+          <span className="text-xs text-gray-400">(hero slot on homepage)</span>
+        </label>
 
         <div className="flex items-center gap-3">
           <label className="text-sm font-medium text-gray-700">Issue</label>

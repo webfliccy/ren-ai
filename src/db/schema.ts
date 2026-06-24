@@ -43,6 +43,7 @@ export const posts = sqliteTable("posts", {
   ogImage: text("og_image"),
   tokens: text("tokens"),
   references: text("references").notNull().default("[]"),
+  featured: integer("featured", { mode: "boolean" }).notNull().default(false),
   readingTime: integer("reading_time").notNull().default(1),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

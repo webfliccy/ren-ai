@@ -1,0 +1,89 @@
+/* ════════ TOPBAR ════════ */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding-top: 22px;
+  margin-bottom: 5px;
+}
+.topbarLine { flex: 1; height: 1px; background: var(--rule); }
+.topbarStamp {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+/* ════════ RULES ════════ */
+.ruleThick { height: 3px; background: var(--ink); }
+.ruleThin  { height: 1px; background: var(--ink); }
+
+/* ════════ MASTHEAD ════════ */
+.masthead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 0 16px;
+}
+.brand {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+}
+.brandLogo { height: 58px; width: auto; display: block; }
+.brandDivider { width: 1px; height: 44px; background: var(--ink); opacity: 0.2; }
+.mastheadTitle {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 52px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-align: center;
+}
+.titleAI { color: var(--red); }
+.titleSub {
+  display: block;
+  font-family: var(--font-figtree), system-ui, sans-serif;
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  opacity: 0.7;
+  margin-top: 9px;
+}
+
+/* ════════ NAV ════════ */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 12px 0 0;
+}
+.nav a {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.78;
+  text-decoration: none;
+}
+.nav a:hover { opacity: 1; color: var(--red); }
+.navActive { color: var(--red); opacity: 1; }
+
+/* ════════ RESPONSIVE ════════ */
+@media (max-width: 900px) {
+  .mastheadTitle { font-size: 32px; }
+  .brandLogo { height: 42px; }
+  .nav { gap: 20px; flex-wrap: wrap; }
+}

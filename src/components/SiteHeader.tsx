@@ -3,7 +3,7 @@ import { issues } from "@/db/schema";
 import { RenaiLogo } from "@/components/RenaiLogo";
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
-import styles from "@/app/homepage.module.css";
+import styles from "./SiteHeader.module.css";
 
 const NAV = [
   { label: "Dispatches", href: "/" },
@@ -50,7 +50,7 @@ export default async function SiteHeader({ activePath, stamp }: Props) {
         <div className={styles.mastheadTitle}>
           The Ren<span className={styles.titleAI}>AI</span>ssance Fan
           <span className={styles.titleSub}>
-            Fallibly Human &amp; Artificially Divine
+            Fallibly Human, Artificially Divine
           </span>
         </div>
       </div>

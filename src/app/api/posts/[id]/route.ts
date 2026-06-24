@@ -24,7 +24,7 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { title, content, excerpt, prompt, figSvg, status, slug, tags, issueId, tokens, references, seoTitle, seoDescription, ogImage } = body;
+  const { title, content, excerpt, prompt, figSvg, status, featured, slug, tags, issueId, tokens, references, seoTitle, seoDescription, ogImage } = body;
 
   const [existing] = await db
     .select()
@@ -49,6 +49,7 @@ export async function PATCH(
       prompt,
       figSvg,
       status,
+      featured: featured ?? false,
       tags: JSON.stringify(tags ?? []),
       issueId: issueId ?? null,
       tokens: tokens || null,

@@ -1,6 +1,6 @@
 import { RenaiLogo } from "@/components/RenaiLogo";
 import Link from "next/link";
-import styles from "@/app/homepage.module.css";
+import styles from "./SiteFooter.module.css";
 
 export default function SiteFooter() {
   return (

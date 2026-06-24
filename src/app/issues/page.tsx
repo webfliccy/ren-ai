@@ -61,65 +61,21 @@ export default async function ArchivePage() {
               <p>No past issues yet. The archive fills as new issues are published.</p>
             </div>
           ) : (
-            <div style={{ marginTop: 40 }}>
+            <div className={styles.archiveList}>
               {pastIssues.map((issue, i) => (
                 <div key={issue.id}>
-                  {i > 0 && (
-                    <div style={{ height: 1, background: "var(--border)", margin: "32px 0" }} />
-                  )}
-                  <Link
-                    href={`/issues/${issue.number}`}
-                    style={{ textDecoration: "none", display: "block" }}
-                  >
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 8 }}>
-                      <span
-                        style={{
-                          fontFamily: "var(--font-courier-prime), monospace",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          letterSpacing: "0.15em",
-                          color: "var(--red)",
-                          textTransform: "uppercase",
-                        }}
-                      >
+                  {i > 0 && <div className={styles.archiveDivider} />}
+                  <Link href={`/issues/${issue.number}`} className={styles.archiveLink}>
+                    <div className={styles.archiveItemHead}>
+                      <span className={styles.archiveNum}>
                         № {String(issue.number).padStart(2, "0")}
                       </span>
-                      <h2
-                        style={{
-                          fontFamily: "var(--font-cormorant), Georgia, serif",
-                          fontSize: 32,
-                          fontWeight: 600,
-                          lineHeight: 1.1,
-                          color: "var(--ink)",
-                          margin: 0,
-                        }}
-                      >
-                        {issue.title}
-                      </h2>
+                      <h2 className={styles.archiveTitle}>{issue.title}</h2>
                     </div>
                     {issue.description && (
-                      <p
-                        style={{
-                          fontFamily: "var(--font-newsreader), Georgia, serif",
-                          fontSize: 17,
-                          fontStyle: "italic",
-                          color: "var(--ink-light)",
-                          margin: "0 0 10px",
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {issue.description}
-                      </p>
+                      <p className={styles.archiveDesc}>{issue.description}</p>
                     )}
-                    <span
-                      style={{
-                        fontFamily: "var(--font-courier-prime), monospace",
-                        fontSize: 10,
-                        letterSpacing: "0.1em",
-                        color: "var(--muted)",
-                        textTransform: "uppercase",
-                      }}
-                    >
+                    <span className={styles.archiveMeta}>
                       {issue.publishedAt ? formatDate(new Date(issue.publishedAt)) : ""}
                       {" · Read the issue →"}
                     </span>

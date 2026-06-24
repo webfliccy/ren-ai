@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { comments, posts, users } from "@/db/schema";
 import { parseRefs } from "@/lib/references";
 import { and, asc, eq } from "drizzle-orm";
+import { marked } from "marked";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import styles from "./article.module.css";
@@ -138,7 +139,7 @@ export default async function PostPage({ params }: Props) {
           {/* ── Prose body ──────────────────────────── */}
           <div
             className={styles.prose}
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: marked(post.content, { async: false }) as string }}
           />
 
           {/* ── Specification Sheet ─────────────────── */}

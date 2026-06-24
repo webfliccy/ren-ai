@@ -4,7 +4,7 @@ import SubscribeForm from "@/components/SubscribeForm";
 import { db } from "@/db";
 import { issues, posts, tools } from "@/db/schema";
 import type { Issue, Post, Tool } from "@/db/schema";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import Link from "next/link";
 import styles from "./homepage.module.css";
 
@@ -179,12 +179,12 @@ export default async function Home() {
           .select()
           .from(posts)
           .where(and(eq(posts.issueId, currentIssue.id), eq(posts.status, "published")))
-          .orderBy(desc(posts.publishedAt))
+          .orderBy(desc(sql`${posts.featured}`), desc(posts.publishedAt))
       : db
           .select()
           .from(posts)
           .where(eq(posts.status, "published"))
-          .orderBy(desc(posts.publishedAt))
+          .orderBy(desc(sql`${posts.featured}`), desc(posts.publishedAt))
           .limit(7),
     currentIssue
       ? db
@@ -210,7 +210,9 @@ export default async function Home() {
         <section className={styles.leadGrid} data-screen-label="Lead feature">
           <div className={styles.leadMain}>
             <span className={styles.kicker}>
-              <span className={styles.kickerTag}>Lead Dispatch</span>
+              <span className={styles.kickerTag}>
+                {lead?.featured ? "Feature Story" : "Lead Dispatch"}
+              </span>
               <span className={styles.kickerCrumb}>
                 {lead
                   ? `${firstTag(lead.tags) || "ESSAY"} № 01 — ${lead.title.toUpperCase().slice(0, 30)}`
