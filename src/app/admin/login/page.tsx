@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [secret, setSecret] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,9 +21,13 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res.ok) {
-      router.push("/admin");
+      // Hard navigation so the proxy re-runs with the freshly set admin_token
+      // cookie. A soft router.push reuses the cached redirect to /admin/login,
+      // leaving the user stuck on the login page with no error.
+      window.location.href = "/admin";
     } else {
-      setError("Incorrect secret.");
+      const body = await res.json().catch(() => ({}));
+      setError(`${res.status}: ${body.error ?? "Unknown error"}`);
     }
   }
 
