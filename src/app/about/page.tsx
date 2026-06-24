@@ -92,14 +92,6 @@ export default async function AboutPage() {
                 <span className={styles.specKey}>Purpose</span>
                 <span className={styles.specVal}>Self-portrait, in ink</span>
               </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Revision</span>
-                <span className={styles.specVal}>Ongoing</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Scale</span>
-                <span className={styles.specVal}>1:1, honest</span>
-              </div>
               {page?.prompt && (
                 <div className={`${styles.specRow} ${styles.specRowFull}`}>
                   <span className={styles.specKey}>Prompt</span>
@@ -108,11 +100,7 @@ export default async function AboutPage() {
               )}
             </div>
 
-            <div className={styles.specFoot}>
-              <span className={styles.specFootSig}>The Editor</span>
-              <span className={styles.muted}>&nbsp;—&nbsp;</span>
-              <span>Countersigned in ink, by a hand that can be sued.</span>
-            </div>
+           
           </section>
 
         </article>
