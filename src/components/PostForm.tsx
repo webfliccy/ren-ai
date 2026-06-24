@@ -58,6 +58,16 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
     if (!slugManuallyEdited) setSlug(slugify(value));
   }
 
+  function moveReference(i: number, delta: number) {
+    setReferences((r) => {
+      const j = i + delta;
+      if (j < 0 || j >= r.length) return r;
+      const next = [...r];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   function addTag(value: string) {
     const normalized = value.trim().toLowerCase().replace(/\s+/g, "-");
     if (normalized && !tags.includes(normalized)) {
@@ -285,7 +295,27 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
               return (
                 <li key={i} className="rounded-md border border-gray-200 p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-gray-400 select-none">{i + 1}.</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-gray-400 select-none">{i + 1}.</span>
+                      <button
+                        type="button"
+                        onClick={() => moveReference(i, -1)}
+                        disabled={i === 0}
+                        className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400 text-xs leading-none"
+                        aria-label="Move reference up"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveReference(i, 1)}
+                        disabled={i === references.length - 1}
+                        className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400 text-xs leading-none"
+                        aria-label="Move reference down"
+                      >
+                        ▼
+                      </button>
+                    </div>
                     <button
                       type="button"
                       onClick={() => setReferences((r) => r.filter((_, j) => j !== i))}
