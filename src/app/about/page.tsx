@@ -2,7 +2,9 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
 import { sitePages } from "@/db/schema";
+import { renderMarkdown } from "@/lib/markdown";
 import { eq } from "drizzle-orm";
+import "katex/dist/katex.min.css";
 import styles from "../[slug]/article.module.css";
 
 export const metadata = {
@@ -41,7 +43,7 @@ export default async function AboutPage() {
           {content ? (
             <div
               className={styles.prose}
-              dangerouslySetInnerHTML={{ __html: content }}
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
             />
           ) : (
             <div className={styles.prose}>
