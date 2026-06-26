@@ -4,6 +4,7 @@ import { Issue, Post } from "@/db/schema";
 import { ChicagoWebRef, EMPTY_REF, parseRefs } from "@/lib/references";
 import { slugify } from "@/lib/slug";
 import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass } from "@/lib/styles";
+import { FormField } from "./FormField";
 import { parseTags } from "@/lib/tags";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -121,8 +122,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         <div className={errorBanner}>{error}</div>
       )}
 
-      <div className="space-y-1">
-        <label className={labelClass}>Title</label>
+      <FormField label="Title">
         <input
           type="text"
           value={title}
@@ -131,10 +131,9 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           placeholder="My post title"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>Slug</label>
+      <FormField label="Slug">
         <input
           type="text"
           value={slug}
@@ -143,10 +142,9 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           placeholder="my-post-title"
           className={`${inputClass} font-mono`}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>Excerpt</label>
+      <FormField label="Excerpt">
         <textarea
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
@@ -154,12 +152,9 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           placeholder="Short description shown in post listings"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>
-          Prompt <span className={hintText}>(shown in Production Record — separate from excerpt)</span>
-        </label>
+      <FormField label={<>Prompt <span className={hintText}>(shown in Production Record — separate from excerpt)</span></>}>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -167,12 +162,9 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           placeholder="The prompt or brief given to the AI for this piece"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>
-          FIG. 1 — Article illustration <span className={hintText}>(.svg)</span>
-        </label>
+      <FormField label={<>FIG. 1 — Article illustration <span className={hintText}>(.svg)</span></>}>
         <input
           type="file"
           accept=".svg,image/svg+xml"
@@ -200,15 +192,13 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
             </button>
           </div>
         )}
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>Content</label>
+      <FormField label="Content">
         <RichEditor content={content} onChange={setContent} />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>Tags</label>
+      <FormField label="Tags">
         <div
           className="flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1.5 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text"
           onClick={() => tagInputRef.current?.focus()}
@@ -231,12 +221,9 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           />
         </div>
         <p className="text-xs text-gray-400">Press Enter or comma to add a tag</p>
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>
-          Tokens <span className={hintText}>(e.g. ~24,000 ⟵ ~8,200)</span>
-        </label>
+      <FormField label={<>Tokens <span className={hintText}>(e.g. ~24,000 ⟵ ~8,200)</span></>}>
         <input
           type="text"
           value={tokens}
@@ -244,7 +231,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           placeholder="input ⟵ output"
           className={`${inputClass} font-mono`}
         />
-      </div>
+      </FormField>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">

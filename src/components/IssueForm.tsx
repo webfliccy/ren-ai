@@ -2,6 +2,7 @@
 
 import { Issue } from "@/db/schema";
 import { btnPrimary, btnSecondary, errorBanner, inputClass, labelClass, selectClass } from "@/lib/styles";
+import { FormField } from "./FormField";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -59,8 +60,7 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
       )}
 
       <div className="grid grid-cols-4 gap-4">
-        <div className="space-y-1">
-          <label className={labelClass}>Issue №</label>
+        <FormField label="Issue №">
           <input
             type="number"
             value={number}
@@ -70,9 +70,8 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
             placeholder="1"
             className={inputClass}
           />
-        </div>
-        <div className="col-span-3 space-y-1">
-          <label className={labelClass}>Theme title</label>
+        </FormField>
+        <FormField label="Theme title" className="col-span-3">
           <input
             type="text"
             value={title}
@@ -81,13 +80,10 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
             placeholder="e.g. The Unreliable Narrator"
             className={inputClass}
           />
-        </div>
+        </FormField>
       </div>
 
-      <div className="space-y-1">
-        <label className={labelClass}>
-          Description <span className="font-normal text-gray-400">(shown in the archive and as the issue deck)</span>
-        </label>
+      <FormField label={<>Description <span className="font-normal text-gray-400">(shown in the archive and as the issue deck)</span></>}>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -95,7 +91,7 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
           placeholder="A short editorial note on this issue's theme"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
       <div className="flex items-center gap-3">
         <label className={labelClass}>Status</label>

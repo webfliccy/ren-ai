@@ -2,6 +2,7 @@
 
 import { Issue, Tool } from "@/db/schema";
 import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass, selectClass } from "@/lib/styles";
+import { FormField } from "./FormField";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -81,8 +82,7 @@ export default function ToolForm({
       )}
 
       {/* Issue */}
-      <div className="space-y-1">
-        <label className={labelClass}>Issue</label>
+      <FormField label="Issue">
         <select
           value={issueId}
           onChange={(e) => setIssueId(Number(e.target.value))}
@@ -95,12 +95,11 @@ export default function ToolForm({
             </option>
           ))}
         </select>
-      </div>
+      </FormField>
 
       {/* Category + Name */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <label className={labelClass}>Category</label>
+        <FormField label="Category">
           <input
             list="tool-categories"
             value={category}
@@ -113,9 +112,8 @@ export default function ToolForm({
               <option key={c} value={c} />
             ))}
           </datalist>
-        </div>
-        <div className="space-y-1">
-          <label className={labelClass}>Tool name</label>
+        </FormField>
+        <FormField label="Tool name">
           <input
             type="text"
             value={name}
@@ -124,12 +122,11 @@ export default function ToolForm({
             placeholder="e.g. The Provenance Stamp"
             className={inputClass}
           />
-        </div>
+        </FormField>
       </div>
 
       {/* Descriptor */}
-      <div className="space-y-1">
-        <label className={labelClass}>Descriptor</label>
+      <FormField label="Descriptor">
         <textarea
           value={descriptor}
           onChange={(e) => setDescriptor(e.target.value)}
@@ -137,11 +134,10 @@ export default function ToolForm({
           placeholder="A short description shown on the card"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
       {/* URL */}
-      <div className="space-y-1">
-        <label className={labelClass}>URL</label>
+      <FormField label="URL">
         <input
           type="url"
           value={url}
@@ -149,14 +145,10 @@ export default function ToolForm({
           placeholder="https://…"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
       {/* Illustration (SVG) */}
-      <div className="space-y-1">
-        <label className={labelClass}>
-          Illustration{" "}
-          <span className={hintText}>(raw SVG — paste the &lt;svg&gt; element)</span>
-        </label>
+      <FormField label={<>Illustration{" "}<span className={hintText}>(raw SVG — paste the &lt;svg&gt; element)</span></>}>
         <textarea
           value={illustration}
           onChange={(e) => setIllustration(e.target.value)}
@@ -174,7 +166,7 @@ export default function ToolForm({
             />
           </div>
         )}
-      </div>
+      </FormField>
 
       {/* Status + Sort order */}
       <div className="flex items-center gap-6">

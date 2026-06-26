@@ -2,7 +2,8 @@
 
 import { Artefact, ExperimentRecord, FieldNote, Issue } from "@/db/schema";
 import { slugify } from "@/lib/slug";
-import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass, selectClass } from "@/lib/styles";
+import { btnPrimary, btnSecondary, errorBanner, inputClass, labelClass, selectClass } from "@/lib/styles";
+import { FormField } from "./FormField";
 import { parseTags } from "@/lib/tags";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -198,8 +199,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       )}
 
       {/* ── Core fields ──────────────────────────────────────────────── */}
-      <div className="space-y-1">
-        <label className={labelClass}>Title</label>
+      <FormField label="Title">
         <input
           type="text"
           value={title}
@@ -208,10 +208,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           placeholder="Experiment title"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>Slug</label>
+      <FormField label="Slug">
         <input
           type="text"
           value={slug}
@@ -220,10 +219,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           placeholder="experiment-title"
           className={`${inputClass} font-mono`}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className={labelClass}>Excerpt</label>
+      <FormField label="Excerpt">
         <textarea
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
@@ -231,20 +229,18 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           placeholder="Short summary of this field note"
           className={inputClass}
         />
-      </div>
+      </FormField>
 
       {/* ── Content ──────────────────────────────────────────────────── */}
-      <div className="space-y-1">
-        <label className={labelClass}>Content</label>
+      <FormField label="Content">
         <RichEditor content={content} onChange={setContent} tables />
-      </div>
+      </FormField>
 
       {/* ── Outcome ──────────────────────────────────────────────────── */}
       <fieldset className={sectionClass}>
         <legend className="px-1 text-sm font-semibold text-gray-800">Outcome</legend>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="space-y-1">
-            <label className={labelClass}>Status</label>
+          <FormField label="Status">
             <select
               value={outcomeStatus}
               onChange={(e) => setOutcomeStatus(e.target.value as OutcomeStatus | "")}
@@ -260,20 +256,18 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
                 {OUTCOME_STATUS_LABELS[outcomeStatus]}
               </span>
             )}
-          </div>
+          </FormField>
 
-          <div className="space-y-1">
-            <label className={labelClass}>Date closed</label>
+          <FormField label="Date closed">
             <input
               type="date"
               value={outcomeDateClosed}
               onChange={(e) => setOutcomeDateClosed(e.target.value)}
               className={inputClass}
             />
-          </div>
+          </FormField>
 
-          <div className="space-y-1">
-            <label className={labelClass}>Number of runs</label>
+          <FormField label="Number of runs">
             <input
               type="number"
               min={0}
@@ -282,7 +276,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
               placeholder="0"
               className={inputClass}
             />
-          </div>
+          </FormField>
         </div>
       </fieldset>
 
@@ -290,8 +284,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       <fieldset className={sectionClass}>
         <legend className="px-1 text-sm font-semibold text-gray-800">Experimentation Record</legend>
 
-        <div className="space-y-1">
-          <label className={labelClass}>Hypothesis</label>
+        <FormField label="Hypothesis">
           <textarea
             value={experiment.hypothesis}
             onChange={(e) => setExperimentField("hypothesis", e.target.value)}
@@ -299,10 +292,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
             placeholder="What we expected to find"
             className={inputClass}
           />
-        </div>
+        </FormField>
 
-        <div className="space-y-1">
-          <label className={labelClass}>Method</label>
+        <FormField label="Method">
           <textarea
             value={experiment.method}
             onChange={(e) => setExperimentField("method", e.target.value)}
@@ -310,11 +302,10 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
             placeholder="How the experiment was conducted"
             className={inputClass}
           />
-        </div>
+        </FormField>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-1">
-            <label className={labelClass}>Model</label>
+          <FormField label="Model">
             <input
               type="text"
               value={experiment.model}
@@ -322,10 +313,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
               placeholder="e.g. claude-sonnet-4-6"
               className={inputClass}
             />
-          </div>
+          </FormField>
 
-          <div className="space-y-1">
-            <label className={labelClass}>Trials</label>
+          <FormField label="Trials">
             <input
               type="number"
               min={0}
@@ -334,10 +324,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
               placeholder="0"
               className={inputClass}
             />
-          </div>
+          </FormField>
 
-          <div className="space-y-1">
-            <label className={labelClass}>Duration</label>
+          <FormField label="Duration">
             <input
               type="text"
               value={experiment.duration}
@@ -345,10 +334,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
               placeholder="e.g. 3 days"
               className={inputClass}
             />
-          </div>
+          </FormField>
 
-          <div className="space-y-1">
-            <label className={labelClass}>Scored by</label>
+          <FormField label="Scored by">
             <input
               type="text"
               value={experiment.scoredBy}
@@ -356,11 +344,10 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
               placeholder="e.g. human raters, automated eval"
               className={inputClass}
             />
-          </div>
+          </FormField>
         </div>
 
-        <div className="space-y-1">
-          <label className={labelClass}>Outcome</label>
+        <FormField label="Outcome">
           <textarea
             value={experiment.outcome}
             onChange={(e) => setExperimentField("outcome", e.target.value)}
@@ -368,7 +355,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
             placeholder="What actually happened"
             className={inputClass}
           />
-        </div>
+        </FormField>
       </fieldset>
 
       {/* ── Artefacts ────────────────────────────────────────────────── */}
@@ -438,8 +425,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       </fieldset>
 
       {/* ── Tags ─────────────────────────────────────────────────────── */}
-      <div className="space-y-1">
-        <label className={labelClass}>Tags</label>
+      <FormField label="Tags">
         <div
           className="flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1.5 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text"
           onClick={() => tagInputRef.current?.focus()}
@@ -462,7 +448,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           />
         </div>
         <p className="text-xs text-gray-400">Press Enter or comma to add a tag</p>
-      </div>
+      </FormField>
 
       {/* ── Status & Issue ───────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-6">
