@@ -1,13 +1,6 @@
 import { Post } from "@/db/schema";
+import { parseTags } from "@/lib/tags";
 import Link from "next/link";
-
-function parseTags(raw: string): string[] {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
 
 export default function PostCard({ post }: { post: Post }) {
   const date = post.publishedAt

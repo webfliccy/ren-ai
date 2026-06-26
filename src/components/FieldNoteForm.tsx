@@ -1,6 +1,8 @@
 "use client";
 
 import { Artefact, ExperimentRecord, FieldNote, Issue } from "@/db/schema";
+import { slugify } from "@/lib/slug";
+import { parseTags } from "@/lib/tags";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -34,19 +36,6 @@ const EMPTY_EXPERIMENT: ExperimentRecord = {
   scoredBy: "",
   outcome: "",
 };
-
-function slugify(title: string) {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function parseTags(raw: string): string[] {
-  try { return JSON.parse(raw); } catch { return []; }
-}
 
 function parseExperiment(raw: string): ExperimentRecord {
   try { return { ...EMPTY_EXPERIMENT, ...JSON.parse(raw) }; } catch { return { ...EMPTY_EXPERIMENT }; }

@@ -2,28 +2,13 @@
 
 import { Issue, Post } from "@/db/schema";
 import { ChicagoWebRef, EMPTY_REF, parseRefs } from "@/lib/references";
+import { slugify } from "@/lib/slug";
+import { parseTags } from "@/lib/tags";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
-
-function slugify(title: string) {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function parseTags(raw: string): string[] {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
 
 export default function PostForm({ post, issues = [] }: { post?: Post; issues?: Pick<Issue, "id" | "number" | "title">[] }) {
   const router = useRouter();
