@@ -6,7 +6,7 @@ import Link from "next/link";
 import styles from "./SiteHeader.module.css";
 
 const NAV = [
-  { label: "Dispatches", href: "/" },
+  { label: "Dispatches & Field Notes", href: "/field-notes" },
   { label: "Tools & Contraptions", href: "/#tools" },
   { label: "The Archive", href: "/issues" },
   { label: "About the Fan", href: "/about" },
@@ -47,12 +47,12 @@ export default async function SiteHeader({ activePath, stamp }: Props) {
           <RenaiLogo className={styles.brandLogo} />
           <span className={styles.brandDivider} />
         </Link>
-        <div className={styles.mastheadTitle}>
+        <Link href="/" className={styles.mastheadTitle}>
           The Ren<span className={styles.titleAI}>AI</span>ssance Fan
           <span className={styles.titleSub}>
             Fallibly Human, Artificially Divine
           </span>
-        </div>
+        </Link>
       </div>
 
       <div className={styles.ruleThin} />

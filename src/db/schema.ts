@@ -205,3 +205,56 @@ export const subscribers = sqliteTable("subscriber", {
 });
 
 export type Subscriber = typeof subscribers.$inferSelect;
+
+// ── Field Notes ───────────────────────────────────────────────────────────────
+
+export const fieldNotes = sqliteTable("field_note", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  issueId: integer("issue_id").references(() => issues.id, { onDelete: "set null" }),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull().default(""),
+  excerpt: text("excerpt"),
+  status: text("status", { enum: ["draft", "published"] })
+    .notNull()
+    .default("draft"),
+  tags: text("tags").notNull().default("[]"),
+  // Outcome
+  outcomeStatus: text("outcome_status", {
+    enum: ["pending", "success", "partial", "failure", "inconclusive"],
+  }),
+  outcomeDateClosed: integer("outcome_date_closed", { mode: "timestamp" }),
+  outcomeRuns: integer("outcome_runs"),
+  // Experimentation record (JSON: hypothesis, method, model, trials, duration, scoredBy, outcome)
+  experiment: text("experiment").notNull().default("{}"),
+  // Artefacts (JSON array: [{name, description, url, type, size}])
+  artefacts: text("artefacts").notNull().default("[]"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  publishedAt: integer("published_at", { mode: "timestamp" }),
+});
+
+export type FieldNote = typeof fieldNotes.$inferSelect;
+export type NewFieldNote = typeof fieldNotes.$inferInsert;
+
+export type ExperimentRecord = {
+  hypothesis: string;
+  method: string;
+  model: string;
+  trials: number | null;
+  duration: string;
+  scoredBy: string;
+  outcome: string;
+};
+
+export type Artefact = {
+  name: string;
+  description: string;
+  url: string;
+  type: string;
+  size: number | null;
+};

@@ -1,13 +1,13 @@
 import CommentModerationCard from "@/components/CommentModerationCard";
 import { db } from "@/db";
-import { comments, issues, posts, subscribers, tools, users } from "@/db/schema";
+import { comments, fieldNotes, issues, posts, subscribers, tools, users } from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = { title: "Admin — ren·ai" };
 
 export default async function AdminPage() {
-  const [allIssues, allPosts, allTools, pendingComments, allSubscribers] = await Promise.all([
+  const [allIssues, allPosts, allTools, allFieldNotes, pendingComments, allSubscribers] = await Promise.all([
     db.select().from(issues).orderBy(desc(issues.number)),
     db.select().from(posts).orderBy(desc(posts.updatedAt)),
     db
@@ -23,6 +23,7 @@ export default async function AdminPage() {
       .from(tools)
       .leftJoin(issues, eq(tools.issueId, issues.id))
       .orderBy(desc(issues.number), asc(tools.sortOrder)),
+    db.select({ id: fieldNotes.id, title: fieldNotes.title, status: fieldNotes.status, outcomeStatus: fieldNotes.outcomeStatus }).from(fieldNotes).orderBy(desc(fieldNotes.createdAt)),
     db
       .select({
         id: comments.id,
@@ -195,6 +196,53 @@ export default async function AdminPage() {
             ))}
           </div>
         )}
+      </section>
+
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Field Notes</h2>
+          <Link
+            href="/admin/field-notes/new"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            New field note
+          </Link>
+        </div>
+        {allFieldNotes.length === 0 ? (
+          <p className="text-gray-400">No field notes yet.</p>
+        ) : (
+          <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
+            {allFieldNotes.map((note) => (
+              <div key={note.id} className="flex items-center justify-between px-5 py-4">
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/field-notes/${note.id}/edit`}
+                    className="block truncate font-medium text-gray-900 hover:text-blue-600"
+                  >
+                    {note.title}
+                  </Link>
+                  {note.outcomeStatus && (
+                    <p className="mt-0.5 text-xs text-gray-400 capitalize">{note.outcomeStatus}</p>
+                  )}
+                </div>
+                <span
+                  className={`ml-4 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    note.status === "published"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {note.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="mt-2">
+          <Link href="/admin/field-notes" className="text-xs text-gray-400 hover:text-gray-700">
+            View all field notes →
+          </Link>
+        </div>
       </section>
 
       <section>

@@ -2,8 +2,8 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import SubscribeForm from "@/components/SubscribeForm";
 import { db } from "@/db";
-import { issues, posts, tools } from "@/db/schema";
-import type { Issue, Post, Tool } from "@/db/schema";
+import { issues, posts, tools, fieldNotes } from "@/db/schema";
+import type { FieldNote, Issue, Post, Tool } from "@/db/schema";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import Link from "next/link";
 import styles from "./homepage.module.css";
@@ -147,6 +147,21 @@ function SidebarPost({ post, index }: { post: Post; index: number }) {
   );
 }
 
+function SidebarFieldNote({ note, num }: { note: FieldNote; num: string }) {
+  return (
+    <div className={styles.stackItem}>
+      <span className={styles.stackNum}>{num}</span>
+      <h4>
+        <Link href={`/field-notes/${note.slug}`}>{note.title}</Link>
+      </h4>
+      {note.excerpt && <p>{note.excerpt}</p>}
+      <div className={styles.stackMeta}>
+        FIELD NOTE{note.outcomeStatus ? ` · ${note.outcomeStatus.toUpperCase()}` : ""}
+      </div>
+    </div>
+  );
+}
+
 function DispatchCard({ post }: { post: Post }) {
   return (
     <article className={styles.dispatch}>
@@ -163,6 +178,24 @@ function DispatchCard({ post }: { post: Post }) {
   );
 }
 
+function FieldNoteCard({ note }: { note: FieldNote }) {
+  return (
+    <article className={styles.dispatch}>
+      <div className={styles.dispatchTag}>Field Note</div>
+      <h4>
+        <Link href={`/field-notes/${note.slug}`}>{note.title}</Link>
+      </h4>
+      {note.excerpt && <p>{note.excerpt}</p>}
+      <div className={styles.dispatchFoot}>
+        {note.outcomeStatus && (
+          <span className={styles.red}>{note.outcomeStatus.toUpperCase()}</span>
+        )}
+        {note.publishedAt && <span>{formatDate(note.publishedAt)}</span>}
+      </div>
+    </article>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
@@ -173,7 +206,7 @@ export default async function Home() {
     .orderBy(desc(issues.number))
     .limit(1);
 
-  const [allPosts, issueTools] = await Promise.all([
+  const [allPosts, issueTools, latestNotes] = await Promise.all([
     currentIssue
       ? db
           .select()
@@ -193,6 +226,18 @@ export default async function Home() {
           .where(and(eq(tools.issueId, currentIssue.id), eq(tools.status, "published")))
           .orderBy(asc(tools.sortOrder), asc(tools.createdAt))
       : Promise.resolve([] as Tool[]),
+    currentIssue
+      ? db
+          .select()
+          .from(fieldNotes)
+          .where(and(eq(fieldNotes.issueId, currentIssue.id), eq(fieldNotes.status, "published")))
+          .orderBy(desc(fieldNotes.publishedAt))
+      : db
+          .select()
+          .from(fieldNotes)
+          .where(eq(fieldNotes.status, "published"))
+          .orderBy(desc(fieldNotes.publishedAt))
+          .limit(3),
   ]);
 
   const lead: Post | null = allPosts[0] ?? null;
@@ -324,15 +369,22 @@ export default async function Home() {
                     <div className={styles.stackMeta}>{item.meta}</div>
                   </div>
                 ))}
+            {latestNotes.map((note, i) => (
+              <SidebarFieldNote
+                key={note.id}
+                note={note}
+                num={padCount(sidebarPosts.length + i + 2)}
+              />
+            ))}
           </aside>
         </section>
 
-        {/* ════════ DISPATCHES ROW ════════ */}
-        <section data-screen-label="Dispatches">
+        {/* ════════ DISPATCHES & FIELD NOTES ROW ════════ */}
+        <section data-screen-label="Dispatches & Field Notes">
           <div className={styles.sectionHead}>
-            <h3>Dispatches</h3>
+            <h3>Dispatches &amp; Field Notes</h3>
             <span className={styles.sectionDesc}>
-              essays, arguments, and the occasional confession
+              essays, arguments, and experiment logs
             </span>
             <span className={styles.sectionCount}>
               {padCount(allPosts.length)} / SEASON I
@@ -356,6 +408,9 @@ export default async function Home() {
                     </div>
                   </article>
                 ))}
+            {latestNotes.map((note) => (
+              <FieldNoteCard key={note.id} note={note} />
+            ))}
           </div>
         </section>
 

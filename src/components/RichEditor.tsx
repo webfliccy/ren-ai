@@ -3,6 +3,10 @@
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
+import { Table } from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { Markdown } from "tiptap-markdown";
 import { marked } from "marked";
@@ -11,18 +15,27 @@ import { useState } from "react";
 interface Props {
   content: string;
   onChange: (markdown: string) => void;
+  tables?: boolean;
 }
 
-export default function RichEditor({ content, onChange }: Props) {
+export default function RichEditor({ content, onChange, tables = false }: Props) {
   const [mode, setMode] = useState<"write" | "markdown">("write");
   const [rawMarkdown, setRawMarkdown] = useState(content);
 
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Placeholder.configure({ placeholder: "Write your post…" }),
+      Placeholder.configure({ placeholder: "Write…" }),
       Link.configure({ openOnClick: false }),
       Markdown.configure({ transformPastedText: true }),
+      ...(tables
+        ? [
+            Table.configure({ resizable: false }),
+            TableRow,
+            TableHeader,
+            TableCell,
+          ]
+        : []),
     ],
     content,
     onUpdate({ editor }) {
@@ -94,6 +107,49 @@ export default function RichEditor({ content, onChange }: Props) {
             >
               Link
             </button>
+            <span className="mx-1 border-l border-gray-200" />
+            {tables && (
+              <>
+                <span className="mx-1 border-l border-gray-200" />
+                <button
+                  type="button"
+                  className={btn(editor.isActive("table"))}
+                  onClick={() =>
+                    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+                  }
+                  title="Insert table"
+                >
+                  ⊞
+                </button>
+                <button
+                  type="button"
+                  className={btn(false)}
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  disabled={!editor.isActive("table")}
+                  title="Add column"
+                >
+                  +col
+                </button>
+                <button
+                  type="button"
+                  className={btn(false)}
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  disabled={!editor.isActive("table")}
+                  title="Add row"
+                >
+                  +row
+                </button>
+                <button
+                  type="button"
+                  className={btn(false)}
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  disabled={!editor.isActive("table")}
+                  title="Delete table"
+                >
+                  ✕tbl
+                </button>
+              </>
+            )}
             <span className="mx-1 border-l border-gray-200" />
             <button
               type="button"
