@@ -2,6 +2,7 @@
 
 import { Artefact, ExperimentRecord, FieldNote, Issue } from "@/db/schema";
 import { slugify } from "@/lib/slug";
+import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass, selectClass } from "@/lib/styles";
 import { parseTags } from "@/lib/tags";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -188,15 +189,12 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     router.refresh();
   }
 
-  const inputClass =
-    "w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClass = "text-sm font-medium text-gray-700";
   const sectionClass = "rounded-md border border-gray-200 p-4 space-y-4";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className={errorBanner}>{error}</div>
       )}
 
       {/* ── Core fields ──────────────────────────────────────────────── */}
@@ -473,7 +471,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className={selectClass}
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
@@ -485,7 +483,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           <select
             value={issueId ?? ""}
             onChange={(e) => setIssueId(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className={selectClass}
           >
             <option value="">— No issue —</option>
             {issues.map((issue) => (
@@ -503,14 +501,14 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className={btnPrimary}
           >
             {saving ? "Saving…" : isEditing ? "Update field note" : "Create field note"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={btnSecondary}
           >
             Cancel
           </button>
