@@ -1,6 +1,8 @@
 "use client";
 
 import { Issue } from "@/db/schema";
+import { btnPrimary, btnSecondary, errorBanner, inputClass, labelClass, selectClass } from "@/lib/styles";
+import { FormField } from "./FormField";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -54,12 +56,11 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className={errorBanner}>{error}</div>
       )}
 
       <div className="grid grid-cols-4 gap-4">
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Issue №</label>
+        <FormField label="Issue №">
           <input
             type="number"
             value={number}
@@ -67,41 +68,37 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
             required
             min={1}
             placeholder="1"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
           />
-        </div>
-        <div className="col-span-3 space-y-1">
-          <label className="text-sm font-medium text-gray-700">Theme title</label>
+        </FormField>
+        <FormField label="Theme title" className="col-span-3">
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="e.g. The Unreliable Narrator"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
           />
-        </div>
+        </FormField>
       </div>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">
-          Description <span className="font-normal text-gray-400">(shown in the archive and as the issue deck)</span>
-        </label>
+      <FormField label={<>Description <span className="font-normal text-gray-400">(shown in the archive and as the issue deck)</span></>}>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
           placeholder="A short editorial note on this issue's theme"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         />
-      </div>
+      </FormField>
 
       <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">Status</label>
+        <label className={labelClass}>Status</label>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+          className={selectClass}
         >
           <option value="draft">Draft</option>
           <option value="published">Published</option>
@@ -113,14 +110,14 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className={btnPrimary}
           >
             {saving ? "Saving…" : isEditing ? "Update issue" : "Create issue"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={btnSecondary}
           >
             Cancel
           </button>

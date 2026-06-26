@@ -2,28 +2,15 @@
 
 import { Issue, Post } from "@/db/schema";
 import { ChicagoWebRef, EMPTY_REF, parseRefs } from "@/lib/references";
+import { slugify } from "@/lib/slug";
+import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass } from "@/lib/styles";
+import { FormField } from "./FormField";
+import { parseTags } from "@/lib/tags";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
-
-function slugify(title: string) {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function parseTags(raw: string): string[] {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
 
 export default function PostForm({ post, issues = [] }: { post?: Post; issues?: Pick<Issue, "id" | "number" | "title">[] }) {
   const router = useRouter();
@@ -132,61 +119,52 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className={errorBanner}>{error}</div>
       )}
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Title</label>
+      <FormField label="Title">
         <input
           type="text"
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           required
           placeholder="My post title"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Slug</label>
+      <FormField label="Slug">
         <input
           type="text"
           value={slug}
           onChange={(e) => { setSlug(e.target.value); setSlugManuallyEdited(true); }}
           required
           placeholder="my-post-title"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={`${inputClass} font-mono`}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Excerpt</label>
+      <FormField label="Excerpt">
         <textarea
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
           placeholder="Short description shown in post listings"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">
-          Prompt <span className="font-normal text-gray-400">(shown in Production Record — separate from excerpt)</span>
-        </label>
+      <FormField label={<>Prompt <span className={hintText}>(shown in Production Record — separate from excerpt)</span></>}>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           rows={3}
           placeholder="The prompt or brief given to the AI for this piece"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">
-          FIG. 1 — Article illustration <span className="font-normal text-gray-400">(.svg)</span>
-        </label>
+      <FormField label={<>FIG. 1 — Article illustration <span className={hintText}>(.svg)</span></>}>
         <input
           type="file"
           accept=".svg,image/svg+xml"
@@ -214,15 +192,13 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
             </button>
           </div>
         )}
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Content</label>
+      <FormField label="Content">
         <RichEditor content={content} onChange={setContent} />
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Tags</label>
+      <FormField label="Tags">
         <div
           className="flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1.5 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text"
           onClick={() => tagInputRef.current?.focus()}
@@ -245,25 +221,22 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           />
         </div>
         <p className="text-xs text-gray-400">Press Enter or comma to add a tag</p>
-      </div>
+      </FormField>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">
-          Tokens <span className="font-normal text-gray-400">(e.g. ~24,000 ⟵ ~8,200)</span>
-        </label>
+      <FormField label={<>Tokens <span className={hintText}>(e.g. ~24,000 ⟵ ~8,200)</span></>}>
         <input
           type="text"
           value={tokens}
           onChange={(e) => setTokens(e.target.value)}
           placeholder="input ⟵ output"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={`${inputClass} font-mono`}
         />
-      </div>
+      </FormField>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">
-            References <span className="font-normal text-gray-400">(Chicago — web)</span>
+          <label className={labelClass}>
+            References <span className={hintText}>(Chicago — web)</span>
           </label>
           <button
             type="button"
@@ -345,7 +318,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
 
       <div className="flex flex-wrap items-center gap-6">
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Status</label>
+          <label className={labelClass}>Status</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "draft" | "published")}
@@ -363,12 +336,12 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
             onChange={(e) => setFeatured(e.target.checked)}
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
-          <span className="text-sm font-medium text-gray-700">Feature story</span>
+          <span className={labelClass}>Feature story</span>
           <span className="text-xs text-gray-400">(hero slot on homepage)</span>
         </label>
 
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Issue</label>
+          <label className={labelClass}>Issue</label>
           <select
             value={issueId ?? ""}
             onChange={(e) => setIssueId(e.target.value ? Number(e.target.value) : null)}
@@ -396,37 +369,37 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         {seoOpen && (
           <div className="space-y-4 border-t border-gray-200 p-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
-                SEO title <span className="font-normal text-gray-400">(defaults to post title)</span>
+              <label className={labelClass}>
+                SEO title <span className={hintText}>(defaults to post title)</span>
               </label>
               <input
                 type="text"
                 value={seoTitle}
                 onChange={(e) => setSeoTitle(e.target.value)}
                 placeholder={title}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className={inputClass}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
-                SEO description <span className="font-normal text-gray-400">(defaults to excerpt)</span>
+              <label className={labelClass}>
+                SEO description <span className={hintText}>(defaults to excerpt)</span>
               </label>
               <textarea
                 value={seoDescription}
                 onChange={(e) => setSeoDescription(e.target.value)}
                 rows={2}
                 placeholder={excerpt}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className={inputClass}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">OG / cover image URL</label>
+              <label className={labelClass}>OG / cover image URL</label>
               <input
                 type="url"
                 value={ogImage}
                 onChange={(e) => setOgImage(e.target.value)}
                 placeholder="https://..."
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className={inputClass}
               />
             </div>
           </div>
@@ -438,14 +411,14 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className={btnPrimary}
           >
             {saving ? "Saving…" : isEditing ? "Update post" : "Create post"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={btnSecondary}
           >
             Cancel
           </button>

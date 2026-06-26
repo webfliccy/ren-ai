@@ -1,5 +1,6 @@
 "use client";
 
+import { btnPrimary, inputClass, labelBlockClass } from "@/lib/styles";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
@@ -37,40 +38,40 @@ export default function AboutForm({ initialTitle, initialContent, initialTokens,
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Page title</label>
+        <label className={labelBlockClass}>Page title</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="About the Fan"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+        <label className={labelBlockClass}>Content</label>
         <RichEditor content={content} onChange={setContent} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tokens</label>
+          <label className={labelBlockClass}>Tokens</label>
           <input
             type="text"
             value={tokens}
             onChange={(e) => setTokens(e.target.value)}
             placeholder="e.g. 4,200"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Prompt (for spec sheet)</label>
+          <label className={labelBlockClass}>Prompt (for spec sheet)</label>
           <input
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="The prompt used to draft this page"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
           />
         </div>
       </div>

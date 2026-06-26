@@ -6,3 +6,5 @@ export function generateSlug(title: string): string {
     .replace(/[\s_]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+export { generateSlug as slugify };

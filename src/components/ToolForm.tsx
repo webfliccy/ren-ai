@@ -1,6 +1,8 @@
 "use client";
 
 import { Issue, Tool } from "@/db/schema";
+import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass, selectClass } from "@/lib/styles";
+import { FormField } from "./FormField";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -76,17 +78,16 @@ export default function ToolForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className={errorBanner}>{error}</div>
       )}
 
       {/* Issue */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Issue</label>
+      <FormField label="Issue">
         <select
           value={issueId}
           onChange={(e) => setIssueId(Number(e.target.value))}
           required
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         >
           {issues.map((i) => (
             <option key={i.id} value={i.id}>
@@ -94,74 +95,66 @@ export default function ToolForm({
             </option>
           ))}
         </select>
-      </div>
+      </FormField>
 
       {/* Category + Name */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Category</label>
+        <FormField label="Category">
           <input
             list="tool-categories"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             placeholder="e.g. Writing"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
           />
           <datalist id="tool-categories">
             {CATEGORIES.map((c) => (
               <option key={c} value={c} />
             ))}
           </datalist>
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">Tool name</label>
+        </FormField>
+        <FormField label="Tool name">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             placeholder="e.g. The Provenance Stamp"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
           />
-        </div>
+        </FormField>
       </div>
 
       {/* Descriptor */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Descriptor</label>
+      <FormField label="Descriptor">
         <textarea
           value={descriptor}
           onChange={(e) => setDescriptor(e.target.value)}
           rows={3}
           placeholder="A short description shown on the card"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         />
-      </div>
+      </FormField>
 
       {/* URL */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">URL</label>
+      <FormField label="URL">
         <input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://…"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputClass}
         />
-      </div>
+      </FormField>
 
       {/* Illustration (SVG) */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">
-          Illustration{" "}
-          <span className="font-normal text-gray-400">(raw SVG — paste the &lt;svg&gt; element)</span>
-        </label>
+      <FormField label={<>Illustration{" "}<span className={hintText}>(raw SVG — paste the &lt;svg&gt; element)</span></>}>
         <textarea
           value={illustration}
           onChange={(e) => setIllustration(e.target.value)}
           rows={6}
           placeholder="<svg …>…</svg>"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-xs shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={`${inputClass} font-mono text-xs`}
           spellCheck={false}
         />
         {illustration && (
@@ -173,23 +166,23 @@ export default function ToolForm({
             />
           </div>
         )}
-      </div>
+      </FormField>
 
       {/* Status + Sort order */}
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Status</label>
+          <label className={labelClass}>Status</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className={selectClass}
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
           </select>
         </div>
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Sort order</label>
+          <label className={labelClass}>Sort order</label>
           <input
             type="number"
             value={sortOrder}
@@ -205,14 +198,14 @@ export default function ToolForm({
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className={btnPrimary}
           >
             {saving ? "Saving…" : isEditing ? "Update tool" : "Create tool"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={btnSecondary}
           >
             Cancel
           </button>
