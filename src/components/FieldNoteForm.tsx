@@ -4,10 +4,12 @@ import { Artefact, ExperimentRecord, FieldNote, Issue } from "@/db/schema";
 import { slugify } from "@/lib/slug";
 import { btnPrimary, btnSecondary, errorBanner, inputClass, labelClass, selectClass } from "@/lib/styles";
 import { FormField } from "./FormField";
+import { ArtefactList } from "./ArtefactList";
+import { TagInput } from "./TagInput";
 import { parseTags } from "@/lib/tags";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
 
@@ -65,8 +67,6 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
   const [issueId, setIssueId] = useState<number | null>(note?.issueId ?? null);
   const [status, setStatus] = useState<"draft" | "published">(note?.status ?? "draft");
   const [tags, setTags] = useState<string[]>(parseTags(note?.tags ?? "[]"));
-  const [tagInput, setTagInput] = useState("");
-  const tagInputRef = useRef<HTMLInputElement>(null);
 
   // Outcome
   const [outcomeStatus, setOutcomeStatus] = useState<OutcomeStatus | "">(
@@ -96,23 +96,6 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
   function handleTitleChange(value: string) {
     setTitle(value);
     if (!slugManuallyEdited) setSlug(slugify(value));
-  }
-
-  function addTag(value: string) {
-    const normalized = value.trim().toLowerCase().replace(/\s+/g, "-");
-    if (normalized && !tags.includes(normalized)) {
-      setTags((t) => [...t, normalized]);
-    }
-    setTagInput("");
-  }
-
-  function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      addTag(tagInput);
-    } else if (e.key === "Backspace" && tagInput === "" && tags.length > 0) {
-      setTags((t) => t.slice(0, -1));
-    }
   }
 
   function setExperimentField<K extends keyof ExperimentRecord>(key: K, value: ExperimentRecord[K]) {
@@ -361,93 +344,18 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       {/* ── Artefacts ────────────────────────────────────────────────── */}
       <fieldset className={sectionClass}>
         <legend className="px-1 text-sm font-semibold text-gray-800">Artefacts</legend>
-
-        {artefacts.length > 0 && (
-          <ol className="space-y-3 list-none">
-            {artefacts.map((art, i) => (
-              <li key={i} className="rounded border border-gray-200 p-3 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-500">
-                        {art.type || "file"}
-                      </span>
-                      <a
-                        href={art.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-blue-600 hover:underline truncate"
-                      >
-                        {art.name}
-                      </a>
-                      {art.size != null && (
-                        <span className="text-xs text-gray-400">
-                          {art.size < 1024
-                            ? `${art.size} B`
-                            : art.size < 1048576
-                            ? `${(art.size / 1024).toFixed(1)} KB`
-                            : `${(art.size / 1048576).toFixed(1)} MB`}
-                        </span>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      value={art.description}
-                      onChange={(e) => updateArtefact(i, "description", e.target.value)}
-                      placeholder="Description (optional)"
-                      className="w-full rounded border border-gray-200 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setArtefacts((a) => a.filter((_, j) => j !== i))}
-                    className="text-gray-400 hover:text-red-500 text-lg leading-none flex-shrink-0"
-                    aria-label="Remove artefact"
-                  >
-                    ×
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ol>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Upload artefact</label>
-          <input
-            type="file"
-            onChange={handleArtefactUpload}
-            disabled={uploading}
-            className="block w-full text-sm text-gray-500 file:mr-3 file:rounded-md file:border file:border-gray-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-50 disabled:opacity-50"
-          />
-          {uploading && <p className="mt-1 text-xs text-gray-400">Uploading…</p>}
-        </div>
+        <ArtefactList
+          artefacts={artefacts}
+          onUpdate={updateArtefact}
+          onRemove={(i) => setArtefacts((a) => a.filter((_, j) => j !== i))}
+          onUpload={handleArtefactUpload}
+          uploading={uploading}
+        />
       </fieldset>
 
       {/* ── Tags ─────────────────────────────────────────────────────── */}
       <FormField label="Tags">
-        <div
-          className="flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1.5 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text"
-          onClick={() => tagInputRef.current?.focus()}
-        >
-          {tags.map((tag) => (
-            <span key={tag} className="flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-              {tag}
-              <button type="button" onClick={() => setTags((t) => t.filter((x) => x !== tag))} className="text-blue-400 hover:text-blue-600">×</button>
-            </span>
-          ))}
-          <input
-            ref={tagInputRef}
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            onBlur={() => tagInput && addTag(tagInput)}
-            placeholder={tags.length === 0 ? "Add tags (Enter to confirm)" : ""}
-            className="min-w-24 flex-1 bg-transparent text-sm outline-none"
-          />
-        </div>
-        <p className="text-xs text-gray-400">Press Enter or comma to add a tag</p>
+        <TagInput tags={tags} onChange={setTags} />
       </FormField>
 
       {/* ── Status & Issue ───────────────────────────────────────────── */}
