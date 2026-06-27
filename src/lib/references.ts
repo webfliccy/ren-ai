@@ -16,6 +16,15 @@ export const EMPTY_REF: ChicagoWebRef = {
   url: "",
 };
 
+export function refCount(refsJson: string): number {
+  try {
+    const arr = JSON.parse(refsJson);
+    return Array.isArray(arr) ? arr.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export function parseRefs(raw: string): ChicagoWebRef[] {
   try {
     const parsed = JSON.parse(raw);
