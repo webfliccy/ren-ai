@@ -1,0 +1,30 @@
+task: >
+  Maximize Maintainability Index (MI) of src/**/*.{ts,tsx} in the ren-ai Next.js blog.
+  MI = MAX(0,(171 - 5.2*ln(HV) - 0.23*CC - 16.2*ln(LOC))*100/171) averaged across all
+  source files. Scope: src/components/, src/lib/, src/app/**/*.tsx. Focus on reducing
+  cyclomatic complexity, shortening long functions, improving cohesion, and maximizing
+  component reuse with shared styles/modules. Protected: src/db/, src/auth.ts,
+  drizzle.config.ts, .env*, public/uploads/. Ask before package installs or B_test.
+
+coordinator:
+  max_cycles: 4
+  ui:
+    interaction_mode: direction
+
+metric:
+  name: maintainability_index
+  direction: maximize
+  eval_cmd: "node {cwd}/eval-mi.js {cwd}"
+
+baseline:
+  score: 45.63
+  branch: arbor
+
+trunk_branch: arbor
+
+protected_paths:
+  - src/db/
+  - src/auth.ts
+  - drizzle.config.ts
+  - .env*
+  - public/uploads/
