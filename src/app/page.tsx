@@ -12,7 +12,7 @@ import type { Issue, Post, Tool } from "@/db/schema";
 import { formatDate, padCount } from "@/lib/formatters";
 import { firstTag } from "@/lib/tags";
 import { refCount } from "@/lib/references";
-import { PLACEHOLDER_SIDEBAR, PLACEHOLDER_DISPATCHES } from "@/app/_placeholder";
+import { PLACEHOLDER_SIDEBAR, PLACEHOLDER_DISPATCHES, PLACEHOLDER_TOOLS } from "@/app/_placeholder";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import Link from "next/link";
 import styles from "./homepage.module.css";
@@ -253,99 +253,27 @@ export default async function Home() {
             </span>
           </div>
           <div className={styles.tools}>
-            {issueTools.length > 0 ? (
-              issueTools.map((tool) => <ToolCard key={tool.id} tool={tool} />)
-            ) : (
-              <>
-                <a className={styles.tool} href="#">
-                  <div className={styles.toolHead}>
-                    <span className={styles.toolTitle}>The Provenance Stamp</span>
-                    <span className={styles.toolVersion}>v0.3</span>
-                  </div>
-                  <div className={styles.toolSvg}>
-                    <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
-                      <rect x="22" y="18" width="106" height="74" rx="3" fill="#FAF6EE" stroke="#3A2E1C" strokeWidth="1.1"/>
-                      <line x1="22" y1="34" x2="128" y2="34" stroke="#3A2E1C" strokeWidth="0.8"/>
-                      <text x="30" y="30" fontFamily="'Courier Prime', monospace" fontSize="6.5" fill="#3A2E1C" opacity="0.7">PROVENANCE</text>
-                      <g fontFamily="'Courier Prime', monospace" fontSize="6" fill="#3A2E1C" opacity="0.55">
-                        <text x="30" y="48">AUTHOR ........</text>
-                        <text x="30" y="60">MODEL .........</text>
-                        <text x="30" y="72">TOKENS ........</text>
-                        <text x="30" y="84">PROMPT ........</text>
-                      </g>
-                      <circle cx="108" cy="74" r="15" fill="none" stroke="#ED1C2E" strokeWidth="1.4"/>
-                      <circle cx="108" cy="74" r="11" fill="none" stroke="#ED1C2E" strokeWidth="0.6" strokeDasharray="2 2"/>
-                      <text x="108" y="77" fontFamily="'Cormorant Garamond', serif" fontSize="9" fontStyle="italic" fontWeight="600" fill="#ED1C2E" textAnchor="middle">RenAI</text>
-                    </svg>
-                  </div>
-                  <div className={styles.toolBody}>
-                    <h4>The Provenance Stamp</h4>
-                    <p>
-                      Paste anything a model helped you make. It returns the spec
-                      sheet — author, version, tokens, prompt — ready to print in
-                      ink.
-                    </p>
-                    <span className={styles.toolCta}>
-                      Open the tool <span className={styles.arrow}>→</span>
-                    </span>
-                  </div>
-                </a>
-
-                <a className={styles.tool} href="#">
-                  <div className={styles.toolHead}>
-                    <span className={styles.toolTitle}>Footnote Forge</span>
-                    <span className={styles.toolVersion}>v0.2</span>
-                  </div>
-                  <div className={styles.toolSvg}>
-                    <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
-                      <path d="M40 24 H110 M40 38 H110 M40 52 H92" stroke="#3A2E1C" strokeWidth="1.4" strokeLinecap="round"/>
-                      <text x="40" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[1]</text>
-                      <text x="62" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[2]</text>
-                      <text x="84" y="80" fontFamily="'Courier Prime', monospace" fontSize="8" fill="#ED1C2E">[3]</text>
-                      <line x1="40" y1="88" x2="110" y2="88" stroke="#3A2E1C" strokeWidth="0.6"/>
-                      <text x="40" y="100" fontFamily="'Courier Prime', monospace" fontSize="5.5" fill="#3A2E1C" opacity="0.55">claims → checkable sources</text>
-                    </svg>
-                  </div>
-                  <div className={styles.toolBody}>
-                    <h4>Footnote Forge</h4>
-                    <p>
-                      Feed it a confident paragraph. It hunts down a real citation
-                      for every claim — and flags the ones it can&apos;t, instead of
-                      inventing them.
-                    </p>
-                    <span className={styles.toolCta}>
-                      Open the tool <span className={styles.arrow}>→</span>
-                    </span>
-                  </div>
-                </a>
-
-                <a className={styles.tool} href="#">
-                  <div className={styles.toolHead}>
-                    <span className={styles.toolTitle}>The Bluff Detector</span>
-                    <span className={styles.toolVersion}>v0.1</span>
-                  </div>
-                  <div className={styles.toolSvg}>
-                    <svg width="150" height="110" viewBox="0 0 150 110" fill="none">
-                      <circle cx="62" cy="55" r="30" fill="none" stroke="#3A2E1C" strokeWidth="1.2"/>
-                      <line x1="84" y1="77" x2="104" y2="97" stroke="#3A2E1C" strokeWidth="2.4" strokeLinecap="round"/>
-                      <circle cx="62" cy="55" r="3" fill="#ED1C2E"/>
-                      <path d="M48 55 Q62 42 76 55" stroke="#ED1C2E" strokeWidth="1.2" fill="none" strokeDasharray="2 2"/>
-                      <text x="62" y="92" fontFamily="'Courier Prime', monospace" fontSize="6" fill="#ED1C2E" textAnchor="middle">SOURCE NOT FOUND</text>
-                    </svg>
-                  </div>
-                  <div className={styles.toolBody}>
-                    <h4>The Bluff Detector</h4>
-                    <p>
-                      Reads a model&apos;s answer and underlines every spot where it
-                      sounds certain but has nothing underneath. A confidence X-ray.
-                    </p>
-                    <span className={styles.toolCta}>
-                      Open the tool <span className={styles.arrow}>→</span>
-                    </span>
-                  </div>
-                </a>
-              </>
-            )}
+            {issueTools.length > 0
+              ? issueTools.map((tool) => <ToolCard key={tool.id} tool={tool} />)
+              : PLACEHOLDER_TOOLS.map((p) => (
+                  <a key={p.title} className={styles.tool} href="#">
+                    <div className={styles.toolHead}>
+                      <span className={styles.toolTitle}>{p.title}</span>
+                      <span className={styles.toolVersion}>{p.version}</span>
+                    </div>
+                    <div
+                      className={styles.toolSvg}
+                      dangerouslySetInnerHTML={{ __html: p.svgContent }}
+                    />
+                    <div className={styles.toolBody}>
+                      <h4>{p.title}</h4>
+                      <p>{p.description}</p>
+                      <span className={styles.toolCta}>
+                        Open the tool <span className={styles.arrow}>→</span>
+                      </span>
+                    </div>
+                  </a>
+                ))}
           </div>
         </section>
 
