@@ -1,9 +1,15 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import SubscribeForm from "@/components/SubscribeForm";
+import { SidebarPost } from "@/components/SidebarPost";
+import { DispatchCard } from "@/components/DispatchCard";
+import { ToolCard } from "@/components/ToolCard";
 import { db } from "@/db";
 import { issues, posts, tools } from "@/db/schema";
-import type { Post, Tool } from "@/db/schema";
+import type { Post } from "@/db/schema";
+import { formatDate, padCount } from "@/lib/formatters";
+import { firstTag } from "@/lib/tags";
+import { refCount } from "@/lib/references";
 import { and, asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,37 +17,6 @@ import styles from "../../homepage.module.css";
 
 interface Props {
   params: Promise<{ number: string }>;
-}
-
-function formatDate(date: Date | null | undefined): string {
-  if (!date) return "";
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
-}
-
-function firstTag(tagsJson: string): string {
-  try {
-    const tags = JSON.parse(tagsJson);
-    return Array.isArray(tags) && tags[0] ? String(tags[0]) : "";
-  } catch {
-    return "";
-  }
-}
-
-function padCount(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-function refCount(refsJson: string): number {
-  try {
-    const arr = JSON.parse(refsJson);
-    return Array.isArray(arr) ? arr.length : 0;
-  } catch {
-    return 0;
-  }
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -55,68 +30,6 @@ export async function generateMetadata({ params }: Props) {
     title: `Issue № ${issue.number} — ${issue.title} · The RenAIssance Fan`,
     description: issue.description ?? undefined,
   };
-}
-
-function SidebarPost({ post, index }: { post: Post; index: number }) {
-  return (
-    <div className={styles.stackItem}>
-      <span className={styles.stackNum}>{padCount(index + 2)}</span>
-      <h4>
-        <Link href={`/${post.slug}`}>{post.title}</Link>
-      </h4>
-      {post.excerpt && <p>{post.excerpt}</p>}
-      <div className={styles.stackMeta}>DISPATCH · {post.readingTime} MIN</div>
-    </div>
-  );
-}
-
-function DispatchCard({ post }: { post: Post }) {
-  return (
-    <article className={styles.dispatch}>
-      <div className={styles.dispatchTag}>{firstTag(post.tags) || "Dispatch"}</div>
-      <h4>
-        <Link href={`/${post.slug}`}>{post.title}</Link>
-      </h4>
-      {post.excerpt && <p>{post.excerpt}</p>}
-      <div className={styles.dispatchFoot}>
-        <span>{post.readingTime} MIN READ</span>
-        <span className={styles.red}>{formatDate(post.publishedAt)}</span>
-      </div>
-    </article>
-  );
-}
-
-function ToolCard({ tool }: { tool: Tool }) {
-  const inner = (
-    <>
-      {tool.category && (
-        <div className={styles.toolHead}>
-          <span className={styles.toolVersion}>{tool.category}</span>
-        </div>
-      )}
-      {tool.illustration && (
-        <div
-          className={styles.toolSvg}
-          dangerouslySetInnerHTML={{ __html: tool.illustration }}
-        />
-      )}
-      <div className={styles.toolBody}>
-        <h4>{tool.name}</h4>
-        {tool.descriptor && <p>{tool.descriptor}</p>}
-        <span className={styles.toolCta}>
-          Open the tool <span className={styles.arrow}>→</span>
-        </span>
-      </div>
-    </>
-  );
-
-  return tool.url ? (
-    <a className={styles.tool} href={tool.url} target="_blank" rel="noopener noreferrer">
-      {inner}
-    </a>
-  ) : (
-    <div className={styles.tool}>{inner}</div>
-  );
 }
 
 export default async function IssuePage({ params }: Props) {
