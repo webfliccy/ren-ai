@@ -2,7 +2,11 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
 import { Artefact, ExperimentRecord, fieldNotes } from "@/db/schema";
+import { formatDate } from "@/lib/formatters";
 import { renderMarkdown } from "@/lib/markdown";
+import { OUTCOME_STATUS_LABELS } from "@/lib/outcome-status";
+import { parseJson } from "@/lib/parse";
+import { fileExt, formatSize } from "@/lib/file-utils";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
@@ -11,35 +15,6 @@ import styles from "../field-notes.module.css";
 interface Props {
   params: Promise<{ slug: string }>;
 }
-
-function parseJson<T>(raw: string, fallback: T): T {
-  try { return JSON.parse(raw); } catch { return fallback; }
-}
-
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
-
-function formatSize(bytes: number | null): string {
-  if (bytes == null) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1048576).toFixed(1)} MB`;
-}
-
-function fileExt(name: string): string {
-  const dot = name.lastIndexOf(".");
-  if (dot !== -1 && dot < name.length - 1) return name.slice(dot + 1).toUpperCase();
-  return "FILE";
-}
-
-const OUTCOME_LABELS: Record<string, string> = {
-  pending: "Pending",
-  success: "Success",
-  partial: "Partial",
-  failure: "Failure",
-  inconclusive: "Inconclusive",
-};
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
@@ -94,7 +69,7 @@ export default async function FieldNoteDetailPage({ params }: Props) {
           <div className={styles.byline}>
             {outcome && (
               <span className={`${styles.bylineLabel}`}>
-                {OUTCOME_LABELS[outcome] ?? outcome}
+                {OUTCOME_STATUS_LABELS[outcome] ?? outcome}
               </span>
             )}
             {outcome && publishedDate && <span className={styles.bylineDot} />}
@@ -180,7 +155,7 @@ export default async function FieldNoteDetailPage({ params }: Props) {
                   <span className={styles.outcomeKey}>Status</span>
                   {outcome ? (
                     <span className={`${styles.outcomeVal} ${styles.outcomeValBadge} ${styles[outcome]}`}>
-                      {OUTCOME_LABELS[outcome] ?? outcome}
+                      {OUTCOME_STATUS_LABELS[outcome] ?? outcome}
                     </span>
                   ) : (
                     <span className={`${styles.outcomeVal} ${styles.muted}`}>—</span>

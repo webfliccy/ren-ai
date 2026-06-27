@@ -10,15 +10,13 @@ import { parseTags } from "@/lib/tags";
 import { OutcomeStatus, OUTCOME_STATUS_LABELS, OUTCOME_STATUS_COLOURS } from "@/lib/outcome-status";
 import { EMPTY_EXPERIMENT, parseExperiment } from "@/lib/experiment";
 import { toDateInputValue } from "@/lib/formatters";
+import { parseJson } from "@/lib/parse";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
 
-function parseArtefacts(raw: string): Artefact[] {
-  try { return JSON.parse(raw); } catch { return []; }
-}
 
 export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote; issues?: Pick<Issue, "id" | "number" | "title">[] }) {
   const router = useRouter();
@@ -51,7 +49,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
 
   // Artefacts
   const [artefacts, setArtefacts] = useState<Artefact[]>(
-    parseArtefacts(note?.artefacts ?? "[]")
+    parseJson(note?.artefacts ?? "[]", [] as Artefact[])
   );
   const [uploading, setUploading] = useState(false);
 
