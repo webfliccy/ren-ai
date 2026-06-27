@@ -1,9 +1,18 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import SubscribeForm from "@/components/SubscribeForm";
+import { ToolCard } from "@/components/ToolCard";
+import { SidebarPost } from "@/components/SidebarPost";
+import { SidebarFieldNote } from "@/components/SidebarFieldNote";
+import { DispatchCard } from "@/components/DispatchCard";
+import { FieldNoteCard } from "@/components/FieldNoteCard";
 import { db } from "@/db";
 import { issues, posts, tools, fieldNotes } from "@/db/schema";
-import type { FieldNote, Issue, Post, Tool } from "@/db/schema";
+import type { Issue, Post, Tool } from "@/db/schema";
+import { formatDate, padCount } from "@/lib/formatters";
+import { firstTag } from "@/lib/tags";
+import { refCount } from "@/lib/references";
+import { PLACEHOLDER_SIDEBAR, PLACEHOLDER_DISPATCHES } from "@/app/_placeholder";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import Link from "next/link";
 import styles from "./homepage.module.css";
@@ -13,190 +22,6 @@ export const metadata = {
   description:
     "Fallibly human dispatches from the edge of artificial intelligence. Essays, tools, and an honest ledger.",
 };
-
-function formatDate(date: Date | null | undefined): string {
-  if (!date) return "";
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
-}
-
-function firstTag(tagsJson: string): string {
-  try {
-    const tags = JSON.parse(tagsJson);
-    return Array.isArray(tags) && tags[0] ? String(tags[0]) : "";
-  } catch {
-    return "";
-  }
-}
-
-function padCount(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-function refCount(refsJson: string): number {
-  try {
-    const arr = JSON.parse(refsJson);
-    return Array.isArray(arr) ? arr.length : 0;
-  } catch {
-    return 0;
-  }
-}
-
-// ── Components ───────────────────────────────────────────────────────────────
-
-function ToolCard({ tool }: { tool: Tool }) {
-  const inner = (
-    <>
-      {tool.category && (
-        <div className={styles.toolHead}>
-          <span className={styles.toolVersion}>{tool.category}</span>
-        </div>
-      )}
-      {tool.illustration && (
-        <div
-          className={styles.toolSvg}
-          dangerouslySetInnerHTML={{ __html: tool.illustration }}
-        />
-      )}
-      <div className={styles.toolBody}>
-        <h4>{tool.name}</h4>
-        {tool.descriptor && <p>{tool.descriptor}</p>}
-        <span className={styles.toolCta}>
-          Open the tool <span className={styles.arrow}>→</span>
-        </span>
-      </div>
-    </>
-  );
-
-  return tool.url ? (
-    <a className={styles.tool} href={tool.url} target="_blank" rel="noopener noreferrer">
-      {inner}
-    </a>
-  ) : (
-    <div className={styles.tool}>{inner}</div>
-  );
-}
-
-// ── Static placeholder content shown when the DB is empty ───────────────────
-
-const PLACEHOLDER_SIDEBAR = [
-  {
-    num: "02",
-    title: "The Hallucination Will Be Cited",
-    excerpt:
-      "A field guide to the model's most confident lie: the source that sounds perfect and does not exist.",
-    meta: "DISPATCH · 7 MIN",
-  },
-  {
-    num: "03",
-    title: "Prompt & Circumstance",
-    excerpt:
-      "We published every prompt behind this issue. Read them and judge how much was really ours.",
-    meta: "DISPATCH · 5 MIN",
-  },
-  {
-    num: "04",
-    title: "A Brief History of Confidently Wrong",
-    excerpt:
-      "From the Delphic oracle to the autocomplete bar — humanity's long romance with the assured guess.",
-    meta: "DISPATCH · 9 MIN",
-  },
-];
-
-const PLACEHOLDER_DISPATCHES = [
-  {
-    tag: "On Method",
-    title: "How to Read a Machine That Cannot Read You Back",
-    excerpt:
-      "A working etiquette for collaborating with something that has opinions but no memory, no stake, and no shame.",
-    min: 6,
-  },
-  {
-    tag: "On Taste",
-    title: "The Median Is Not Your Friend",
-    excerpt:
-      "Why a model trained on everyone's writing will, by design, hand you the most forgettable sentence available.",
-    min: 8,
-  },
-  {
-    tag: "On Labour",
-    title: "Who Does the Dishes After the Renaissance?",
-    excerpt:
-      "The miracle does the fun part. Someone still has to check, credit, and sign. A note on the unglamorous remainder.",
-    min: 7,
-  },
-];
-
-// ── Page components ──────────────────────────────────────────────────────────
-
-function SidebarPost({ post, index }: { post: Post; index: number }) {
-  return (
-    <div className={styles.stackItem}>
-      <span className={styles.stackNum}>{padCount(index + 2)}</span>
-      <h4>
-        <Link href={`/${post.slug}`}>{post.title}</Link>
-      </h4>
-      {post.excerpt && <p>{post.excerpt}</p>}
-      <div className={styles.stackMeta}>
-        DISPATCH · {post.readingTime} MIN
-      </div>
-    </div>
-  );
-}
-
-function SidebarFieldNote({ note, num }: { note: FieldNote; num: string }) {
-  return (
-    <div className={styles.stackItem}>
-      <span className={styles.stackNum}>{num}</span>
-      <h4>
-        <Link href={`/field-notes/${note.slug}`}>{note.title}</Link>
-      </h4>
-      {note.excerpt && <p>{note.excerpt}</p>}
-      <div className={styles.stackMeta}>
-        FIELD NOTE{note.outcomeStatus ? ` · ${note.outcomeStatus.toUpperCase()}` : ""}
-      </div>
-    </div>
-  );
-}
-
-function DispatchCard({ post }: { post: Post }) {
-  return (
-    <article className={styles.dispatch}>
-      <div className={styles.dispatchTag}>{firstTag(post.tags) || "Dispatch"}</div>
-      <h4>
-        <Link href={`/${post.slug}`}>{post.title}</Link>
-      </h4>
-      {post.excerpt && <p>{post.excerpt}</p>}
-      <div className={styles.dispatchFoot}>
-        <span>{post.readingTime} MIN READ</span>
-        <span className={styles.red}>{formatDate(post.publishedAt)}</span>
-      </div>
-    </article>
-  );
-}
-
-function FieldNoteCard({ note }: { note: FieldNote }) {
-  return (
-    <article className={styles.dispatch}>
-      <div className={styles.dispatchTag}>Field Note</div>
-      <h4>
-        <Link href={`/field-notes/${note.slug}`}>{note.title}</Link>
-      </h4>
-      {note.excerpt && <p>{note.excerpt}</p>}
-      <div className={styles.dispatchFoot}>
-        {note.outcomeStatus && (
-          <span className={styles.red}>{note.outcomeStatus.toUpperCase()}</span>
-        )}
-        {note.publishedAt && <span>{formatDate(note.publishedAt)}</span>}
-      </div>
-    </article>
-  );
-}
-
-// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
   const [currentIssue]: (Issue | undefined)[] = await db
