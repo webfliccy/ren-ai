@@ -7,52 +7,17 @@ import { FormField } from "./FormField";
 import { ArtefactList } from "./ArtefactList";
 import { TagInput } from "./TagInput";
 import { parseTags } from "@/lib/tags";
+import { OutcomeStatus, OUTCOME_STATUS_LABELS, OUTCOME_STATUS_COLOURS } from "@/lib/outcome-status";
+import { EMPTY_EXPERIMENT, parseExperiment } from "@/lib/experiment";
+import { toDateInputValue } from "@/lib/formatters";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
 
-type OutcomeStatus = "pending" | "success" | "partial" | "failure" | "inconclusive";
-
-const OUTCOME_STATUS_LABELS: Record<OutcomeStatus, string> = {
-  pending: "Pending",
-  success: "Success",
-  partial: "Partial",
-  failure: "Failure",
-  inconclusive: "Inconclusive",
-};
-
-const OUTCOME_STATUS_COLOURS: Record<OutcomeStatus, string> = {
-  pending: "bg-gray-100 text-gray-700",
-  success: "bg-green-100 text-green-700",
-  partial: "bg-yellow-100 text-yellow-700",
-  failure: "bg-red-100 text-red-700",
-  inconclusive: "bg-purple-100 text-purple-700",
-};
-
-const EMPTY_EXPERIMENT: ExperimentRecord = {
-  hypothesis: "",
-  method: "",
-  model: "",
-  trials: null,
-  duration: "",
-  scoredBy: "",
-  outcome: "",
-};
-
-function parseExperiment(raw: string): ExperimentRecord {
-  try { return { ...EMPTY_EXPERIMENT, ...JSON.parse(raw) }; } catch { return { ...EMPTY_EXPERIMENT }; }
-}
-
 function parseArtefacts(raw: string): Artefact[] {
   try { return JSON.parse(raw); } catch { return []; }
-}
-
-function toDateInputValue(ts: Date | null | undefined): string {
-  if (!ts) return "";
-  const d = new Date(ts);
-  return d.toISOString().slice(0, 10);
 }
 
 export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote; issues?: Pick<Issue, "id" | "number" | "title">[] }) {
