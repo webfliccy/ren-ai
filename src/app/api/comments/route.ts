@@ -8,6 +8,7 @@ import { NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const postId = searchParams.get("postId");
+  const fieldNoteId = searchParams.get("fieldNoteId");
   const all = searchParams.get("all") === "true";
 
   if (all) {
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
       .select({
         id: comments.id,
         postId: comments.postId,
+        fieldNoteId: comments.fieldNoteId,
         body: comments.body,
         approved: comments.approved,
         createdAt: comments.createdAt,
@@ -32,14 +34,19 @@ export async function GET(request: NextRequest) {
     return Response.json(rows);
   }
 
-  if (!postId) {
-    return Response.json({ error: "postId required" }, { status: 400 });
+  if (!postId && !fieldNoteId) {
+    return Response.json({ error: "postId or fieldNoteId required" }, { status: 400 });
   }
+
+  const condition = postId
+    ? and(eq(comments.postId, Number(postId)), eq(comments.approved, true))
+    : and(eq(comments.fieldNoteId, Number(fieldNoteId)), eq(comments.approved, true));
 
   const rows = await db
     .select({
       id: comments.id,
       postId: comments.postId,
+      fieldNoteId: comments.fieldNoteId,
       parentId: comments.parentId,
       body: comments.body,
       createdAt: comments.createdAt,
@@ -48,7 +55,7 @@ export async function GET(request: NextRequest) {
     })
     .from(comments)
     .leftJoin(users, eq(comments.authorId, users.id))
-    .where(and(eq(comments.postId, Number(postId)), eq(comments.approved, true)))
+    .where(condition)
     .orderBy(asc(comments.createdAt));
 
   return Response.json(rows);
@@ -60,16 +67,20 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Sign in to comment" }, { status: 401 });
   }
 
-  const { postId, body, parentId } = await request.json();
+  const { postId, fieldNoteId, body, parentId } = await request.json();
 
   if (!body?.trim()) {
     return Response.json({ error: "Comment body is required" }, { status: 400 });
+  }
+  if (!postId && !fieldNoteId) {
+    return Response.json({ error: "postId or fieldNoteId required" }, { status: 400 });
   }
 
   const [comment] = await db
     .insert(comments)
     .values({
-      postId: Number(postId),
+      postId: postId ? Number(postId) : null,
+      fieldNoteId: fieldNoteId ? Number(fieldNoteId) : null,
       authorId: session.user.id,
       body: body.trim(),
       parentId: parentId ? Number(parentId) : null,

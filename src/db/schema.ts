@@ -161,9 +161,8 @@ export type User = typeof users.$inferSelect;
 
 export const comments = sqliteTable("comment", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  postId: integer("post_id")
-    .notNull()
-    .references(() => posts.id, { onDelete: "cascade" }),
+  postId: integer("post_id").references(() => posts.id, { onDelete: "cascade" }),
+  fieldNoteId: integer("field_note_id").references(() => fieldNotes.id, { onDelete: "cascade" }),
   authorId: text("author_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

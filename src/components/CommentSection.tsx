@@ -5,7 +5,8 @@ import { useState } from "react";
 
 interface CommentRow {
   id: number;
-  postId: number;
+  postId: number | null;
+  fieldNoteId: number | null;
   parentId: number | null;
   body: string;
   createdAt: Date;
@@ -13,13 +14,11 @@ interface CommentRow {
   authorImage: string | null;
 }
 
-export default function CommentSection({
-  postId,
-  initialComments,
-}: {
-  postId: number;
-  initialComments: CommentRow[];
-}) {
+type Props =
+  | { postId: number; fieldNoteId?: never; initialComments: CommentRow[] }
+  | { fieldNoteId: number; postId?: never; initialComments: CommentRow[] };
+
+export default function CommentSection({ postId, fieldNoteId, initialComments }: Props) {
   const { data: session, status } = useSession();
   const [list] = useState(initialComments);
   const [body, setBody] = useState("");
@@ -34,7 +33,7 @@ export default function CommentSection({
     const res = await fetch("/api/comments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId, body }),
+      body: JSON.stringify({ postId, fieldNoteId, body }),
     });
 
     setSubmitting(false);

@@ -67,6 +67,7 @@ export default async function PostPage({ params }: Props) {
     .select({
       id: comments.id,
       postId: comments.postId,
+      fieldNoteId: comments.fieldNoteId,
       parentId: comments.parentId,
       body: comments.body,
       createdAt: comments.createdAt,
