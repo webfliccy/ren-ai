@@ -71,6 +71,8 @@
   justify-content: center;
   gap: 40px;
   padding: 12px 0 0;
+  padding-bottom: 38px;
+  border-bottom: 1px solid var(--rule);
 }
 .nav a {
   font-size: 10.5px;
@@ -81,7 +83,13 @@
   text-decoration: none;
 }
 .nav a:hover { opacity: 1; color: var(--red); }
-.navActive { color: var(--red); opacity: 1; }
+.navActive {
+  color: var(--red);
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+}
 
 /* ════════ RESPONSIVE ════════ */
 @media (max-width: 900px) {

@@ -54,10 +54,28 @@
   line-height: 1.55;
 }
 
-/* ── Entry list ── */
-.list {
+/* ── Tools grid ── */
+.toolsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 760px) {
+  .toolsGrid { grid-template-columns: 1fr; }
+}
+
+/* ── Card list ── */
+.cards {
+  display: flex;
+  flex-direction: column;
   max-width: 720px;
   margin: 0 auto;
+}
+.cards article {
+  border-left: none !important;
+  border-top: 1px solid var(--rule);
+  padding: 28px 0 !important;
 }
 
 .entry {
@@ -671,7 +689,7 @@
 
 /* ════════ RESPONSIVE ════════ */
 @media (max-width: 760px) {
-  .headline { font-size: 40px; }
+.headline { font-size: 40px; }
   .indexTitle { font-size: 36px; }
   .specRows { grid-template-columns: 1fr; }
   .specRows .specRow:nth-child(odd) { border-right: none; }

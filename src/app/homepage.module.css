@@ -63,8 +63,6 @@
   display: grid;
   grid-template-columns: 1.35fr 1fr;
   gap: 0;
-  margin-top: 38px;
-  border-top: 1px solid var(--rule);
 }
 .leadMain {
   padding: 30px 40px 30px 0;

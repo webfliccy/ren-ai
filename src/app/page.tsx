@@ -204,41 +204,6 @@ export default async function Home() {
           </aside>
         </section>
 
-        {/* ════════ DISPATCHES & FIELD NOTES ROW ════════ */}
-        <section data-screen-label="Dispatches & Field Notes">
-          <div className={styles.sectionHead}>
-            <h3>Dispatches &amp; Field Notes</h3>
-            <span className={styles.sectionDesc}>
-              essays, arguments, and experiment logs
-            </span>
-            <span className={styles.sectionCount}>
-              {padCount(allPosts.length)} / SEASON I
-            </span>
-          </div>
-          <div className={styles.cards3}>
-            {dispatchPosts.length > 0
-              ? dispatchPosts.map((post) => (
-                  <DispatchCard key={post.id} post={post} />
-                ))
-              : PLACEHOLDER_DISPATCHES.map((item) => (
-                  <article key={item.tag} className={styles.dispatch}>
-                    <div className={styles.dispatchTag}>{item.tag}</div>
-                    <h4>
-                      <a href="#">{item.title}</a>
-                    </h4>
-                    <p>{item.excerpt}</p>
-                    <div className={styles.dispatchFoot}>
-                      <span>{item.min} MIN READ</span>
-                      <span className={styles.red}>COMING SOON</span>
-                    </div>
-                  </article>
-                ))}
-            {latestNotes.map((note) => (
-              <FieldNoteCard key={note.id} note={note} />
-            ))}
-          </div>
-        </section>
-
         {/* ════════ TOOLS & CONTRAPTIONS ════════ */}
         <section id="tools" data-screen-label="Tools">
           <div className={styles.sectionHead}>

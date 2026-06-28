@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { comments, posts, users } from "@/db/schema";
 import { renderMarkdown } from "@/lib/markdown";
 import { parseRefs } from "@/lib/references";
+import { parseJson } from "@/lib/parse";
 import { and, asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
@@ -13,14 +14,6 @@ import styles from "./article.module.css";
 
 interface Props {
   params: Promise<{ slug: string }>;
-}
-
-function parseJson<T>(raw: string, fallback: T): T {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
 }
 
 function formatDate(d: Date): string {

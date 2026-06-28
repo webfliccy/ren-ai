@@ -7,7 +7,7 @@ import styles from "./SiteHeader.module.css";
 
 const NAV = [
   { label: "Dispatches & Field Notes", href: "/field-notes" },
-  { label: "Tools & Contraptions", href: "/#tools" },
+  { label: "Tools & Contraptions", href: "/tools" },
   { label: "The Archive", href: "/issues" },
   { label: "About the Fan", href: "/about" },
 ] as const;

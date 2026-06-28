@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { Table } from "@tiptap/extension-table";
@@ -10,7 +11,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { Markdown } from "tiptap-markdown";
 import { marked } from "marked";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface Props {
   content: string;
@@ -21,6 +22,8 @@ interface Props {
 export default function RichEditor({ content, onChange, tables = false }: Props) {
   const [mode, setMode] = useState<"write" | "markdown">("write");
   const [rawMarkdown, setRawMarkdown] = useState(content);
+  const [uploading, setUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -28,6 +31,7 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
       Placeholder.configure({ placeholder: "Write…" }),
       Link.configure({ openOnClick: false }),
       Markdown.configure({ transformPastedText: true }),
+      Image,
       ...(tables
         ? [
             Table.configure({ resizable: false }),
@@ -53,6 +57,19 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
   });
 
   if (!editor) return null;
+
+  async function handleImageFile(file: File) {
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) editor!.chain().focus().setImage({ src: data.url }).run();
+    } finally {
+      setUploading(false);
+    }
+  }
 
   function switchToMarkdown() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,6 +123,26 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
               }}
             >
               Link
+            </button>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageFile(file);
+                e.target.value = "";
+              }}
+            />
+            <button
+              type="button"
+              className={btn(false)}
+              disabled={uploading}
+              title="Insert image"
+              onClick={() => imageInputRef.current?.click()}
+            >
+              {uploading ? "…" : "Image"}
             </button>
             <span className="mx-1 border-l border-gray-200" />
             {tables && (
