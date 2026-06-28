@@ -229,6 +229,8 @@ export const fieldNotes = sqliteTable("field_note", {
   experiment: text("experiment").notNull().default("{}"),
   // Artefacts (JSON array: [{name, description, url, type, size}])
   artefacts: text("artefacts").notNull().default("[]"),
+  // References (JSON array of Chicago web refs)
+  references: text("references").notNull().default("[]"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),

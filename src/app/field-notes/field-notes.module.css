@@ -618,6 +618,57 @@
   flex-shrink: 0;
 }
 
+/* ════════ REFERENCES ════════ */
+.refs {
+  margin: 24px 0 0;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 3px 4px 0 rgba(58,46,28,0.07);
+}
+.refsHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--parchment);
+}
+.refsHeadTitle {
+  font-family: var(--font-courier-prime), 'Courier New', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.refsHeadFig {
+  font-family: var(--font-courier-prime), 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+.refsList {
+  margin: 0;
+  padding: 6px 14px 6px 32px;
+  list-style: decimal;
+}
+.refItem {
+  font-family: var(--font-figtree), system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-light);
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.refItem:last-child { border-bottom: none; }
+.refItem a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+.refItem a:hover { color: var(--red); }
+
 /* ════════ RESPONSIVE ════════ */
 @media (max-width: 760px) {
   .headline { font-size: 40px; }

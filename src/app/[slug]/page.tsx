@@ -1,4 +1,5 @@
 import CommentSection from "@/components/CommentSection";
+import { ReferenceCitation } from "@/components/ReferenceCitation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
@@ -200,28 +201,11 @@ export default async function PostPage({ params }: Props) {
               Citations follow Chicago Manual of Style — Notes &amp; Bibliography (web) format.
             </p>
             <ol className={styles.bib}>
-              {refs.map((ref, i) => {
-                const author =
-                  ref.authorLast || ref.authorFirst
-                    ? `${ref.authorLast}${ref.authorFirst ? `, ${ref.authorFirst}` : ""}.`
-                    : null;
-                return (
-                  <li key={i}>
-                    {author && <>{author} </>}
-                    {ref.pageTitle && <>&ldquo;{ref.pageTitle}.&rdquo; </>}
-                    {ref.siteName && <><em>{ref.siteName}</em>. </>}
-                    {ref.date && <>{ref.date}. </>}
-                    {ref.url && (
-                      <>
-                        <a href={ref.url} target="_blank" rel="noopener noreferrer">
-                          {ref.url}
-                        </a>
-                        .
-                      </>
-                    )}
-                  </li>
-                );
-              })}
+              {refs.map((ref, i) => (
+                <li key={i}>
+                  <ReferenceCitation reference={ref} />
+                </li>
+              ))}
             </ol>
           </section>
         )}

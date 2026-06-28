@@ -1,3 +1,4 @@
+import { ReferenceCitation } from "@/components/ReferenceCitation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
@@ -6,6 +7,7 @@ import { formatDate } from "@/lib/formatters";
 import { renderMarkdown } from "@/lib/markdown";
 import { OUTCOME_STATUS_LABELS } from "@/lib/outcome-status";
 import { parseJson } from "@/lib/parse";
+import { parseRefs } from "@/lib/references";
 import { fileExt, formatSize } from "@/lib/file-utils";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
@@ -37,6 +39,7 @@ export default async function FieldNoteDetailPage({ params }: Props) {
     duration: "", scoredBy: "", outcome: "",
   });
   const artefacts = parseJson<Artefact[]>(note.artefacts, []);
+  const refs = parseRefs(note.references);
 
   const publishedDate = note.publishedAt ? formatDate(new Date(note.publishedAt)) : null;
   const closedDate = note.outcomeDateClosed ? formatDate(new Date(note.outcomeDateClosed)) : null;
@@ -207,6 +210,23 @@ export default async function FieldNoteDetailPage({ params }: Props) {
                   </li>
                 ))}
               </ul>
+            </section>
+          )}
+
+          {/* ── References ───────────────────────────── */}
+          {refs.length > 0 && (
+            <section className={styles.refs} aria-label="References">
+              <div className={styles.refsHead}>
+                <span className={styles.refsHeadTitle}>References</span>
+                <span className={styles.refsHeadFig}>FIG. 2-D</span>
+              </div>
+              <ol className={styles.refsList}>
+                {refs.map((ref, i) => (
+                  <li key={i} className={styles.refItem}>
+                    <ReferenceCitation reference={ref} />
+                  </li>
+                ))}
+              </ol>
             </section>
           )}
         </article>

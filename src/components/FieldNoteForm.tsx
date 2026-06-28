@@ -5,8 +5,10 @@ import { slugify } from "@/lib/slug";
 import { btnPrimary, btnSecondary, errorBanner, inputClass, labelClass, selectClass } from "@/lib/styles";
 import { FormField } from "./FormField";
 import { ArtefactList } from "./ArtefactList";
+import { ReferenceList } from "./ReferenceList";
 import { TagInput } from "./TagInput";
 import { parseTags } from "@/lib/tags";
+import { ChicagoWebRef, parseRefs } from "@/lib/references";
 import { OutcomeStatus, OUTCOME_STATUS_LABELS, OUTCOME_STATUS_COLOURS } from "@/lib/outcome-status";
 import { EMPTY_EXPERIMENT, parseExperiment } from "@/lib/experiment";
 import { toDateInputValue } from "@/lib/formatters";
@@ -52,6 +54,11 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     parseJson(note?.artefacts ?? "[]", [] as Artefact[])
   );
   const [uploading, setUploading] = useState(false);
+
+  // References
+  const [references, setReferences] = useState<ChicagoWebRef[]>(() =>
+    parseRefs(note?.references ?? "[]")
+  );
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -105,6 +112,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       outcomeRuns: outcomeRuns !== "" ? Number(outcomeRuns) : null,
       experiment,
       artefacts,
+      references,
     };
 
     const res = isEditing
@@ -315,6 +323,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           uploading={uploading}
         />
       </fieldset>
+
+      {/* ── References ───────────────────────────────────────────────── */}
+      <ReferenceList references={references} onChange={setReferences} />
 
       {/* ── Tags ─────────────────────────────────────────────────────── */}
       <FormField label="Tags">
