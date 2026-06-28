@@ -232,12 +232,15 @@ export default async function FieldNoteDetailPage({ params }: Props) {
           {refs.length > 0 && (
             <section className={styles.refs} aria-label="References">
               <div className={styles.refsHead}>
-                <span className={styles.refsHeadTitle}>References</span>
-                <span className={styles.refsHeadFig}>FIG. 2-D</span>
+                <h2>References</h2>
+                <div className={styles.refsHeadLine} />
               </div>
-              <ol className={styles.refsList}>
+              <p className={styles.refsNote}>
+                Citations follow Chicago Manual of Style — Notes &amp; Bibliography (web) format.
+              </p>
+              <ol className={styles.bib}>
                 {refs.map((ref, i) => (
-                  <li key={i} className={styles.refItem}>
+                  <li key={i}>
                     <ReferenceCitation reference={ref} />
                   </li>
                 ))}

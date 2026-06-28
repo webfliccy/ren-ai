@@ -638,54 +638,60 @@
 
 /* ════════ REFERENCES ════════ */
 .refs {
-  margin: 24px 0 0;
-  border: 1.5px solid var(--ink);
-  background: var(--paper);
-  box-shadow: 3px 4px 0 rgba(58,46,28,0.07);
+  max-width: 720px;
+  margin: 56px auto 0;
+  padding-top: 4px;
 }
 .refsHead {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--ink);
-  background: var(--ink);
-  color: var(--parchment);
+  gap: 14px;
+  margin-bottom: 8px;
 }
-.refsHeadTitle {
-  font-family: var(--font-courier-prime), 'Courier New', monospace;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-.refsHeadFig {
-  font-family: var(--font-courier-prime), 'Courier New', monospace;
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  opacity: 0.7;
-}
-.refsList {
-  margin: 0;
-  padding: 6px 14px 6px 32px;
-  list-style: decimal;
-}
-.refItem {
-  font-family: var(--font-figtree), system-ui, sans-serif;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ink-light);
-  padding: 6px 0;
-  border-bottom: 1px dashed var(--border);
-}
-.refItem:last-child { border-bottom: none; }
-.refItem a {
+.refsHead h2 {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 26px;
+  font-weight: 600;
   color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  word-break: break-word;
+  white-space: nowrap;
 }
-.refItem a:hover { color: var(--red); }
+.refsHeadLine { flex: 1; height: 1px; background: var(--rule); }
+.refsNote {
+  font-family: var(--font-figtree), system-ui, sans-serif;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 22px;
+  line-height: 1.55;
+}
+.bib {
+  counter-reset: bib;
+  list-style: none;
+  padding: 0;
+}
+.bib li {
+  counter-increment: bib;
+  position: relative;
+  padding-left: 38px;
+  margin-bottom: 16px;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.bib li::before {
+  content: '[' counter(bib) ']';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-family: var(--font-courier-prime), 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--red);
+}
+.bib .work { font-style: italic; }
+.bib a { color: var(--ink-light); text-decoration: none; border-bottom: 1px solid var(--border); }
+.bib a:hover { color: var(--red); border-color: var(--red); }
 
 /* ── Comments ── */
 .commentsSection {
