@@ -1,7 +1,8 @@
 import PostForm from "@/components/PostForm";
+import { getPostById } from "@/services/posts";
 import { db } from "@/db";
-import { issues, posts } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { issues } from "@/db/schema";
+import { desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 interface Props {
@@ -12,8 +13,8 @@ export const metadata = { title: "Edit post — ren·ai" };
 
 export default async function EditPostPage({ params }: Props) {
   const { id } = await params;
-  const [[post], allIssues] = await Promise.all([
-    db.select().from(posts).where(eq(posts.id, Number(id))),
+  const [post, allIssues] = await Promise.all([
+    getPostById(Number(id)),
     db
       .select({ id: issues.id, number: issues.number, title: issues.title })
       .from(issues)

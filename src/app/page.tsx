@@ -6,14 +6,15 @@ import { SidebarPost } from "@/components/SidebarPost";
 import { SidebarFieldNote } from "@/components/SidebarFieldNote";
 import { DispatchCard } from "@/components/DispatchCard";
 import { FieldNoteCard } from "@/components/FieldNoteCard";
+import { getPublishedPosts, getPostsByIssue } from "@/services/posts";
 import { db } from "@/db";
-import { issues, posts, tools, fieldNotes } from "@/db/schema";
+import { issues, tools, fieldNotes } from "@/db/schema";
 import type { Issue, Post, Tool } from "@/db/schema";
 import { formatDate, padCount } from "@/lib/formatters";
-import { firstTag } from "@/lib/tags";
+import { firstTag, parseTags } from "@/lib/tags";
 import { refCount } from "@/lib/references";
 import { PLACEHOLDER_SIDEBAR, PLACEHOLDER_DISPATCHES, PLACEHOLDER_TOOLS } from "@/app/_placeholder";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import styles from "./homepage.module.css";
 
@@ -33,17 +34,8 @@ export default async function Home() {
 
   const [allPosts, issueTools, latestNotes] = await Promise.all([
     currentIssue
-      ? db
-          .select()
-          .from(posts)
-          .where(and(eq(posts.issueId, currentIssue.id), eq(posts.status, "published")))
-          .orderBy(desc(sql`${posts.featured}`), desc(posts.publishedAt))
-      : db
-          .select()
-          .from(posts)
-          .where(eq(posts.status, "published"))
-          .orderBy(desc(sql`${posts.featured}`), desc(posts.publishedAt))
-          .limit(7),
+      ? getPostsByIssue(currentIssue.id)
+      : getPublishedPosts({ limit: 7 }),
     currentIssue
       ? db
           .select()
@@ -182,7 +174,14 @@ export default async function Home() {
 
             {sidebarPosts.length > 0
               ? sidebarPosts.map((post, i) => (
-                  <SidebarPost key={post.id} post={post} index={i} />
+                  <SidebarPost
+                    key={post.id}
+                    title={post.title}
+                    slug={post.slug}
+                    excerpt={post.excerpt ?? undefined}
+                    readingTime={post.readingTime}
+                    index={i}
+                  />
                 ))
               : PLACEHOLDER_SIDEBAR.map((item) => (
                   <div key={item.num} className={styles.stackItem}>

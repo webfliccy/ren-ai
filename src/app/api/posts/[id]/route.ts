@@ -1,8 +1,5 @@
-import { db } from "@/db";
-import { posts } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
-import { calculateReadingTime } from "@/lib/reading-time";
-import { eq } from "drizzle-orm";
+import { getPostById, updatePost, deletePost } from "@/services/posts";
 import { NextRequest } from "next/server";
 
 export async function GET(
@@ -10,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const [post] = await db.select().from(posts).where(eq(posts.id, Number(id)));
+  const post = await getPostById(Number(id));
   if (!post) return Response.json({ error: "Not found" }, { status: 404 });
   return Response.json(post);
 }
@@ -26,44 +23,25 @@ export async function PATCH(
   const body = await request.json();
   const { title, content, excerpt, prompt, figSvg, status, featured, slug, tags, issueId, tokens, references, seoTitle, seoDescription, ogImage } = body;
 
-  const [existing] = await db
-    .select()
-    .from(posts)
-    .where(eq(posts.id, Number(id)));
-  if (!existing) return Response.json({ error: "Not found" }, { status: 404 });
+  const updated = await updatePost(Number(id), {
+    title,
+    content,
+    excerpt,
+    prompt,
+    figSvg,
+    status,
+    featured,
+    slug,
+    tags,
+    issueId,
+    tokens,
+    references,
+    seoTitle,
+    seoDescription,
+    ogImage,
+  });
 
-  const isNowPublished = status === "published";
-  const wasPublished = existing.status === "published";
-  const publishedAt =
-    isNowPublished && !wasPublished ? new Date() : existing.publishedAt;
-
-  const readingTime = calculateReadingTime(content ?? existing.content);
-
-  const [updated] = await db
-    .update(posts)
-    .set({
-      title,
-      slug,
-      content,
-      excerpt,
-      prompt,
-      figSvg,
-      status,
-      featured: featured ?? false,
-      tags: JSON.stringify(tags ?? []),
-      issueId: issueId ?? null,
-      tokens: tokens || null,
-      references: JSON.stringify(references ?? []),
-      seoTitle,
-      seoDescription,
-      ogImage,
-      readingTime,
-      publishedAt,
-      updatedAt: new Date(),
-    })
-    .where(eq(posts.id, Number(id)))
-    .returning();
-
+  if (!updated) return Response.json({ error: "Not found" }, { status: 404 });
   return Response.json(updated);
 }
 
@@ -75,6 +53,6 @@ export async function DELETE(
   if (authError) return authError;
 
   const { id } = await params;
-  await db.delete(posts).where(eq(posts.id, Number(id)));
+  await deletePost(Number(id));
   return new Response(null, { status: 204 });
 }

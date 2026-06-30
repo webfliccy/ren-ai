@@ -1,29 +1,14 @@
-import { db } from "@/db";
-import { posts } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
-import { calculateReadingTime } from "@/lib/reading-time";
-import { generateSlug } from "@/lib/slug";
-import { desc, eq, like } from "drizzle-orm";
+import { createPost } from "@/services/posts";
+import { getPublishedPosts } from "@/services/posts";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const all = searchParams.get("all") === "true";
-  const tag = searchParams.get("tag");
+  const tag = searchParams.get("tag") ?? undefined;
 
-  let query = db.select().from(posts).$dynamic();
-
-  if (!all) {
-    query = query.where(eq(posts.status, "published"));
-  }
-  if (tag) {
-    query = query.where(like(posts.tags, `%"${tag}"%`));
-  }
-
-  const results = await query.orderBy(
-    all ? desc(posts.createdAt) : desc(posts.publishedAt)
-  );
-
+  const results = await getPublishedPosts({ all, tag });
   return Response.json(results);
 }
 
@@ -38,32 +23,22 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Title is required" }, { status: 400 });
   }
 
-  const slug = generateSlug(title);
-  const publishedAt = status === "published" ? new Date() : null;
-  const readingTime = calculateReadingTime(content ?? "");
-
-  const [post] = await db
-    .insert(posts)
-    .values({
-      title,
-      slug,
-      content: content ?? "",
-      excerpt,
-      prompt,
-      figSvg,
-      status: status ?? "draft",
-      featured: featured ?? false,
-      tags: JSON.stringify(tags ?? []),
-      issueId: issueId ?? null,
-      tokens: tokens || null,
-      references: JSON.stringify(references ?? []),
-      seoTitle,
-      seoDescription,
-      ogImage,
-      readingTime,
-      publishedAt,
-    })
-    .returning();
+  const post = await createPost({
+    title,
+    content,
+    excerpt,
+    prompt,
+    figSvg,
+    status,
+    featured,
+    tags,
+    issueId,
+    tokens,
+    references,
+    seoTitle,
+    seoDescription,
+    ogImage,
+  });
 
   return Response.json(post, { status: 201 });
 }

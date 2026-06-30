@@ -4,8 +4,9 @@ import SubscribeForm from "@/components/SubscribeForm";
 import { SidebarPost } from "@/components/SidebarPost";
 import { DispatchCard } from "@/components/DispatchCard";
 import { ToolCard } from "@/components/ToolCard";
+import { getPostsByIssue } from "@/services/posts";
 import { db } from "@/db";
-import { issues, posts, tools } from "@/db/schema";
+import { issues, tools } from "@/db/schema";
 import type { Post } from "@/db/schema";
 import { formatDate, padCount } from "@/lib/formatters";
 import { firstTag } from "@/lib/tags";
@@ -42,11 +43,7 @@ export default async function IssuePage({ params }: Props) {
   if (!issue) notFound();
 
   const [issuePosts, issueTools] = await Promise.all([
-    db
-      .select()
-      .from(posts)
-      .where(and(eq(posts.issueId, issue.id), eq(posts.status, "published")))
-      .orderBy(desc(posts.publishedAt)),
+    getPostsByIssue(issue.id),
     db
       .select()
       .from(tools)
@@ -161,7 +158,14 @@ export default async function IssuePage({ params }: Props) {
                     <span className={styles.asideLabelLine} />
                   </div>
                   {sidebarPosts.map((post, i) => (
-                    <SidebarPost key={post.id} post={post} index={i} />
+                    <SidebarPost
+                      key={post.id}
+                      title={post.title}
+                      slug={post.slug}
+                      excerpt={post.excerpt ?? undefined}
+                      readingTime={post.readingTime}
+                      index={i}
+                    />
                   ))}
                 </>
               )}

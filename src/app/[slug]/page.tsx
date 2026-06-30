@@ -2,14 +2,13 @@ import CommentSection from "@/components/CommentSection";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { db } from "@/db";
-import { comments, posts, users } from "@/db/schema";
-import { renderMarkdown } from "@/lib/markdown";
-import { parseRefs } from "@/lib/references";
+import { getPostWithComments } from "@/services/posts";
 import { parseJson } from "@/lib/parse";
-import { and, asc, eq } from "drizzle-orm";
+import { parseRefs } from "@/lib/references";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
+import { renderMarkdown } from "@/lib/markdown";
 import styles from "./article.module.css";
 
 interface Props {
@@ -24,11 +23,14 @@ function formatDate(d: Date): string {
   });
 }
 
+const fetchPost = cache(getPostWithComments);
+
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const [post] = await db.select().from(posts).where(eq(posts.slug, slug));
-  if (!post) return {};
+  const data = await fetchPost(slug);
+  if (!data) return {};
 
+  const { post } = data;
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const title = post.seoTitle ?? post.title;
   const description = post.seoDescription ?? post.excerpt ?? undefined;
@@ -56,28 +58,12 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const [post] = await db.select().from(posts).where(eq(posts.slug, slug));
+  const data = await fetchPost(slug);
+  if (!data) notFound();
 
-  if (!post || post.status !== "published") notFound();
-
+  const { post, comments: approvedComments } = data;
   const tags = parseJson<string[]>(post.tags, []);
   const refs = parseRefs(post.references);
-
-  const approvedComments = await db
-    .select({
-      id: comments.id,
-      postId: comments.postId,
-      fieldNoteId: comments.fieldNoteId,
-      parentId: comments.parentId,
-      body: comments.body,
-      createdAt: comments.createdAt,
-      authorName: users.name,
-      authorImage: users.image,
-    })
-    .from(comments)
-    .leftJoin(users, eq(comments.authorId, users.id))
-    .where(and(eq(comments.postId, post.id), eq(comments.approved, true)))
-    .orderBy(asc(comments.createdAt));
 
   const publishedDate = post.publishedAt ? formatDate(new Date(post.publishedAt)) : null;
   const kickerTag = tags[0] ?? "Dispatches";
@@ -174,7 +160,7 @@ export default async function PostPage({ params }: Props) {
               <div className={styles.specRow}>
                 <span className={styles.specKey}>Revision</span>
                 <span className={styles.specVal}>A — first honest draft</span>
-              </div> 
+              </div>
               <div className={`${styles.specRow} ${styles.specRowFull}`}>
                 <span className={styles.specKey}>Prompt</span>
                 <span className={styles.specVal}>{specPrompt}</span>

@@ -8,6 +8,7 @@ import { FormField } from "./FormField";
 import { ReferenceList } from "./ReferenceList";
 import { TagInput } from "./TagInput";
 import { parseTags } from "@/lib/tags";
+import { createPostAction, updatePostAction, deletePostAction } from "@/actions/posts";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -51,7 +52,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
     setError("");
 
     const payload = {
-      title, slug, content, excerpt, prompt: prompt || null, figSvg: figSvg || null, status, featured, tags,
+      title, content, excerpt, prompt: prompt || null, figSvg: figSvg || null, status, featured, tags,
       issueId: issueId ?? null,
       tokens: tokens || null,
       references,
@@ -60,31 +61,28 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
       ogImage: ogImage || null,
     };
 
-    const res = isEditing
-      ? await fetch(`/api/posts/${post.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-      : await fetch("/api/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-    setSaving(false);
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error ?? "Something went wrong");
-      return;
+    try {
+      if (isEditing) {
+        const result = await updatePostAction(post.id, { ...payload, slug });
+        if (!result) {
+          setError("Post not found");
+          setSaving(false);
+          return;
+        }
+      } else {
+        await createPostAction(payload);
+      }
+      router.push("/admin");
+      router.refresh();
+    } catch {
+      setError("Something went wrong");
+      setSaving(false);
     }
-    router.push("/admin");
-    router.refresh();
   }
 
   async function handleDelete() {
     if (!post || !confirm("Delete this post? This cannot be undone.")) return;
-    await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
+    await deletePostAction(post.id);
     router.push("/admin");
     router.refresh();
   }
