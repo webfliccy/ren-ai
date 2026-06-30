@@ -1,13 +1,16 @@
+import CommentSection from "@/components/CommentSection";
+import { ReferenceCitation } from "@/components/ReferenceCitation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
-import { Artefact, ExperimentRecord, fieldNotes } from "@/db/schema";
+import { Artefact, ExperimentRecord, comments, fieldNotes, users } from "@/db/schema";
 import { formatDate } from "@/lib/formatters";
 import { renderMarkdown } from "@/lib/markdown";
 import { OUTCOME_STATUS_LABELS } from "@/lib/outcome-status";
 import { parseJson } from "@/lib/parse";
+import { parseRefs } from "@/lib/references";
 import { fileExt, formatSize } from "@/lib/file-utils";
-import { eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
 import styles from "../field-notes.module.css";
@@ -37,6 +40,23 @@ export default async function FieldNoteDetailPage({ params }: Props) {
     duration: "", scoredBy: "", outcome: "",
   });
   const artefacts = parseJson<Artefact[]>(note.artefacts, []);
+  const refs = parseRefs(note.references);
+
+  const approvedComments = await db
+    .select({
+      id: comments.id,
+      postId: comments.postId,
+      fieldNoteId: comments.fieldNoteId,
+      parentId: comments.parentId,
+      body: comments.body,
+      createdAt: comments.createdAt,
+      authorName: users.name,
+      authorImage: users.image,
+    })
+    .from(comments)
+    .leftJoin(users, eq(comments.authorId, users.id))
+    .where(and(eq(comments.fieldNoteId, note.id), eq(comments.approved, true)))
+    .orderBy(asc(comments.createdAt));
 
   const publishedDate = note.publishedAt ? formatDate(new Date(note.publishedAt)) : null;
   const closedDate = note.outcomeDateClosed ? formatDate(new Date(note.outcomeDateClosed)) : null;
@@ -51,8 +71,6 @@ export default async function FieldNoteDetailPage({ params }: Props) {
     <div className={styles.page}>
       <div className={styles.sheet}>
         <SiteHeader activePath="/field-notes" />
-        <div style={{ height: 4 }} />
-        <div className={styles.ruleThin} />
 
         <article className={styles.article}>
           <div className={styles.kicker}>
@@ -209,7 +227,31 @@ export default async function FieldNoteDetailPage({ params }: Props) {
               </ul>
             </section>
           )}
+
+          {/* ── References ───────────────────────────── */}
+          {refs.length > 0 && (
+            <section className={styles.refs} aria-label="References">
+              <div className={styles.refsHead}>
+                <h2>References</h2>
+                <div className={styles.refsHeadLine} />
+              </div>
+              <p className={styles.refsNote}>
+                Citations follow Chicago Manual of Style — Notes &amp; Bibliography (web) format.
+              </p>
+              <ol className={styles.bib}>
+                {refs.map((ref, i) => (
+                  <li key={i}>
+                    <ReferenceCitation reference={ref} />
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
         </article>
+
+        <section className={styles.commentsSection}>
+          <CommentSection fieldNoteId={note.id} initialComments={approvedComments} />
+        </section>
 
         <SiteFooter />
       </div>

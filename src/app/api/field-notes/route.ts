@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   const {
     title, content, excerpt, status, tags, issueId,
     outcomeStatus, outcomeDateClosed, outcomeRuns,
-    experiment, artefacts,
+    experiment, artefacts, references,
   } = body;
 
   if (!title?.trim()) {
@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
       outcomeRuns: outcomeRuns ?? null,
       experiment: JSON.stringify(experiment ?? {}),
       artefacts: JSON.stringify(artefacts ?? []),
+      references: JSON.stringify(references ?? []),
       publishedAt,
     })
     .returning();

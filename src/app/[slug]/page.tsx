@@ -1,10 +1,12 @@
 import CommentSection from "@/components/CommentSection";
+import { ReferenceCitation } from "@/components/ReferenceCitation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
 import { comments, posts, users } from "@/db/schema";
 import { renderMarkdown } from "@/lib/markdown";
 import { parseRefs } from "@/lib/references";
+import { parseJson } from "@/lib/parse";
 import { and, asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
@@ -12,14 +14,6 @@ import styles from "./article.module.css";
 
 interface Props {
   params: Promise<{ slug: string }>;
-}
-
-function parseJson<T>(raw: string, fallback: T): T {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
 }
 
 function formatDate(d: Date): string {
@@ -73,6 +67,7 @@ export default async function PostPage({ params }: Props) {
     .select({
       id: comments.id,
       postId: comments.postId,
+      fieldNoteId: comments.fieldNoteId,
       parentId: comments.parentId,
       body: comments.body,
       createdAt: comments.createdAt,
@@ -200,28 +195,11 @@ export default async function PostPage({ params }: Props) {
               Citations follow Chicago Manual of Style — Notes &amp; Bibliography (web) format.
             </p>
             <ol className={styles.bib}>
-              {refs.map((ref, i) => {
-                const author =
-                  ref.authorLast || ref.authorFirst
-                    ? `${ref.authorLast}${ref.authorFirst ? `, ${ref.authorFirst}` : ""}.`
-                    : null;
-                return (
-                  <li key={i}>
-                    {author && <>{author} </>}
-                    {ref.pageTitle && <>&ldquo;{ref.pageTitle}.&rdquo; </>}
-                    {ref.siteName && <><em>{ref.siteName}</em>. </>}
-                    {ref.date && <>{ref.date}. </>}
-                    {ref.url && (
-                      <>
-                        <a href={ref.url} target="_blank" rel="noopener noreferrer">
-                          {ref.url}
-                        </a>
-                        .
-                      </>
-                    )}
-                  </li>
-                );
-              })}
+              {refs.map((ref, i) => (
+                <li key={i}>
+                  <ReferenceCitation reference={ref} />
+                </li>
+              ))}
             </ol>
           </section>
         )}

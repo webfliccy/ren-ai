@@ -26,7 +26,7 @@ export async function PATCH(
   const {
     title, slug, content, excerpt, status, tags, issueId,
     outcomeStatus, outcomeDateClosed, outcomeRuns,
-    experiment, artefacts,
+    experiment, artefacts, references,
   } = body;
 
   const [existing] = await db.select().from(fieldNotes).where(eq(fieldNotes.id, Number(id)));
@@ -51,6 +51,7 @@ export async function PATCH(
       outcomeRuns: outcomeRuns ?? null,
       experiment: JSON.stringify(experiment ?? {}),
       artefacts: JSON.stringify(artefacts ?? []),
+      references: JSON.stringify(references ?? []),
       publishedAt,
       updatedAt: new Date(),
     })

@@ -54,10 +54,28 @@
   line-height: 1.55;
 }
 
-/* ── Entry list ── */
-.list {
+/* ── Tools grid ── */
+.toolsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 760px) {
+  .toolsGrid { grid-template-columns: 1fr; }
+}
+
+/* ── Card list ── */
+.cards {
+  display: flex;
+  flex-direction: column;
   max-width: 720px;
   margin: 0 auto;
+}
+.cards article {
+  border-left: none !important;
+  border-top: 1px solid var(--rule);
+  padding: 28px 0 !important;
 }
 
 .entry {
@@ -618,9 +636,74 @@
   flex-shrink: 0;
 }
 
+/* ════════ REFERENCES ════════ */
+.refs {
+  max-width: 720px;
+  margin: 56px auto 0;
+  padding-top: 4px;
+}
+.refsHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.refsHead h2 {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.refsHeadLine { flex: 1; height: 1px; background: var(--rule); }
+.refsNote {
+  font-family: var(--font-figtree), system-ui, sans-serif;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 22px;
+  line-height: 1.55;
+}
+.bib {
+  counter-reset: bib;
+  list-style: none;
+  padding: 0;
+}
+.bib li {
+  counter-increment: bib;
+  position: relative;
+  padding-left: 38px;
+  margin-bottom: 16px;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.bib li::before {
+  content: '[' counter(bib) ']';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-family: var(--font-courier-prime), 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--red);
+}
+.bib .work { font-style: italic; }
+.bib a { color: var(--ink-light); text-decoration: none; border-bottom: 1px solid var(--border); }
+.bib a:hover { color: var(--red); border-color: var(--red); }
+
+/* ── Comments ── */
+.commentsSection {
+  max-width: 720px;
+  margin: 56px auto 0;
+  padding-top: 14px;
+  border-top: 3px solid var(--ink);
+}
+
 /* ════════ RESPONSIVE ════════ */
 @media (max-width: 760px) {
-  .headline { font-size: 40px; }
+.headline { font-size: 40px; }
   .indexTitle { font-size: 36px; }
   .specRows { grid-template-columns: 1fr; }
   .specRows .specRow:nth-child(odd) { border-right: none; }
