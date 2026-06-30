@@ -68,8 +68,8 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (!res.ok) throw new Error(`Upload failed (${res.status})`);
       const data = await res.json();
-      if (data.url) editor!.chain().focus().setImage({ src: data.url }).run();
-      else throw new Error("Upload response missing url");
+      if (!data.url) throw new Error("Upload response missing url");
+      if (!editor.isDestroyed) editor.chain().focus().setImage({ src: data.url }).run();
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {

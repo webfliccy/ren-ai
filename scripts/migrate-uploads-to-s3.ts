@@ -92,6 +92,7 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
   }
 
   const limit = pLimit(10);
+  const uploadErrors: string[] = [];
 
   await Promise.all(
     filenames.map((filename) =>
@@ -99,30 +100,42 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
         const key = `uploads/${filename}`;
         const localUrl = `/uploads/${filename}`;
 
-        if (await objectExists(key)) {
-          console.log(`  skip (already in S3): ${key}`);
+        try {
+          if (await objectExists(key)) {
+            console.log(`  skip (already in S3): ${key}`);
+            urlMap.set(localUrl, s3Url(key));
+            return;
+          }
+
+          const buffer = await readFile(path.join(uploadsDir, filename));
+          const ct = contentType(filename);
+
+          await s3.send(
+            new PutObjectCommand({
+              Bucket: bucket!,
+              Key: key,
+              Body: buffer,
+              ContentType: ct,
+              // No ACL — bucket must have a public-read bucket policy.
+            })
+          );
+
+          console.log(`  uploaded: ${key}`);
           urlMap.set(localUrl, s3Url(key));
-          return;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          console.error(`  ERROR uploading ${filename}: ${msg}`);
+          uploadErrors.push(filename);
         }
-
-        const buffer = await readFile(path.join(uploadsDir, filename));
-        const ct = contentType(filename);
-
-        await s3.send(
-          new PutObjectCommand({
-            Bucket: bucket!,
-            Key: key,
-            Body: buffer,
-            ContentType: ct,
-            // No ACL — bucket must have a public-read bucket policy.
-          })
-        );
-
-        console.log(`  uploaded: ${key}`);
-        urlMap.set(localUrl, s3Url(key));
       })
     )
   );
+
+  if (uploadErrors.length > 0) {
+    console.warn(`\n  ${uploadErrors.length} file(s) failed to upload and will be skipped in DB rewrite:`);
+    uploadErrors.forEach((f) => console.warn(`    - ${f}`));
+    console.warn("  Re-run the script to retry failed files.");
+  }
 
   return urlMap;
 }
@@ -145,7 +158,12 @@ async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
   for (const note of notes) {
     let artefactList: Artefact[];
     try {
-      artefactList = JSON.parse(note.artefacts || "[]");
+      const parsed: unknown = JSON.parse(note.artefacts || "[]");
+      if (!Array.isArray(parsed)) {
+        console.warn(`  WARNING: artefacts for field note ${note.id} is not an array, skipping row`);
+        continue;
+      }
+      artefactList = parsed as Artefact[];
     } catch {
       console.warn(`  WARNING: corrupted artefacts JSON for field note ${note.id}, skipping row`);
       continue;

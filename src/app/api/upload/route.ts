@@ -13,12 +13,12 @@ export async function POST(request: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const url = await uploadToS3(buffer, file.name, file.type);
-
-  return Response.json({
-    url,
-    name: file.name,
-    type: file.type,
-    size: file.size,
-  });
+  try {
+    const url = await uploadToS3(buffer, file.name, file.type);
+    return Response.json({ url, name: file.name, type: file.type, size: file.size });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Upload failed";
+    if (message.startsWith("File must have")) return Response.json({ error: message }, { status: 400 });
+    return Response.json({ error: message }, { status: 502 });
+  }
 }

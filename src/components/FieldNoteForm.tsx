@@ -77,6 +77,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     if (!file) return;
     setUploading(true);
     try {
+      setError("");
       const form = new FormData();
       form.append("file", file);
 
@@ -88,10 +89,10 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
         ...a,
         { name: data.name, description: "", url: data.url, type: data.type, size: data.size },
       ]);
-      e.target.value = "";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
+      e.target.value = "";
       setUploading(false);
     }
   }
