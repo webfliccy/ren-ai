@@ -15,7 +15,7 @@
  * The migration itself (steps 1 & 2) is always safe to run independently.
  */
 
-import { S3Client, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, HeadObjectCommand, CopyObjectCommand } from "@aws-sdk/client-s3";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { eq } from "drizzle-orm";
@@ -110,12 +110,14 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
           const buffer = await readFile(path.join(uploadsDir, filename));
           const ct = contentType(filename);
 
+          const disposition = ct.startsWith("image/") ? undefined : `attachment; filename="${filename}"`;
           await s3.send(
             new PutObjectCommand({
               Bucket: bucket!,
               Key: key,
               Body: buffer,
               ContentType: ct,
+              ...(disposition ? { ContentDisposition: disposition } : {}),
               // No ACL — bucket must have a public-read bucket policy.
             })
           );
@@ -211,6 +213,33 @@ async function rewritePostContent(urlMap: Map<string, string>): Promise<void> {
   }
 }
 
+// ── Fix Content-Disposition on already-uploaded objects ───────────────────────
+
+async function fixContentDisposition(urlMap: Map<string, string>): Promise<void> {
+  for (const localUrl of urlMap.keys()) {
+    const filename = localUrl.replace("/uploads/", "");
+    const key = `uploads/${filename}`;
+    const ct = contentType(filename);
+    if (ct.startsWith("image/")) continue;
+
+    const head = await s3.send(new HeadObjectCommand({ Bucket: bucket!, Key: key }));
+    if (head.ContentDisposition) continue;
+
+    const disposition = `attachment; filename="${filename}"`;
+    await s3.send(
+      new CopyObjectCommand({
+        Bucket: bucket!,
+        CopySource: `${bucket}/${key}`,
+        Key: key,
+        ContentType: ct,
+        ContentDisposition: disposition,
+        MetadataDirective: "REPLACE",
+      })
+    );
+    console.log(`  fixed headers: ${key}`);
+  }
+}
+
 // ── Step 3: link check (opt-in via --check flag) ──────────────────────────────
 
 async function linkCheck(urlMap: Map<string, string>): Promise<boolean> {
@@ -241,6 +270,9 @@ async function main() {
   console.log(`\nStep 2: rewriting stored URLs…`);
   await rewriteFieldNotes(urlMap);
   await rewritePostContent(urlMap);
+
+  console.log("\nFixing Content-Disposition on existing S3 objects…");
+  await fixContentDisposition(urlMap);
 
   console.log("\nMigration complete.");
 

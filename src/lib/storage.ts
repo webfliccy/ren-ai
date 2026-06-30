@@ -43,12 +43,17 @@ export async function uploadToS3(
   const suffix = crypto.randomUUID().slice(0, 8);
   const key = `uploads/${Date.now()}_${suffix}_${safeName}`;
 
+  const disposition = contentType.startsWith("image/")
+    ? undefined
+    : `attachment; filename="${filename}"`;
+
   await client.send(
     new PutObjectCommand({
       Bucket: bucket,
       Key: key,
       Body: buffer,
       ContentType: contentType,
+      ...(disposition ? { ContentDisposition: disposition } : {}),
       // No ACL — bucket must have a public-read bucket policy for anonymous GET access.
     })
   );
