@@ -13,11 +13,7 @@ export async function POST(request: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const timestamp = Date.now();
-  const key = `uploads/${timestamp}_${safeName}`;
-
-  const url = await uploadToS3(buffer, key, file.type);
+  const url = await uploadToS3(buffer, file.name, file.type);
 
   return Response.json({
     url,

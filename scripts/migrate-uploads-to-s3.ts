@@ -5,8 +5,6 @@
  * Idempotent: files already present in S3 under the correct key are skipped.
  *
  * Usage:
- *   node --env-file=.env.local -e "require('./scripts/migrate-uploads-to-s3')"
- *   # or
  *   npx tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts
  */
 
@@ -57,8 +55,11 @@ async function objectExists(key: string): Promise<boolean> {
   try {
     await s3.send(new HeadObjectCommand({ Bucket: bucket!, Key: key }));
     return true;
-  } catch {
-    return false;
+  } catch (err: unknown) {
+    // Only treat 404 as "not found" — re-throw auth errors, network errors, etc.
+    const status = (err as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
+    if (status === 404) return false;
+    throw err;
   }
 }
 
@@ -70,15 +71,16 @@ function s3Url(key: string): string {
 
 async function uploadLocalFiles(): Promise<Map<string, string>> {
   const urlMap = new Map<string, string>(); // /uploads/filename → S3 URL
-  let files: string[];
+  let filenames: string[];
   try {
-    files = await readdir(uploadsDir);
+    const dirents = await readdir(uploadsDir, { withFileTypes: true });
+    filenames = dirents.filter((d) => d.isFile()).map((d) => d.name);
   } catch {
     console.log("public/uploads/ does not exist or is empty — nothing to upload.");
     return urlMap;
   }
 
-  for (const filename of files) {
+  for (const filename of filenames) {
     const key = `uploads/${filename}`;
     const localUrl = `/uploads/${filename}`;
 
@@ -97,7 +99,7 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
         Key: key,
         Body: buffer,
         ContentType: ct,
-        ACL: "public-read",
+        // No ACL — bucket must have a public-read bucket policy.
       })
     );
 
@@ -108,43 +110,51 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
   return urlMap;
 }
 
-// ── Step 2: rewrite DB artefact URLs ─────────────────────────────────────────
+// ── Step 2: rewrite DB URLs (artefacts + content in a single pass) ────────────
 
-async function rewriteArtefacts(urlMap: Map<string, string>): Promise<void> {
-  const notes = await db.select({ id: fieldNotes.id, artefacts: fieldNotes.artefacts }).from(fieldNotes);
+function rewriteContent(content: string, urlMap: Map<string, string>): string {
+  let updated = content;
+  for (const [local, s3url] of urlMap) {
+    updated = updated.replaceAll(local, s3url);
+  }
+  return updated;
+}
+
+async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
+  const notes = await db
+    .select({ id: fieldNotes.id, artefacts: fieldNotes.artefacts, content: fieldNotes.content })
+    .from(fieldNotes);
 
   for (const note of notes) {
     const artefactList: Artefact[] = JSON.parse(note.artefacts || "[]");
-    let changed = false;
+    let artefactsChanged = false;
 
     for (const art of artefactList) {
       if (art.url.startsWith("/uploads/")) {
         const newUrl = urlMap.get(art.url);
         if (newUrl) {
           art.url = newUrl;
-          changed = true;
+          artefactsChanged = true;
         } else {
           console.warn(`  WARNING: no S3 URL mapped for artefact ${art.url} (field note ${note.id})`);
         }
       }
     }
 
-    if (changed) {
-      await db.update(fieldNotes).set({ artefacts: JSON.stringify(artefactList) }).where(eq(fieldNotes.id, note.id));
-      console.log(`  updated artefacts for field note ${note.id}`);
+    const updatedContent = rewriteContent(note.content, urlMap);
+    const contentChanged = updatedContent !== note.content;
+
+    if (artefactsChanged || contentChanged) {
+      await db
+        .update(fieldNotes)
+        .set({
+          ...(artefactsChanged ? { artefacts: JSON.stringify(artefactList) } : {}),
+          ...(contentChanged ? { content: updatedContent } : {}),
+        })
+        .where(eq(fieldNotes.id, note.id));
+      console.log(`  updated field note ${note.id}`);
     }
   }
-}
-
-// ── Step 3: rewrite inline image URLs in content ──────────────────────────────
-
-function rewriteContent(content: string, urlMap: Map<string, string>): string {
-  let updated = content;
-  for (const [local, s3url] of urlMap) {
-    // Covers markdown ![alt](url) and HTML src="url" / src='url'
-    updated = updated.replaceAll(local, s3url);
-  }
-  return updated;
 }
 
 async function rewritePostContent(urlMap: Map<string, string>): Promise<void> {
@@ -159,19 +169,7 @@ async function rewritePostContent(urlMap: Map<string, string>): Promise<void> {
   }
 }
 
-async function rewriteFieldNoteContent(urlMap: Map<string, string>): Promise<void> {
-  const notes = await db.select({ id: fieldNotes.id, content: fieldNotes.content }).from(fieldNotes);
-
-  for (const note of notes) {
-    const updated = rewriteContent(note.content, urlMap);
-    if (updated !== note.content) {
-      await db.update(fieldNotes).set({ content: updated }).where(eq(fieldNotes.id, note.id));
-      console.log(`  updated content for field note ${note.id}`);
-    }
-  }
-}
-
-// ── Step 4: link check ────────────────────────────────────────────────────────
+// ── Step 3: link check ────────────────────────────────────────────────────────
 
 async function linkCheck(urlMap: Map<string, string>): Promise<boolean> {
   let allOk = true;
@@ -198,14 +196,11 @@ async function main() {
     return;
   }
 
-  console.log(`\nStep 2: rewriting artefact URLs…`);
-  await rewriteArtefacts(urlMap);
-
-  console.log(`\nStep 3: rewriting inline content URLs…`);
+  console.log(`\nStep 2: rewriting stored URLs…`);
+  await rewriteFieldNotes(urlMap);
   await rewritePostContent(urlMap);
-  await rewriteFieldNoteContent(urlMap);
 
-  console.log(`\nStep 4: link check…`);
+  console.log(`\nStep 3: link check…`);
   const ok = await linkCheck(urlMap);
 
   if (!ok) {

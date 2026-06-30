@@ -61,4 +61,16 @@ describe("POST /api/upload", () => {
 
     expect(data.url).not.toMatch(/^\/uploads\//);
   });
+
+  it("passes the original filename to uploadToS3 — storage layer owns sanitization", async () => {
+    const file = new File(["data"], "my photo (1).jpg", { type: "image/jpeg" });
+
+    await POST(makeRequest(file));
+
+    expect(mockedUploadToS3).toHaveBeenCalledWith(
+      expect.any(Buffer),
+      "my photo (1).jpg",
+      "image/jpeg"
+    );
+  });
 });

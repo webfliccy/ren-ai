@@ -23,6 +23,7 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
   const [mode, setMode] = useState<"write" | "markdown">("write");
   const [rawMarkdown, setRawMarkdown] = useState(content);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
@@ -60,12 +61,16 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
 
   async function handleImageFile(file: File) {
     setUploading(true);
+    setUploadError(null);
     try {
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
       const data = await res.json();
       if (data.url) editor!.chain().focus().setImage({ src: data.url }).run();
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -144,6 +149,9 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
             >
               {uploading ? "…" : "Image"}
             </button>
+            {uploadError && (
+              <span className="text-xs text-red-600 ml-1">{uploadError}</span>
+            )}
             <span className="mx-1 border-l border-gray-200" />
             {tables && (
               <>
