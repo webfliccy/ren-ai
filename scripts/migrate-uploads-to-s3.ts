@@ -6,6 +6,13 @@
  *
  * Usage:
  *   npx tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts
+ *
+ * To also verify all migrated URLs are publicly accessible after migration:
+ *   npx tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts --check
+ *
+ * Note: --check requires the S3 bucket public-read policy to already be applied.
+ * If the policy isn't in place yet, HEAD requests return 403 and the check fails.
+ * The migration itself (steps 1 & 2) is always safe to run independently.
  */
 
 import { S3Client, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
@@ -14,6 +21,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { eq } from "drizzle-orm";
 import { readdir, readFile } from "fs/promises";
 import path from "path";
+import pLimit from "p-limit";
 import { fieldNotes, posts } from "../src/db/schema.js";
 import type { Artefact } from "../src/db/schema.js";
 
@@ -75,37 +83,46 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
   try {
     const dirents = await readdir(uploadsDir, { withFileTypes: true });
     filenames = dirents.filter((d) => d.isFile()).map((d) => d.name);
-  } catch {
-    console.log("public/uploads/ does not exist or is empty — nothing to upload.");
-    return urlMap;
-  }
-
-  for (const filename of filenames) {
-    const key = `uploads/${filename}`;
-    const localUrl = `/uploads/${filename}`;
-
-    if (await objectExists(key)) {
-      console.log(`  skip (already in S3): ${key}`);
-      urlMap.set(localUrl, s3Url(key));
-      continue;
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+      console.log("public/uploads/ does not exist or is empty — nothing to upload.");
+      return urlMap;
     }
-
-    const buffer = await readFile(path.join(uploadsDir, filename));
-    const ct = contentType(filename);
-
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: bucket!,
-        Key: key,
-        Body: buffer,
-        ContentType: ct,
-        // No ACL — bucket must have a public-read bucket policy.
-      })
-    );
-
-    console.log(`  uploaded: ${key}`);
-    urlMap.set(localUrl, s3Url(key));
+    throw err;
   }
+
+  const limit = pLimit(10);
+
+  await Promise.all(
+    filenames.map((filename) =>
+      limit(async () => {
+        const key = `uploads/${filename}`;
+        const localUrl = `/uploads/${filename}`;
+
+        if (await objectExists(key)) {
+          console.log(`  skip (already in S3): ${key}`);
+          urlMap.set(localUrl, s3Url(key));
+          return;
+        }
+
+        const buffer = await readFile(path.join(uploadsDir, filename));
+        const ct = contentType(filename);
+
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: bucket!,
+            Key: key,
+            Body: buffer,
+            ContentType: ct,
+            // No ACL — bucket must have a public-read bucket policy.
+          })
+        );
+
+        console.log(`  uploaded: ${key}`);
+        urlMap.set(localUrl, s3Url(key));
+      })
+    )
+  );
 
   return urlMap;
 }
@@ -126,7 +143,14 @@ async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
     .from(fieldNotes);
 
   for (const note of notes) {
-    const artefactList: Artefact[] = JSON.parse(note.artefacts || "[]");
+    let artefactList: Artefact[];
+    try {
+      artefactList = JSON.parse(note.artefacts || "[]");
+    } catch {
+      console.warn(`  WARNING: corrupted artefacts JSON for field note ${note.id}, skipping row`);
+      continue;
+    }
+
     let artefactsChanged = false;
 
     for (const art of artefactList) {
@@ -169,7 +193,7 @@ async function rewritePostContent(urlMap: Map<string, string>): Promise<void> {
   }
 }
 
-// ── Step 3: link check ────────────────────────────────────────────────────────
+// ── Step 3: link check (opt-in via --check flag) ──────────────────────────────
 
 async function linkCheck(urlMap: Map<string, string>): Promise<boolean> {
   let allOk = true;
@@ -200,15 +224,18 @@ async function main() {
   await rewriteFieldNotes(urlMap);
   await rewritePostContent(urlMap);
 
-  console.log(`\nStep 3: link check…`);
-  const ok = await linkCheck(urlMap);
-
-  if (!ok) {
-    console.error("\nMigration completed with broken links — check output above.");
-    process.exit(1);
-  }
-
   console.log("\nMigration complete.");
+
+  if (process.argv.includes("--check")) {
+    console.log(`\nStep 3: link check…`);
+    console.log("(Note: requires public-read bucket policy to be applied — 403s mean policy is missing, not that migration failed)");
+    const ok = await linkCheck(urlMap);
+    if (!ok) {
+      console.error("\nLink check failed — see output above. Migration data is intact.");
+      process.exit(1);
+    }
+    console.log("\nAll links ok.");
+  }
 }
 
 main().catch((err) => {

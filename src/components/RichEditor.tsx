@@ -69,6 +69,7 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
       if (!res.ok) throw new Error(`Upload failed (${res.status})`);
       const data = await res.json();
       if (data.url) editor!.chain().focus().setImage({ src: data.url }).run();
+      else throw new Error("Upload response missing url");
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -135,6 +136,7 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
               accept="image/*"
               className="hidden"
               onChange={(e) => {
+                setUploadError(null);
                 const file = e.target.files?.[0];
                 if (file) handleImageFile(file);
                 e.target.value = "";

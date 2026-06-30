@@ -76,24 +76,24 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
 
-    const form = new FormData();
-    form.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
 
-    const res = await fetch("/api/upload", { method: "POST", body: form });
-    setUploading(false);
-
-    if (!res.ok) {
-      setError("Upload failed");
-      return;
+      const data = await res.json();
+      setArtefacts((a) => [
+        ...a,
+        { name: data.name, description: "", url: data.url, type: data.type, size: data.size },
+      ]);
+      e.target.value = "";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
     }
-
-    const data = await res.json();
-    setArtefacts((a) => [
-      ...a,
-      { name: data.name, description: "", url: data.url, type: data.type, size: data.size },
-    ]);
-    e.target.value = "";
   }
 
   function updateArtefact(i: number, field: keyof Artefact, value: string | number | null) {
