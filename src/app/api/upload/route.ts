@@ -1,6 +1,5 @@
 import { requireAdmin } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { uploadToS3 } from "@/lib/storage";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -14,18 +13,14 @@ export async function POST(request: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadsDir, { recursive: true });
-
-  // Sanitize filename
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const timestamp = Date.now();
-  const filename = `${timestamp}_${safeName}`;
-  const filepath = path.join(uploadsDir, filename);
-  await writeFile(filepath, buffer);
+  const key = `uploads/${timestamp}_${safeName}`;
+
+  const url = await uploadToS3(buffer, key, file.type);
 
   return Response.json({
-    url: `/uploads/${filename}`,
+    url,
     name: file.name,
     type: file.type,
     size: file.size,
