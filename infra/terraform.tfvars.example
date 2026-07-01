@@ -1,0 +1,19 @@
+aws_region    = "us-east-1"
+instance_type = "t3.micro"
+image_tag     = "latest"
+
+app_secrets = {
+  ADMIN_SECRET          = "replace-me"
+  AUTH_SECRET           = "replace-me"
+  AUTH_GITHUB_ID        = "replace-me"
+  AUTH_GITHUB_SECRET    = "replace-me"
+  AUTH_GOOGLE_ID        = "replace-me"
+  AUTH_GOOGLE_SECRET    = "replace-me"
+  TURSO_DATABASE_URL    = "replace-me"
+  TURSO_AUTH_TOKEN      = "replace-me"
+  NEXT_PUBLIC_SITE_URL  = "https://your-domain.com"
+  NEXT_PUBLIC_S3_URL    = "https://your-bucket.s3.us-east-1.amazonaws.com"
+  AWS_ACCESS_KEY_ID     = "replace-me"
+  AWS_SECRET_ACCESS_KEY = "replace-me"
+  S3_BUCKET             = "replace-me"
+}

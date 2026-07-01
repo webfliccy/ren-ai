@@ -53,3 +53,5 @@ public/uploads/
 *.tfstate
 *.tfstate.backup
 infra/.terraform/
+*.tfvars
+!*.tfvars.example

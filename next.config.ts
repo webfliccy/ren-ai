@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  cacheMaxMemorySize: 0,
   images: {
     remotePatterns: [
       {
@@ -9,6 +10,10 @@ const nextConfig: NextConfig = {
         hostname: "**.amazonaws.com",
       },
     ],
+  },
+  onDemandEntries: {
+    maxInactiveAge: 60 * 1000,
+    pagesBufferLength: 5,
   },
 };
 
