@@ -4,6 +4,7 @@ import { desc } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = { title: "Field notes — ren·ai admin" };
+export const dynamic = "force-dynamic";
 
 const STATUS_COLOURS = {
   pending: "bg-gray-100 text-gray-600",

@@ -5,6 +5,7 @@ import { desc } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = { title: "New tool — Admin" };
+export const dynamic = "force-dynamic";
 
 interface Props {
   searchParams: Promise<{ issueId?: string }>;

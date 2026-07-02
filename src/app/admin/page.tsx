@@ -5,6 +5,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = { title: "Admin — ren·ai" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const [allIssues, allPosts, allTools, allFieldNotes, pendingComments, allSubscribers] = await Promise.all([

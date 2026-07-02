@@ -4,6 +4,7 @@ import { issues } from "@/db/schema";
 import { desc } from "drizzle-orm";
 
 export const metadata = { title: "New post — ren·ai" };
+export const dynamic = "force-dynamic";
 
 export default async function NewPostPage() {
   const allIssues = await db

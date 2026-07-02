@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 
 export const metadata = { title: "Edit About — ren·ai" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminAboutPage() {
   const [page] = await db.select().from(sitePages).where(eq(sitePages.key, "about"));

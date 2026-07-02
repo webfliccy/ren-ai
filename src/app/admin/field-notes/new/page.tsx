@@ -4,6 +4,7 @@ import { issues } from "@/db/schema";
 import { desc } from "drizzle-orm";
 
 export const metadata = { title: "New field note — ren·ai" };
+export const dynamic = "force-dynamic";
 
 export default async function NewFieldNotePage() {
   const allIssues = await db
