@@ -98,6 +98,11 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm_core" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+resource "aws_iam_role_policy_attachment" "ec2_cloudwatch_agent" {
+  role       = aws_iam_role.ec2_instance.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 resource "aws_iam_role_policy" "ec2_eip" {
   name = "ren-ai-eip-associate"
   role = aws_iam_role.ec2_instance.id

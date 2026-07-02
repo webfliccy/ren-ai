@@ -5,6 +5,12 @@ resource "aws_cloudwatch_log_group" "app" {
 
 resource "aws_ecs_cluster" "main" {
   name = "ren-ai"
+
+  # Required for the RunningTaskCount metric backing the "site down" alarm.
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
 resource "aws_ecs_capacity_provider" "ec2" {
@@ -82,6 +88,13 @@ resource "aws_ecs_service" "app" {
   # Rolling deploy: stop old task then start new (~15s downtime, no ALB needed)
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
+
+  # Rolls back and fires the "deploy failure" alarm if the new task fails
+  # to reach a steady state (e.g. crash-loops on startup).
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
 
   capacity_provider_strategy {
     capacity_provider = aws_ecs_capacity_provider.ec2.name

@@ -27,3 +27,8 @@ variable "app_secrets" {
   type        = map(string)
   sensitive   = true
 }
+
+variable "alert_email" {
+  description = "Email address that receives CloudWatch alarm notifications; SNS sends a confirmation email after apply that must be manually confirmed"
+  type        = string
+}

@@ -66,3 +66,31 @@ aws ec2 associate-address \
   --allocation-id ${eip_allocation_id} \
   --region ${aws_region} \
   --allow-reassociation
+
+# CloudWatch agent: EC2 doesn't publish memory metrics by default, but the
+# "high memory" alarm needs mem_used_percent. append_dimensions ties the
+# published metric to this instance's Auto Scaling group so the alarm can
+# find it without knowing the instance ID. Runs last — after nginx and the
+# EIP association — so a failure here can't block the host from becoming
+# reachable.
+yum install -y amazon-cloudwatch-agent
+
+cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'CWAGENTEOF'
+{
+  "metrics": {
+    "append_dimensions": {
+      "AutoScalingGroupName": "$${aws:AutoScalingGroupName}"
+    },
+    "metrics_collected": {
+      "mem": {
+        "measurement": ["mem_used_percent"],
+        "metrics_collection_interval": 60
+      }
+    }
+  }
+}
+CWAGENTEOF
+
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -s \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
