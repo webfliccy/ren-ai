@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import styles from "./SiteHeader.module.css";
 
 const NAV = [
   { label: "Dispatches & Field Notes", href: "/dispatches" },
@@ -15,16 +14,23 @@ export function NavLinks() {
   const pathname = usePathname();
 
   return (
-    <nav className={styles.nav}>
-      {NAV.map(({ label, href }) => (
-        <Link
-          key={href}
-          href={href}
-          className={pathname === href ? styles.navActive : undefined}
-        >
-          {label}
-        </Link>
-      ))}
+    <nav className="mb-12 flex justify-center gap-10 border-b border-rule pt-3 pb-[38px] max-tablet:flex-wrap max-tablet:gap-5">
+      {NAV.map(({ label, href }) => {
+        const active = pathname === href;
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={
+              active
+                ? "text-[10.5px] font-bold uppercase tracking-[0.15em] text-accent bg-[var(--color-highlight)]"
+                : "text-[10.5px] font-bold uppercase tracking-[0.15em] text-ink no-underline opacity-[0.78] hover:text-accent hover:opacity-100"
+            }
+          >
+            {label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

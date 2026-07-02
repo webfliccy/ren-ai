@@ -3,7 +3,6 @@ import { FieldNoteCard } from "@/components/FieldNoteCard";
 import { db } from "@/db";
 import { fieldNotes, posts, type FieldNote, type Post } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import styles from "./field-notes.module.css";
 
 export const metadata = {
   title: "Dispatches & Field Notes — ren·ai",
@@ -31,27 +30,33 @@ export default async function DispatchesAndFieldNotesPage() {
 
   return (
     <>
-        <div className={styles.indexHead}>
-          <span className={styles.sectionLabel}>Dispatches &amp; Field Notes</span>
-          <h1 className={styles.indexTitle}>Essays &amp; experiment logs</h1>
-          <p className={styles.indexDeck}>
-            Arguments, observations, and running notes from the ren&middot;ai research process.
-          </p>
-        </div>
+      <div className="mx-auto mt-12 max-w-[720px]">
+        <span className="mb-5 inline-block bg-ink px-2.5 py-1 font-courier text-[9px] font-bold uppercase tracking-4 text-white">
+          Dispatches &amp; Field Notes
+        </span>
+        <h1 className="mb-3 font-cormorant text-[52px] font-semibold leading-[1.04] tracking-[-0.015em] text-ink">
+          Essays &amp; experiment logs
+        </h1>
+        <p className="mb-10 font-newsreader text-lg italic leading-[1.55] text-ink-light">
+          Arguments, observations, and running notes from the ren&middot;ai research process.
+        </p>
+      </div>
 
-        {entries.length === 0 ? (
-          <p className={styles.empty}>Nothing published yet.</p>
-        ) : (
-          <div className={styles.cards}>
-            {entries.map((entry) =>
-              entry.kind === "dispatch" ? (
-                <DispatchCard key={`dispatch-${entry.post.id}`} post={entry.post} />
-              ) : (
-                <FieldNoteCard key={`fieldNote-${entry.note.id}`} note={entry.note} />
-              )
-            )}
-          </div>
-        )}
+      {entries.length === 0 ? (
+        <p className="mx-auto my-15 max-w-[720px] font-newsreader text-[17px] italic text-muted">
+          Nothing published yet.
+        </p>
+      ) : (
+        <div className="mx-auto flex max-w-[720px] flex-col">
+          {entries.map((entry) =>
+            entry.kind === "dispatch" ? (
+              <DispatchCard key={`dispatch-${entry.post.id}`} post={entry.post} layout="list" />
+            ) : (
+              <FieldNoteCard key={`fieldNote-${entry.note.id}`} note={entry.note} layout="list" />
+            )
+          )}
+        </div>
+      )}
     </>
   );
 }

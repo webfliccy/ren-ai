@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { issues } from "@/db/schema";
+import { Kicker } from "@/components/ui/Kicker";
 import { and, desc, eq, lt } from "drizzle-orm";
 import Link from "next/link";
-import styles from "../[slug]/article.module.css";
 
 export const metadata = {
   title: "The Archive — The RenAIssance Fan",
@@ -31,54 +31,53 @@ export default async function ArchivePage() {
 
   return (
     <>
-        <div style={{ height: 4 }} />
-        <div className={styles.ruleThin} />
+      <article className="mx-auto mt-12 max-w-[740px]">
+        <div className="mb-[22px]">
+          <Kicker tag="Archive" crumb="EVERY PAST ISSUE, IN ORDER" />
+        </div>
 
-        <article className={styles.article}>
-          <div className={styles.kicker}>
-            <span className={styles.kickerTag}>Archive</span>
-            <span className={styles.kickerCrumb}>EVERY PAST ISSUE, IN ORDER</span>
+        <h1 className="mb-5 text-balance font-cormorant text-[60px] font-semibold leading-[1.02] tracking-[-0.015em] text-ink max-mobile:text-[40px]">
+          The Archive
+        </h1>
+
+        {current && (
+          <p className="mb-[26px] text-pretty font-newsreader text-[21px] italic leading-[1.5] text-ink-light">
+            The current issue is <Link href="/">№ {current.number} — {current.title}</Link>.
+            Past issues are below.
+          </p>
+        )}
+
+        {pastIssues.length === 0 ? (
+          <div className="prose">
+            <p>No past issues yet. The archive fills as new issues are published.</p>
           </div>
-
-          <h1 className={styles.headline}>The Archive</h1>
-
-          {current && (
-            <p className={styles.deck}>
-              The current issue is{" "}
-              <Link href="/">№ {current.number} — {current.title}</Link>.
-              Past issues are below.
-            </p>
-          )}
-
-          {pastIssues.length === 0 ? (
-            <div className={styles.prose}>
-              <p>No past issues yet. The archive fills as new issues are published.</p>
-            </div>
-          ) : (
-            <div className={styles.archiveList}>
-              {pastIssues.map((issue, i) => (
-                <div key={issue.id}>
-                  {i > 0 && <div className={styles.archiveDivider} />}
-                  <Link href={`/issues/${issue.number}`} className={styles.archiveLink}>
-                    <div className={styles.archiveItemHead}>
-                      <span className={styles.archiveNum}>
-                        № {String(issue.number).padStart(2, "0")}
-                      </span>
-                      <h2 className={styles.archiveTitle}>{issue.title}</h2>
-                    </div>
-                    {issue.description && (
-                      <p className={styles.archiveDesc}>{issue.description}</p>
-                    )}
-                    <span className={styles.archiveMeta}>
-                      {issue.publishedAt ? formatDate(new Date(issue.publishedAt)) : ""}
-                      {" · Read the issue →"}
+        ) : (
+          <div className="mt-10">
+            {pastIssues.map((issue, i) => (
+              <div key={issue.id}>
+                {i > 0 && <div className="my-8 h-px bg-border" />}
+                <Link href={`/issues/${issue.number}`} className="block no-underline">
+                  <div className="mb-2 flex items-baseline gap-4">
+                    <span className="font-courier text-[11px] font-bold uppercase tracking-[0.15em] text-accent">
+                      № {String(issue.number).padStart(2, "0")}
                     </span>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          )}
-        </article>
+                    <h2 className="font-cormorant text-[32px] font-semibold leading-[1.1] text-ink">{issue.title}</h2>
+                  </div>
+                  {issue.description && (
+                    <p className="mb-2.5 font-newsreader text-[17px] italic leading-[1.5] text-ink-light">
+                      {issue.description}
+                    </p>
+                  )}
+                  <span className="font-courier text-[10px] uppercase tracking-1 text-muted">
+                    {issue.publishedAt ? formatDate(new Date(issue.publishedAt)) : ""}
+                    {" · Read the issue →"}
+                  </span>
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </article>
     </>
   );
 }

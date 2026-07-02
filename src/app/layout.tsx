@@ -12,7 +12,7 @@ const cormorant = Cormorant_Garamond({
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-cormorant",
+  variable: "--next-cormorant",
   display: "swap",
 });
 
@@ -21,14 +21,14 @@ const newsreader = Newsreader({
   style: ["normal", "italic"],
   subsets: ["latin"],
   axes: ["opsz"],
-  variable: "--font-newsreader",
+  variable: "--next-newsreader",
   display: "swap",
 });
 
 const figtree = Figtree({
   weight: "variable",
   subsets: ["latin"],
-  variable: "--font-figtree",
+  variable: "--next-figtree",
   display: "swap",
 });
 
@@ -36,7 +36,7 @@ const courierPrime = Courier_Prime({
   weight: ["400", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-courier-prime",
+  variable: "--next-courier",
   display: "swap",
 });
 

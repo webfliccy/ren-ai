@@ -1,5 +1,11 @@
 import CommentSection from "@/components/CommentSection";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
+import { Kicker } from "@/components/ui/Kicker";
+import { Byline, BylineDot, BylineBadge } from "@/components/ui/Byline";
+import { SpecCard } from "@/components/ui/SpecCard";
+import { SpecRow } from "@/components/ui/SpecRow";
+import { OutcomeBadge } from "@/components/ui/OutcomeBadge";
+import { RefsSection } from "@/components/ui/RefsSection";
 import { db } from "@/db";
 import { Artefact, ExperimentRecord, comments, fieldNotes, users } from "@/db/schema";
 import { formatDate } from "@/lib/formatters";
@@ -11,7 +17,7 @@ import { fileExt, formatSize } from "@/lib/file-utils";
 import { and, asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
-import styles from "../field-notes.module.css";
+import type { ReactNode } from "react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -65,188 +71,165 @@ export default async function FieldNoteDetailPage({ params }: Props) {
 
   const hasOutcome = outcome || closedDate || note.outcomeRuns != null;
 
+  const specRows: { label: string; value: ReactNode; full?: boolean; italic?: boolean }[] = [];
+  if (experiment.hypothesis) specRows.push({ label: "Hypothesis", value: experiment.hypothesis, full: true, italic: true });
+  if (experiment.model) specRows.push({ label: "Model", value: <span className="text-accent">{experiment.model}</span> });
+  if (experiment.trials != null) specRows.push({ label: "Trials", value: experiment.trials });
+  if (experiment.duration) specRows.push({ label: "Duration", value: experiment.duration });
+  if (experiment.scoredBy) specRows.push({ label: "Scored by", value: experiment.scoredBy });
+  if (experiment.method) specRows.push({ label: "Method", value: experiment.method });
+  if (experiment.outcome) specRows.push({ label: "Outcome", value: experiment.outcome });
+
+  const outcomeRows: { label: string; value: ReactNode }[] = [
+    {
+      label: "Status",
+      value: outcome ? <OutcomeBadge outcome={outcome} /> : <span className="text-muted">—</span>,
+    },
+    {
+      label: "Date closed",
+      value: closedDate ?? <span className="text-muted">—</span>,
+    },
+    {
+      label: "Runs",
+      value: note.outcomeRuns ?? <span className="text-muted">—</span>,
+    },
+  ];
+
   return (
     <>
-        <article className={styles.article}>
-          <div className={styles.kicker}>
-            <span className={styles.kickerTag}>Field Notes</span>
-            <span className={styles.kickerCrumb}>
-              {note.slug.replace(/-/g, " ").toUpperCase().slice(0, 44)}
-            </span>
+      <article className="mx-auto mt-12 max-w-[740px]">
+        <div className="mb-[22px]">
+          <Kicker
+            variant="ink"
+            tag="Field Notes"
+            crumb={note.slug.replace(/-/g, " ").toUpperCase().slice(0, 44)}
+          />
+        </div>
+
+        <h1 className="mb-5 text-balance font-cormorant text-[60px] font-semibold leading-[1.02] tracking-[-0.015em] text-ink max-mobile:text-[40px]">
+          {note.title}
+        </h1>
+
+        {note.excerpt && (
+          <p className="mb-[26px] text-pretty font-newsreader text-[21px] italic leading-[1.5] text-ink-light">
+            {note.excerpt}
+          </p>
+        )}
+
+        <Byline variant="full">
+          {outcome && <BylineBadge variant="ink">{OUTCOME_STATUS_LABELS[outcome] ?? outcome}</BylineBadge>}
+          {outcome && publishedDate && <BylineDot />}
+          {publishedDate && <time dateTime={note.publishedAt?.toISOString()}>{publishedDate}</time>}
+          {note.outcomeRuns != null && (
+            <>
+              <BylineDot />
+              <span>{note.outcomeRuns} run{note.outcomeRuns !== 1 ? "s" : ""}</span>
+            </>
+          )}
+        </Byline>
+
+        {/* ── Experimentation Record ─────────────────── */}
+        {hasExperiment && (
+          <div className="mt-6">
+            <SpecCard title="Experimentation Record" fig="FIG. 2-B">
+              <div className="grid grid-cols-2 max-mobile:grid-cols-1">
+                {specRows.map((row, i) => (
+                  <SpecRow
+                    key={row.label}
+                    label={row.label}
+                    value={row.value}
+                    italic={row.italic}
+                    colSpanFull={row.full}
+                    borderRight={!row.full && i % 2 === 0}
+                  />
+                ))}
+              </div>
+            </SpecCard>
           </div>
+        )}
 
-          <h1 className={styles.headline}>{note.title}</h1>
+        {note.content && (
+          <div
+            className="prose prose-dispatch"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
+          />
+        )}
 
-          {note.excerpt && <p className={styles.deck}>{note.excerpt}</p>}
-
-          <div className={styles.byline}>
-            {outcome && (
-              <span className={`${styles.bylineLabel}`}>
-                {OUTCOME_STATUS_LABELS[outcome] ?? outcome}
-              </span>
-            )}
-            {outcome && publishedDate && <span className={styles.bylineDot} />}
-            {publishedDate && <time dateTime={note.publishedAt?.toISOString()}>{publishedDate}</time>}
-            {note.outcomeRuns != null && (
-              <>
-                <span className={styles.bylineDot} />
-                <span>{note.outcomeRuns} run{note.outcomeRuns !== 1 ? "s" : ""}</span>
-              </>
-            )}
+        {/* ── Outcome ───────────────────────────────── */}
+        {hasOutcome && (
+          <div className="mt-12">
+            <SpecCard title="Outcome Record" fig="FIG. 2-A">
+              <div className="grid grid-cols-3 max-mobile:grid-cols-1">
+                {outcomeRows.map((row, i) => (
+                  <SpecRow
+                    key={row.label}
+                    keyWidth={100}
+                    label={row.label}
+                    value={row.value}
+                    valueSize={13}
+                    borderRight={i !== outcomeRows.length - 1}
+                  />
+                ))}
+              </div>
+            </SpecCard>
           </div>
+        )}
 
-          {/* ── Experimentation Record ─────────────────── */}
-          {hasExperiment && (
-            <section className={styles.spec} aria-label="Experimentation record">
-              <div className={styles.specHead}>
-                <span className={styles.specHeadTitle}>Experimentation Record</span>
-                <span className={styles.specHeadFig}>FIG. 2-B</span>
-              </div>
-              <div className={styles.specRows}>
-                {experiment.hypothesis && (
-                  <div className={`${styles.specRow} ${styles.specRowFull}`}>
-                    <span className={styles.specKey}>Hypothesis</span>
-                    <span className={styles.specVal}>{experiment.hypothesis}</span>
-                  </div>
-                )}
-                {experiment.model && (
-                  <div className={styles.specRow}>
-                    <span className={styles.specKey}>Model</span>
-                    <span className={`${styles.specVal} ${styles.red}`}>{experiment.model}</span>
-                  </div>
-                )}
-                {experiment.trials != null && (
-                  <div className={styles.specRow}>
-                    <span className={styles.specKey}>Trials</span>
-                    <span className={styles.specVal}>{experiment.trials}</span>
-                  </div>
-                )}
-                {experiment.duration && (
-                  <div className={styles.specRow}>
-                    <span className={styles.specKey}>Duration</span>
-                    <span className={styles.specVal}>{experiment.duration}</span>
-                  </div>
-                )}
-                {experiment.scoredBy && (
-                  <div className={styles.specRow}>
-                    <span className={styles.specKey}>Scored by</span>
-                    <span className={styles.specVal}>{experiment.scoredBy}</span>
-                  </div>
-                )}
-                {experiment.method && (
-                  <div className={styles.specRow}>
-                    <span className={styles.specKey}>Method</span>
-                    <span className={styles.specVal}>{experiment.method}</span>
-                  </div>
-                )}
-                {experiment.outcome && (
-                  <div className={styles.specRow}>
-                    <span className={styles.specKey}>Outcome</span>
-                    <span className={styles.specVal}>{experiment.outcome}</span>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {note.content && (
-            <div
-              className={styles.prose}
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
-            />
-          )}
-
-          {/* ── Outcome ───────────────────────────────── */}
-          {hasOutcome && (
-            <section className={styles.outcome} aria-label="Outcome">
-              <div className={styles.outcomeHead}>
-                <span className={styles.outcomeHeadTitle}>Outcome Record</span>
-                <span className={styles.outcomeHeadFig}>FIG. 2-A</span>
-              </div>
-              <div className={styles.outcomeRows}>
-                <div className={styles.outcomeRow}>
-                  <span className={styles.outcomeKey}>Status</span>
-                  {outcome ? (
-                    <span className={`${styles.outcomeVal} ${styles.outcomeValBadge} ${styles[outcome]}`}>
-                      {OUTCOME_STATUS_LABELS[outcome] ?? outcome}
-                    </span>
-                  ) : (
-                    <span className={`${styles.outcomeVal} ${styles.muted}`}>—</span>
-                  )}
-                </div>
-                <div className={styles.outcomeRow}>
-                  <span className={styles.outcomeKey}>Date closed</span>
-                  <span className={`${styles.outcomeVal} ${!closedDate ? styles.muted : ""}`}>
-                    {closedDate ?? "—"}
-                  </span>
-                </div>
-                <div className={styles.outcomeRow}>
-                  <span className={styles.outcomeKey}>Runs</span>
-                  <span className={`${styles.outcomeVal} ${note.outcomeRuns == null ? styles.muted : ""}`}>
-                    {note.outcomeRuns ?? "—"}
-                  </span>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* ── Artefacts ────────────────────────────── */}
-          {artefacts.length > 0 && (
-            <section className={styles.artefacts} aria-label="Artefacts">
-              <div className={styles.artefactsHead}>
-                <span className={styles.artefactsHeadTitle}>Artefacts</span>
-                <span className={styles.artefactsHeadFig}>FIG. 2-C</span>
-              </div>
-              <ul className={styles.artefactsList}>
+        {/* ── Artefacts ────────────────────────────── */}
+        {artefacts.length > 0 && (
+          <div className="mt-6">
+            <SpecCard title="Artefacts" fig="FIG. 2-C">
+              <ul className="py-1">
                 {artefacts.map((art, i) => (
-                  <li key={i} className={styles.artefactItem}>
-                    <span className={styles.artefactType}>{fileExt(art.name)}</span>
-                    <div className={styles.artefactBody}>
-                      <span className={styles.artefactName}>{art.name}</span>
+                  <li
+                    key={i}
+                    className="flex items-baseline gap-3 border-b border-dashed border-border px-3.5 py-2.5 last:border-b-0"
+                  >
+                    <span className="min-w-[60px] whitespace-nowrap font-courier text-[9px] font-bold uppercase tracking-1 text-muted">
+                      {fileExt(art.name)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <span className="font-courier text-[13px] font-bold text-ink">{art.name}</span>
                       {art.description && (
-                        <p className={styles.artefactDesc}>{art.description}</p>
+                        <p className="mt-0.5 font-figtree text-xs text-ink-light">{art.description}</p>
                       )}
                     </div>
                     {art.size != null && (
-                      <span className={styles.artefactSize}>{formatSize(art.size)}</span>
+                      <span className="flex-shrink-0 whitespace-nowrap font-courier text-[10px] text-muted">
+                        {formatSize(art.size)}
+                      </span>
                     )}
                     <a
                       href={art.url}
                       download
-                      className={styles.artefactDownload}
+                      className="flex-shrink-0 whitespace-nowrap border border-border px-2 py-0.5 font-courier text-[9px] font-bold uppercase tracking-[0.08em] text-ink no-underline hover:border-accent hover:text-accent"
                     >
                       Download
                     </a>
                   </li>
                 ))}
               </ul>
-            </section>
-          )}
+            </SpecCard>
+          </div>
+        )}
 
-          {/* ── References ───────────────────────────── */}
-          {refs.length > 0 && (
-            <section className={styles.refs} aria-label="References">
-              <div className={styles.refsHead}>
-                <h2>References</h2>
-                <div className={styles.refsHeadLine} />
-              </div>
-              <p className={styles.refsNote}>
-                Citations follow Chicago Manual of Style — Notes &amp; Bibliography (web) format.
-              </p>
-              <ol className={styles.bib}>
-                {refs.map((ref, i) => (
-                  <li key={i}>
-                    <ReferenceCitation reference={ref} />
-                  </li>
-                ))}
-              </ol>
-            </section>
-          )}
-        </article>
+        {/* ── References ───────────────────────────── */}
+        {refs.length > 0 && (
+          <RefsSection>
+            <ol className="bib">
+              {refs.map((ref, i) => (
+                <li key={i}>
+                  <ReferenceCitation reference={ref} />
+                </li>
+              ))}
+            </ol>
+          </RefsSection>
+        )}
+      </article>
 
-        <section className={styles.commentsSection}>
-          <CommentSection fieldNoteId={note.id} initialComments={approvedComments} />
-        </section>
+      <section className="mx-auto mt-14 max-w-[720px] border-t-[3px] border-ink pt-3.5">
+        <CommentSection fieldNoteId={note.id} initialComments={approvedComments} />
+      </section>
     </>
   );
 }

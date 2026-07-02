@@ -2,6 +2,10 @@ import SubscribeForm from "@/components/SubscribeForm";
 import { SidebarPost } from "@/components/SidebarPost";
 import { DispatchCard } from "@/components/DispatchCard";
 import { ToolCard } from "@/components/ToolCard";
+import { Kicker } from "@/components/ui/Kicker";
+import { Byline, BylineDot, BylineWho, BylineBadge } from "@/components/ui/Byline";
+import { SpecCard } from "@/components/ui/SpecCard";
+import { SpecRow } from "@/components/ui/SpecRow";
 import { getPostsByIssue } from "@/services/posts";
 import { db } from "@/db";
 import { issues, tools } from "@/db/schema";
@@ -12,7 +16,6 @@ import { refCount } from "@/lib/references";
 import { and, asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import styles from "../../homepage.module.css";
 
 interface Props {
   params: Promise<{ number: string }>;
@@ -56,166 +59,163 @@ export default async function IssuePage({ params }: Props) {
 
   return (
     <>
-        {/* ════════ LEAD / HERO ════════ */}
-        {lead && (
-          <section className={styles.leadGrid} data-screen-label="Lead feature">
-            <div className={styles.leadMain}>
-              <span className={styles.kicker}>
-                <span className={styles.kickerTag}>Lead Dispatch</span>
-                <span className={styles.kickerCrumb}>
-                  {`${firstTag(lead.tags) || "ESSAY"} № 01 — ${lead.title.toUpperCase().slice(0, 30)}`}
-                </span>
-              </span>
+      {/* ════════ LEAD / HERO ════════ */}
+      {lead && (
+        <section className="grid grid-cols-[1.35fr_1fr] gap-0 max-tablet:grid-cols-1" data-screen-label="Lead feature">
+          <div className="border-r border-rule py-8 pr-10 max-tablet:border-r-0 max-tablet:border-b max-tablet:border-rule max-tablet:px-0 max-tablet:py-6">
+            <div className="mb-5 inline-block">
+              <Kicker
+                inline
+                tag="Lead Dispatch"
+                crumb={`${firstTag(lead.tags) || "ESSAY"} № 01 — ${lead.title.toUpperCase().slice(0, 30)}`}
+              />
+            </div>
 
-              <h2>
-                <Link href={`/${lead.slug}`}>{lead.title}</Link>
-              </h2>
+            <h2 className="mb-5 text-balance font-cormorant text-[64px] font-semibold leading-[0.98] tracking-[-0.018em] max-tablet:text-[42px]">
+              <Link className="no-underline hover:text-accent" href={`/${lead.slug}`}>{lead.title}</Link>
+            </h2>
 
-              <p className={styles.leadDeck}>
-                {lead.excerpt ?? ""}
-              </p>
+            <p className="mb-6 text-pretty font-newsreader text-xl italic leading-[1.5] text-ink-light">
+              {lead.excerpt ?? ""}
+            </p>
 
-              {lead.figSvg && (
-                <figure className={styles.plate}>
-                  <div
-                    className={styles.plateFrame}
-                    dangerouslySetInnerHTML={{ __html: lead.figSvg }}
+            {lead.figSvg && (
+              <figure className="mb-6 border-[1.5px] border-ink bg-paper shadow-paper">
+                <div
+                  className="flex justify-center bg-texture-graph p-4"
+                  dangerouslySetInnerHTML={{ __html: lead.figSvg }}
+                />
+                <figcaption className="flex items-baseline gap-2.5 border-t border-ink px-3.5 py-2 font-courier text-[10px] text-ink-light">
+                  <span className="whitespace-nowrap font-bold tracking-1 text-accent">FIG. 1</span>
+                </figcaption>
+              </figure>
+            )}
+
+            <Byline variant="lead">
+              <BylineWho>By the Editor</BylineWho>
+              <BylineBadge size="sm">Verified Flesh</BylineBadge>
+              <BylineDot />
+              <span>Assisted, suspiciously, by a machine</span>
+              <BylineDot />
+              <span>{formatDate(lead.publishedAt)}</span>
+              <BylineDot />
+              <span>{lead.readingTime} min read</span>
+            </Byline>
+
+            <Link
+              className="group mt-5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-accent no-underline"
+              href={`/${lead.slug}`}
+            >
+              Read the dispatch{" "}
+              <span className="inline-block transition-transform duration-150 ease-out group-hover:translate-x-1">→</span>
+            </Link>
+          </div>
+
+          <aside className="py-8 pl-10 max-tablet:px-0 max-tablet:py-6">
+            <div className="mb-[26px]">
+              <SpecCard title="Spec Sheet" fig="FIG. 0 — PROVENANCE" compact>
+                <SpecRow keyWidth={92} compact label="Author" value={<>Human <span className="text-accent">(mostly)</span></>} />
+                <SpecRow keyWidth={92} compact label="Model" value="Claude Sonnet 4.6" />
+                <SpecRow
+                  keyWidth={92}
+                  compact
+                  label="Tokens"
+                  value={lead.tokens ?? <span className="text-muted">—</span>}
+                />
+                <SpecRow
+                  keyWidth={92}
+                  compact
+                  label="Sources"
+                  value={(() => {
+                    const n = refCount(lead.references);
+                    return n > 0
+                      ? <>{n} <span className="text-accent">(all cited)</span></>
+                      : <span className="text-muted">—</span>;
+                  })()}
+                />
+                <SpecRow keyWidth={92} compact label="Scale" value="1:1, honest" borderBottom={false} />
+              </SpecCard>
+            </div>
+
+            {sidebarPosts.length > 0 && (
+              <>
+                <div className="mb-1 flex items-center gap-2.5">
+                  <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.18em] opacity-65">
+                    Also in this issue
+                  </span>
+                  <span className="h-px flex-1 bg-rule" />
+                </div>
+                {sidebarPosts.map((post, i) => (
+                  <SidebarPost
+                    key={post.id}
+                    title={post.title}
+                    slug={post.slug}
+                    excerpt={post.excerpt ?? undefined}
+                    readingTime={post.readingTime}
+                    index={i}
                   />
-                  <figcaption>
-                    <span className={styles.plateFig}>FIG. 1</span>
-                  </figcaption>
-                </figure>
-              )}
+                ))}
+              </>
+            )}
+          </aside>
+        </section>
+      )}
 
-              <div className={styles.leadByline}>
-                <span className={styles.bylineWho}>By the Editor</span>
-                <span className={styles.bylineFlesh}>Verified Flesh</span>
-                <span className={styles.bylineDot} />
-                <span>Assisted, suspiciously, by a machine</span>
-                <span className={styles.bylineDot} />
-                <span>{formatDate(lead.publishedAt)}</span>
-                <span className={styles.bylineDot} />
-                <span>{lead.readingTime} min read</span>
-              </div>
-
-              <Link className={styles.readOn} href={`/${lead.slug}`}>
-                Read the dispatch <span className={styles.arrow}>→</span>
-              </Link>
-            </div>
-
-            <aside className={styles.leadAside}>
-              <div className={styles.miniSpec}>
-                <div className={styles.miniSpecHead}>
-                  <span className={styles.miniSpecTitle}>Spec Sheet</span>
-                  <span className={styles.miniSpecFig}>FIG. 0 — PROVENANCE</span>
-                </div>
-                <div className={styles.specRow}>
-                  <span className={styles.specKey}>Author</span>
-                  <span className={styles.specVal}>
-                    Human <span className={styles.red}>(mostly)</span>
-                  </span>
-                </div>
-                <div className={styles.specRow}>
-                  <span className={styles.specKey}>Model</span>
-                  <span className={styles.specVal}>Claude Sonnet 4.6</span>
-                </div>
-                <div className={styles.specRow}>
-                  <span className={styles.specKey}>Tokens</span>
-                  <span className={styles.specVal}>
-                    {lead.tokens ?? <span className={styles.muted}>—</span>}
-                  </span>
-                </div>
-                <div className={styles.specRow}>
-                  <span className={styles.specKey}>Sources</span>
-                  <span className={styles.specVal}>
-                    {(() => {
-                      const n = refCount(lead.references);
-                      return n > 0
-                        ? <>{n} <span className={styles.red}>(all cited)</span></>
-                        : <span className={styles.muted}>—</span>;
-                    })()}
-                  </span>
-                </div>
-                <div className={styles.specRow}>
-                  <span className={styles.specKey}>Scale</span>
-                  <span className={styles.specVal}>1:1, honest</span>
-                </div>
-              </div>
-
-              {sidebarPosts.length > 0 && (
-                <>
-                  <div className={styles.asideLabel}>
-                    <span className={styles.asideLabelText}>Also in this issue</span>
-                    <span className={styles.asideLabelLine} />
-                  </div>
-                  {sidebarPosts.map((post, i) => (
-                    <SidebarPost
-                      key={post.id}
-                      title={post.title}
-                      slug={post.slug}
-                      excerpt={post.excerpt ?? undefined}
-                      readingTime={post.readingTime}
-                      index={i}
-                    />
-                  ))}
-                </>
-              )}
-            </aside>
-          </section>
-        )}
-
-        {/* ════════ DISPATCHES ROW ════════ */}
-        {dispatchPosts.length > 0 && (
-          <section data-screen-label="Dispatches">
-            <div className={styles.sectionHead}>
-              <h3>Dispatches</h3>
-              <span className={styles.sectionDesc}>
-                essays, arguments, and the occasional confession
-              </span>
-              <span className={styles.sectionCount}>
-                {padCount(issuePosts.length)} / ISSUE {padCount(issue.number)}
-              </span>
-            </div>
-            <div className={styles.cards3}>
-              {dispatchPosts.map((post) => (
-                <DispatchCard key={post.id} post={post} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ════════ TOOLS & CONTRAPTIONS ════════ */}
-        {issueTools.length > 0 && (
-          <section id="tools" data-screen-label="Tools">
-            <div className={styles.sectionHead}>
-              <h3>Tools &amp; Contraptions</h3>
-              <span className={styles.sectionDesc}>
-                small machines that make the big machine behave
-              </span>
-              <span className={styles.sectionCount}>
-                {padCount(issueTools.length)} IN THE WORKSHOP
-              </span>
-            </div>
-            <div className={styles.tools}>
-              {issueTools.map((tool) => (
-                <ToolCard key={tool.id} tool={tool} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ════════ SIGN UP ════════ */}
-        <section className={styles.signup} data-screen-label="Subscribe">
-          <div className={styles.signupEye}>The Standing Invitation</div>
-          <SubscribeForm
-            formClass={styles.signupForm}
-            inputClass={styles.signupInput}
-            buttonClass={styles.signupButton}
-          />
-          <div className={styles.signupFine}>
-            No tracking pixels. No model trained on your inbox. Just letters.
+      {/* ════════ DISPATCHES ROW ════════ */}
+      {dispatchPosts.length > 0 && (
+        <section data-screen-label="Dispatches">
+          <div className="mt-14 mb-7 flex items-baseline gap-4 border-t-[3px] border-ink pt-3.5">
+            <h3 className="whitespace-nowrap font-cormorant text-[30px] font-semibold">Dispatches</h3>
+            <span className="font-newsreader text-[13px] italic text-ink-light">
+              essays, arguments, and the occasional confession
+            </span>
+            <span className="ml-auto whitespace-nowrap font-courier text-[10px] uppercase tracking-1 text-muted">
+              {padCount(issuePosts.length)} / ISSUE {padCount(issue.number)}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-0 max-tablet:grid-cols-1 max-tablet:gap-6">
+            {dispatchPosts.map((post) => (
+              <DispatchCard key={post.id} post={post} />
+            ))}
           </div>
         </section>
+      )}
+
+      {/* ════════ TOOLS & CONTRAPTIONS ════════ */}
+      {issueTools.length > 0 && (
+        <section id="tools" data-screen-label="Tools">
+          <div className="mt-14 mb-7 flex items-baseline gap-4 border-t-[3px] border-ink pt-3.5">
+            <h3 className="whitespace-nowrap font-cormorant text-[30px] font-semibold">Tools &amp; Contraptions</h3>
+            <span className="font-newsreader text-[13px] italic text-ink-light">
+              small machines that make the big machine behave
+            </span>
+            <span className="ml-auto whitespace-nowrap font-courier text-[10px] uppercase tracking-1 text-muted">
+              {padCount(issueTools.length)} IN THE WORKSHOP
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-6 max-tablet:grid-cols-1">
+            {issueTools.map((tool) => (
+              <ToolCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ════════ SIGN UP ════════ */}
+      <section
+        className="mt-14 border-[3px] border-ink bg-paper p-10 text-center shadow-[4px_5px_0_rgba(58,46,28,0.08)]"
+        data-screen-label="Subscribe"
+      >
+        <div className="mb-3 text-[10px] font-bold uppercase tracking-4 text-accent">The Standing Invitation</div>
+        <SubscribeForm
+          formClass="mx-auto flex max-w-[460px] gap-2.5 max-tablet:flex-col"
+          inputClass="flex-1 rounded-sm border-[1.5px] border-ink bg-parchment px-3.5 py-3 font-courier text-[13px] text-ink outline-none placeholder:text-muted"
+          buttonClass="cursor-pointer rounded-sm border-[1.5px] border-accent bg-accent px-6 py-3 font-figtree text-[11px] font-bold uppercase tracking-2 text-white transition-transform duration-100 ease-out hover:-translate-y-px"
+        />
+        <div className="mt-3.5 font-courier text-[9px] tracking-[0.04em] text-muted">
+          No tracking pixels. No model trained on your inbox. Just letters.
+        </div>
+      </section>
     </>
   );
 }

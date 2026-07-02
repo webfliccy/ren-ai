@@ -1,41 +1,50 @@
 import { RenaiLogo } from "@/components/RenaiLogo";
 import Link from "next/link";
-import styles from "./SiteFooter.module.css";
 
 export default function SiteFooter() {
   return (
-    <footer className={styles.colophon} data-screen-label="Footer">
-      <div className={styles.colophonTop}>
-        <div className={styles.colophonLhs}>
-          <RenaiLogo className={styles.footerLogo} />
-          <span className={styles.colophonTagline}>
+    <footer className="mt-16 border-t-[3px] border-ink pt-4 pb-11" data-screen-label="Footer">
+      <div className="flex flex-wrap items-start justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <RenaiLogo className="block h-[34px] w-auto" />
+          <span className="font-cormorant text-lg italic text-ink-light">
             Fallibly human, artificially divine.
           </span>
         </div>
-        <div className={styles.colophonCols}>
-          <div className={styles.colophonCol}>
-            <h5>The Paper</h5>
-            <Link href="/dispatches">Dispatches</Link>
-            <Link href="/tools">Tools &amp; Contraptions</Link>
-            <Link href="/issues">The Archive</Link>
+        <div className="flex flex-wrap gap-12">
+          <div>
+            <h5 className="mb-2.5 text-[9px] font-bold uppercase tracking-3 text-muted">The Paper</h5>
+            <Link className="mb-1.5 block text-[12.5px] text-ink-light no-underline hover:text-accent" href="/dispatches">
+              Dispatches
+            </Link>
+            <Link className="mb-1.5 block text-[12.5px] text-ink-light no-underline hover:text-accent" href="/tools">
+              Tools &amp; Contraptions
+            </Link>
+            <Link className="mb-1.5 block text-[12.5px] text-ink-light no-underline hover:text-accent" href="/issues">
+              The Archive
+            </Link>
           </div>
-          <div className={styles.colophonCol}>
-            <h5>The Fan</h5>
-            <Link href="/about">About</Link>
+          <div>
+            <h5 className="mb-2.5 text-[9px] font-bold uppercase tracking-3 text-muted">The Fan</h5>
+            <Link className="mb-1.5 block text-[12.5px] text-ink-light no-underline hover:text-accent" href="/about">
+              About
+            </Link>
           </div>
-          <div className={styles.colophonCol}>
-            <h5>Elsewhere</h5>
-            <Link href="/feed.xml">RSS, the honest feed</Link>
+          <div>
+            <h5 className="mb-2.5 text-[9px] font-bold uppercase tracking-3 text-muted">Elsewhere</h5>
+            <Link className="mb-1.5 block text-[12.5px] text-ink-light no-underline hover:text-accent" href="/feed.xml">
+              RSS, the honest feed
+            </Link>
           </div>
         </div>
       </div>
-      <div className={styles.colophonMeta}>
-        THE REN<span className={styles.red}>AI</span>SSANCE FAN · VOL. I · AD
+      <div className="mt-7 border-t border-rule pt-3.5 font-courier text-[9.5px] leading-[1.7] tracking-[0.06em] text-muted">
+        THE REN<span className="text-accent">AI</span>SSANCE FAN · VOL. I · AD
         MMXXVI · Set in Cormorant, Newsreader &amp; Courier Prime
         <br />
         Every issue carries its provenance in ink. The machine helps; the human
         signs.{" "}
-        <span className={styles.red}>Sources kept, always.</span>
+        <span className="text-accent">Sources kept, always.</span>
       </div>
     </footer>
   );

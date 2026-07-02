@@ -1,9 +1,12 @@
 import { db } from "@/db";
 import { sitePages } from "@/db/schema";
 import { renderMarkdown } from "@/lib/markdown";
+import { Kicker } from "@/components/ui/Kicker";
+import { SpecCard } from "@/components/ui/SpecCard";
+import { SpecRow } from "@/components/ui/SpecRow";
 import { eq } from "drizzle-orm";
 import "katex/dist/katex.min.css";
-import styles from "../[slug]/article.module.css";
+import type { ReactNode } from "react";
 
 export const metadata = {
   title: "About the Fan — The RenAIssance Fan",
@@ -21,83 +24,51 @@ export default async function AboutPage() {
   const content = page?.content ?? "";
   const updatedDate = page?.updatedAt ? formatDate(new Date(page.updatedAt)) : null;
 
+  const specRows: { label: string; value: ReactNode; full?: boolean }[] = [
+    { label: "Author", value: "The Editor, human" },
+    { label: "Assisted by", value: "Claude Sonnet 4.6" },
+    { label: "Model ver.", value: <span className="text-accent">claude-sonnet-4-6</span> },
+    { label: "Tokens", value: page?.tokens ? page.tokens : <span className="text-muted">—</span> },
+    { label: "Last revised", value: updatedDate ?? <span className="text-muted">—</span> },
+    { label: "Purpose", value: "Self-portrait, in ink" },
+  ];
+  if (page?.prompt) specRows.push({ label: "Prompt", value: page.prompt, full: true });
+
   return (
     <>
-        <div style={{ height: 4 }} />
-        <div className={styles.ruleThin} />
+      <article className="mx-auto mt-12 max-w-[740px]">
+        <div className="mb-[22px]">
+          <Kicker tag="About" crumb="THE FAN — WHO IS BEHIND THIS" />
+        </div>
 
-        <article className={styles.article}>
-          <div className={styles.kicker}>
-            <span className={styles.kickerTag}>About</span>
-            <span className={styles.kickerCrumb}>THE FAN — WHO IS BEHIND THIS</span>
+        <h1 className="mb-5 text-balance font-cormorant text-[60px] font-semibold leading-[1.02] tracking-[-0.015em] text-ink max-mobile:text-[40px]">
+          {title}
+        </h1>
+
+        {content ? (
+          <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
+        ) : (
+          <div className="prose">
+            <p>This page is yet to be written. The editor is presumably composing themselves.</p>
           </div>
+        )}
 
-          <h1 className={styles.headline}>{title}</h1>
-
-          {content ? (
-            <div
-              className={styles.prose}
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
-            />
-          ) : (
-            <div className={styles.prose}>
-              <p>
-                This page is yet to be written. The editor is presumably composing themselves.
-              </p>
+        <section className="mt-14" aria-label="Page provenance">
+          <SpecCard title="Production Record — Specification Sheet" fig="FIG. 1-A">
+            <div className="grid grid-cols-2 max-mobile:grid-cols-1">
+              {specRows.map((row, i) => (
+                <SpecRow
+                  key={row.label}
+                  label={row.label}
+                  value={row.value}
+                  colSpanFull={row.full}
+                  borderRight={!row.full && i % 2 === 0}
+                />
+              ))}
             </div>
-          )}
-
-          <section className={styles.spec} aria-label="Page provenance">
-            <div className={styles.specHead}>
-              <span className={styles.specHeadTitle}>
-                Production Record — Specification Sheet
-              </span>
-              <span className={styles.specHeadFig}>FIG. 1-A</span>
-            </div>
-
-            <div className={styles.specRows}>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Author</span>
-                <span className={styles.specVal}>The Editor, human</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Assisted by</span>
-                <span className={styles.specVal}>Claude Sonnet 4.6</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Model ver.</span>
-                <span className={`${styles.specVal} ${styles.red}`}>
-                  claude-sonnet-4-6
-                </span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Tokens</span>
-                <span className={`${styles.specVal} ${page?.tokens ? "" : styles.muted}`}>
-                  {page?.tokens ?? "—"}
-                </span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Last revised</span>
-                <span className={`${styles.specVal} ${updatedDate ? "" : styles.muted}`}>
-                  {updatedDate ?? "—"}
-                </span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Purpose</span>
-                <span className={styles.specVal}>Self-portrait, in ink</span>
-              </div>
-              {page?.prompt && (
-                <div className={`${styles.specRow} ${styles.specRowFull}`}>
-                  <span className={styles.specKey}>Prompt</span>
-                  <span className={styles.specVal}>{page.prompt}</span>
-                </div>
-              )}
-            </div>
-
-           
-          </section>
-
-        </article>
+          </SpecCard>
+        </section>
+      </article>
     </>
   );
 }

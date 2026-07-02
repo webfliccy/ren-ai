@@ -1,22 +1,431 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-:root {
-  --parchment: #F2ECD8;
-  --paper:     #FAF6EE;
-  --ink:       #3A2E1C;
-  --ink-light: #6B5D4A;
-  --muted:     #9A8E78;
-  --red:       #ED1C2E;
-  --border:    #C9BB9E;
-  --rule:      rgba(58, 46, 28, 0.35);
+@theme {
+  /* ── Colors ── */
+  --color-parchment: #F2ECD8;
+  --color-paper:     #FAF6EE;
+  --color-ink:       #3A2E1C;
+  --color-ink-light: #6B5D4A;
+  --color-muted:     #9A8E78;
+  --color-accent:    #ED1C2E;
+  --color-border:    #C9BB9E;
+  --color-rule:      rgba(58, 46, 28, 0.35);
+  --color-highlight: rgba(58, 46, 28, 0.07);
+
+  /* ── Fonts (alias the next/font loader variables from layout.tsx) ── */
+  --font-cormorant: var(--next-cormorant), Georgia, serif;
+  --font-newsreader: var(--next-newsreader), Georgia, serif;
+  --font-figtree: var(--next-figtree), system-ui, sans-serif;
+  --font-courier: var(--next-courier), 'Courier New', monospace;
+
+  /* ── Breakpoints (exact values from the original design, not Tailwind defaults) ── */
+  --breakpoint-mobile: 760px;
+  --breakpoint-tablet: 900px;
+
+  /* ── Letter-spacing (the most-repeated custom tracking values) ── */
+  --tracking-1: 0.1em;
+  --tracking-2: 0.12em;
+  --tracking-3: 0.16em;
+  --tracking-4: 0.22em;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-/* TipTap table styles */
+/* ════════ SHARED DECORATIVE UTILITIES ════════ */
+
+@utility bg-texture-page {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 31px,
+    rgba(58, 46, 28, 0.025) 31px,
+    rgba(58, 46, 28, 0.025) 32px
+  );
+}
+
+@utility bg-texture-graph {
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(58, 46, 28, 0.05) 15px, rgba(58, 46, 28, 0.05) 16px),
+    repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(58, 46, 28, 0.05) 15px, rgba(58, 46, 28, 0.05) 16px);
+}
+
+@utility shadow-paper {
+  box-shadow: 3px 4px 0 rgba(58, 46, 28, 0.07);
+}
+
+@utility hover-lift {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  &:hover {
+    transform: translate(-1px, -2px);
+    box-shadow: 5px 7px 0 rgba(58, 46, 28, 0.1);
+  }
+}
+
+/* ════════ PROSE (markdown-rendered content via dangerouslySetInnerHTML) ════════ */
+/* Targets raw HTML output from src/lib/markdown.ts, so these must stay as global
+   selectors rather than per-element classNames. Base .prose covers the article/
+   about/issues treatment; .prose-dispatch overrides the h2 style for field notes. */
+
+.prose { margin-top: 38px; max-width: 72ch}
+
+.prose-dispatch {max-width: 72ch}
+
+.prose p:not(td p, th p) {
+  font-family: var(--font-newsreader);
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--color-ink);
+  margin-bottom: 24px;
+  text-wrap: pretty;
+}
+
+.prose p a {
+  color: var(--color-ink);
+  text-decoration: none;
+  background-image: linear-gradient(var(--color-accent), var(--color-accent));
+  background-size: 100% 1.5px;
+  background-position: 0 1.01em;
+  background-repeat: no-repeat;
+  padding-bottom: 1px;
+}
+.prose p a:hover { color: var(--color-accent); }
+
+/* Drop cap on first paragraph */
+.prose > p:first-child { font-size: 20px; }
+.prose > p:first-child::first-letter {
+  font-family: var(--font-cormorant);
+  font-weight: 600;
+  font-size: 78px;
+  line-height: 0.78;
+  float: left;
+  margin: 6px 12px 0 0;
+  color: var(--color-accent);
+}
+
+.prose h2 {
+  font-family: var(--font-cormorant);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-ink);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+/* Section number span inside h2, e.g. <span class="num">01</span> */
+.prose h2 .num {
+  font-family: var(--font-courier);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: var(--tracking-1);
+  vertical-align: super;
+  margin-right: 10px;
+}
+
+/* Field-note detail pages use a bordered h2 instead of the .num/.subRule pattern */
+.prose-dispatch h2 {
+  margin: 56px 0 26px;
+  padding-top: 14px;
+  border-top: 3px solid var(--color-ink);
+  white-space: nowrap;
+}
+
+/* Decorative rule after h2 (requires a .subRule div in content) */
+.subRule {
+  height: 1px;
+  background: var(--color-rule);
+  margin-bottom: 26px;
+  position: relative;
+}
+.subRule::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  background: var(--color-accent);
+  transform: rotate(45deg);
+}
+
+.prose h3 {
+  font-family: var(--font-figtree);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-2);
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+  margin: 34px 0 14px;
+}
+
+/* Blockquote */
+.prose blockquote {
+  position: relative;
+  margin: 34px 0 34px 8px;
+  padding-left: 30px;
+  border-left: 2px solid var(--color-ink);
+}
+.prose blockquote p {
+  font-family: var(--font-newsreader);
+  font-style: italic;
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--color-ink);
+  margin-bottom: 10px;
+}
+.prose blockquote cite {
+  font-family: var(--font-figtree);
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.prose blockquote cite::before { content: '— '; }
+
+/* Pull quote (class-based, for curated content) */
+.pullquote {
+  margin: 44px 0;
+  padding: 26px 0;
+  border-top: 3px solid var(--color-ink);
+  border-bottom: 1px solid var(--color-ink);
+  text-align: center;
+}
+.pullquote p {
+  font-family: var(--font-cormorant);
+  font-size: 32px;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+.pullquote .src {
+  font-family: var(--font-courier);
+  font-size: 10px;
+  letter-spacing: var(--tracking-3);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-top: 14px;
+}
+
+/* Lists */
+.prose ul,
+.prose ol {
+  margin: 0 0 26px 4px;
+  padding: 0;
+  list-style: none;
+}
+.prose li {
+  font-family: var(--font-newsreader);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--color-ink);
+  padding-left: 34px;
+  margin-bottom: 13px;
+  position: relative;
+}
+.prose ul li::before {
+  content: '§';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-cormorant);
+  font-size: 20px;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+.prose ol { counter-reset: cnt; }
+.prose ol li { counter-increment: cnt; }
+.prose ol li::before {
+  content: counter(cnt, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 3px;
+  font-family: var(--font-courier);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+/* Technical figure/plate */
+.prose figure,
+figure.plate {
+  margin: 40px 0;
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-paper);
+  box-shadow: 3px 4px 0 rgba(58, 46, 28, 0.07);
+}
+.prose .plate-frame {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(58, 46, 28, 0.05) 15px, rgba(58, 46, 28, 0.05) 16px),
+    repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(58, 46, 28, 0.05) 15px, rgba(58, 46, 28, 0.05) 16px);
+}
+.prose figure figcaption,
+figure.plate figcaption {
+  border-top: 1px solid var(--color-ink);
+  padding: 9px 14px;
+  font-family: var(--font-courier);
+  font-size: 10.5px;
+  color: var(--color-ink-light);
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.plateFig { color: var(--color-accent); font-weight: 700; letter-spacing: var(--tracking-1); white-space: nowrap; }
+
+/* Inline code */
+.prose code {
+  font-family: var(--font-courier);
+  font-size: 0.86em;
+  background: rgba(58, 46, 28, 0.07);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--color-ink);
+}
+
+/* Code block (TipTap standard: pre > code) */
+.prose pre {
+  margin: 30px 0;
+  background: var(--color-ink);
+  color: var(--color-parchment);
+  border-radius: 4px;
+  overflow-x: auto;
+  box-shadow: 3px 4px 0 rgba(58, 46, 28, 0.12);
+  padding: 16px 18px;
+  font-family: var(--font-courier);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.prose pre code {
+  display: block;
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  color: var(--color-parchment);
+  white-space: pre-line;
+}
+
+/* Sidenote / marginalia */
+.sidenote {
+  margin: 30px 0;
+  padding: 16px 18px;
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
+  background: rgba(250, 246, 238, 0.6);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.sidenoteLabel {
+  font-family: var(--font-courier);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-2);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  white-space: nowrap;
+  padding-top: 3px;
+}
+.sidenote p {
+  font-family: var(--font-figtree);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-ink-light);
+  margin: 0;
+}
+
+/* Section break */
+.sectionBreak,
+.prose hr {
+  border: none;
+  text-align: center;
+  margin: 44px 0;
+  color: var(--color-muted);
+}
+.sectionBreak::before,
+.prose hr::before {
+  content: '· · ·';
+  font-size: 18px;
+  letter-spacing: 0.5em;
+}
+
+/* em and strong */
+.prose em { font-style: italic; }
+.prose strong { font-weight: 700; }
+
+/* Tables in prose */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 32px 0;
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-paper);
+  box-shadow: 3px 4px 0 rgba(58, 46, 28, 0.07);
+  table-layout: fixed;
+}
+.prose th {
+  background: var(--color-ink);
+  color: var(--color-parchment);
+  padding: 8px 14px;
+  text-align: left;
+  font-family: var(--font-courier);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-4);
+  text-transform: uppercase;
+}
+.prose td {
+  padding: 10px 14px;
+  border-bottom: 1px dashed var(--color-border);
+  font-family: var(--font-courier);
+  font-size: 13px;
+  color: var(--color-ink);
+  vertical-align: top;
+}
+.prose tr:last-child td { border-bottom: none; }
+
+/* ════════ BIBLIOGRAPHY (shared by article + field-note refs blocks) ════════ */
+.bib {
+  counter-reset: bib;
+  list-style: none;
+  padding: 0;
+}
+.bib li {
+  counter-increment: bib;
+  position: relative;
+  padding-left: 38px;
+  margin-bottom: 16px;
+  font-family: var(--font-newsreader);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+.bib li::before {
+  content: '[' counter(bib) ']';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-family: var(--font-courier);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+.bib .work { font-style: italic; }
+.bib a { color: var(--color-ink-light); text-decoration: none; border-bottom: 1px solid var(--color-border); }
+.bib a:hover { color: var(--color-accent); border-color: var(--color-accent); }
+.bib li.bibAside { color: var(--color-muted); }
+.bib li.bibAside::before { content: '[†]'; }
+
+/* ════════ TipTap table styles (editor-only, out of migration scope) ════════ */
 .ProseMirror table {
   border-collapse: collapse;
   table-layout: fixed;

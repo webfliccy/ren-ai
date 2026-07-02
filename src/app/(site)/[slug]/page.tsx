@@ -1,5 +1,10 @@
 import CommentSection from "@/components/CommentSection";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
+import { Kicker } from "@/components/ui/Kicker";
+import { Byline, BylineDot, BylineWho, BylineBadge } from "@/components/ui/Byline";
+import { SpecCard } from "@/components/ui/SpecCard";
+import { SpecRow } from "@/components/ui/SpecRow";
+import { RefsSection } from "@/components/ui/RefsSection";
 import { getPostWithComments } from "@/services/posts";
 import { parseJson } from "@/lib/parse";
 import { parseRefs } from "@/lib/references";
@@ -7,7 +12,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
 import { renderMarkdown } from "@/lib/markdown";
-import styles from "./article.module.css";
+import type { ReactNode } from "react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -60,8 +65,8 @@ export default async function PostPage({ params }: Props) {
   if (!data) notFound();
 
   const { post, comments: approvedComments } = data;
-  const tags = parseJson<string[]>(post.tags, []);
   const refs = parseRefs(post.references);
+  const tags = parseJson<string[]>(post.tags, []);
 
   const publishedDate = post.publishedAt ? formatDate(new Date(post.publishedAt)) : null;
   const kickerTag = tags[0] ?? "Dispatches";
@@ -71,123 +76,97 @@ export default async function PostPage({ params }: Props) {
     post.prompt ??
     "Write me something true and uncomfortable about artificial intelligence. Sign the register on the way out.";
 
+  const specRows: { label: string; value: ReactNode; full?: boolean }[] = [
+    { label: "Author", value: "The Editor, human" },
+    { label: "Assisted by", value: "Claude Sonnet 4.6" },
+    { label: "Model ver.", value: <span className="text-accent">claude-sonnet-4-6</span> },
+    {
+      label: "Tokens",
+      value: post.tokens ? post.tokens : <span className="text-muted">—</span>,
+    },
+    { label: "Drawn", value: publishedDate ?? "—" },
+    { label: "Revision", value: "A — first honest draft" },
+    { label: "Prompt", value: specPrompt, full: true },
+  ];
+
   return (
     <>
-        <div style={{ height: 4 }} />
-        <div className={styles.ruleThin} />
+      {/* ── Article ──────────────────────────────────── */}
+      <article className="mx-auto mt-12 max-w-[740px]">
+        <div className="mb-[22px]">
+          <Kicker tag={kickerTag} crumb={kickerCrumb} />
+        </div>
 
-        {/* ── Article ──────────────────────────────────── */}
-        <article className={styles.article}>
+        <h1 className="mb-5 text-balance font-cormorant text-[60px] font-semibold leading-[1.02] tracking-[-0.015em] text-ink max-mobile:text-[40px]">
+          {post.title}
+        </h1>
 
-          <div className={styles.kicker}>
-            <span className={styles.kickerTag}>{kickerTag}</span>
-            <span className={styles.kickerCrumb}>{kickerCrumb}</span>
-          </div>
-
-          <h1 className={styles.headline}>{post.title}</h1>
-
-          {post.excerpt && (
-            <p className={styles.deck}>{post.excerpt}</p>
-          )}
-
-          <div className={styles.byline}>
-            <span className={styles.bylineWho}>By the Editor</span>
-            <span className={styles.bylineFlesh}>Verified Flesh</span>
-            <span className={styles.bylineDot} />
-            <span>Assisted, suspiciously, by a machine</span>
-            {publishedDate && (
-              <>
-                <span className={styles.bylineDot} />
-                <time dateTime={post.publishedAt?.toISOString()}>
-                  {publishedDate}
-                </time>
-              </>
-            )}
-            {post.readingTime > 0 && (
-              <>
-                <span className={styles.bylineDot} />
-                <span>{post.readingTime} min read</span>
-              </>
-            )}
-          </div>
-
-          {/* ── Prose body ──────────────────────────── */}
-          <div
-            className={styles.prose}
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
-          />
-
-          {/* ── Specification Sheet ─────────────────── */}
-          <section className={styles.spec} aria-label="Article provenance">
-            <div className={styles.specHead}>
-              <span className={styles.specHeadTitle}>
-                Production Record — Specification Sheet
-              </span>
-              <span className={styles.specHeadFig}>FIG. 1-A</span>
-            </div>
-
-            <div className={styles.specRows}>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Author</span>
-                <span className={styles.specVal}>The Editor, human</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Assisted by</span>
-                <span className={styles.specVal}>Claude Sonnet 4.6</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Model ver.</span>
-                <span className={`${styles.specVal} ${styles.red}`}>
-                  claude-sonnet-4-6
-                </span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Tokens</span>
-                <span className={`${styles.specVal} ${post.tokens ? "" : styles.muted}`}>
-                  {post.tokens ?? "—"}
-                </span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Drawn</span>
-                <span className={styles.specVal}>{publishedDate ?? "—"}</span>
-              </div>
-              <div className={styles.specRow}>
-                <span className={styles.specKey}>Revision</span>
-                <span className={styles.specVal}>A — first honest draft</span>
-              </div>
-              <div className={`${styles.specRow} ${styles.specRowFull}`}>
-                <span className={styles.specKey}>Prompt</span>
-                <span className={styles.specVal}>{specPrompt}</span>
-              </div>
-            </div>
-          </section>
-
-        </article>
-
-        {/* ── References ──────────────────────────────── */}
-        {refs.length > 0 && (
-          <section className={styles.refs} aria-label="References">
-            <div className={styles.refsHead}>
-              <h2>References</h2>
-              <div className={styles.refsHeadLine} />
-            </div>
-            <p className={styles.refsNote}>
-              Citations follow Chicago Manual of Style — Notes &amp; Bibliography (web) format.
-            </p>
-            <ol className={styles.bib}>
-              {refs.map((ref, i) => (
-                <li key={i}>
-                  <ReferenceCitation reference={ref} />
-                </li>
-              ))}
-            </ol>
-          </section>
+        {post.excerpt && (
+          <p className="mb-[26px] text-pretty font-newsreader text-[21px] italic leading-[1.5] text-ink-light">
+            {post.excerpt}
+          </p>
         )}
 
-        {/* ── Comments ────────────────────────────────── */}
-        <section className={styles.commentsSection}>
-          <CommentSection postId={post.id} initialComments={approvedComments} />
+        <Byline variant="full">
+          <BylineWho>By the Editor</BylineWho>
+          <BylineBadge>Verified Flesh</BylineBadge>
+          <BylineDot />
+          <span>Assisted, suspiciously, by a machine</span>
+          {publishedDate && (
+            <>
+              <BylineDot />
+              <time dateTime={post.publishedAt?.toISOString()}>{publishedDate}</time>
+            </>
+          )}
+          {post.readingTime > 0 && (
+            <>
+              <BylineDot />
+              <span>{post.readingTime} min read</span>
+            </>
+          )}
+        </Byline>
+
+        {/* ── Prose body ──────────────────────────── */}
+        <div
+          className="prose"
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
+        />
+
+        {/* ── Specification Sheet ─────────────────── */}
+        <section className="mt-14" aria-label="Article provenance">
+          <SpecCard title="Production Record — Specification Sheet" fig="FIG. 1-A">
+            <div className="grid grid-cols-2 max-mobile:grid-cols-1">
+              {specRows.map((row, i) => (
+                <SpecRow
+                  key={row.label}
+                  label={row.label}
+                  value={row.value}
+                  colSpanFull={row.full}
+                  borderRight={!row.full && i % 2 === 0}
+                />
+              ))}
+            </div>
+          </SpecCard>
         </section>
+      </article>
+
+      {/* ── References ──────────────────────────────── */}
+      {refs.length > 0 && (
+        <RefsSection>
+          <ol className="bib">
+            {refs.map((ref, i) => (
+              <li key={i}>
+                <ReferenceCitation reference={ref} />
+              </li>
+            ))}
+          </ol>
+        </RefsSection>
+      )}
+
+      {/* ── Comments ────────────────────────────────── */}
+      <section className="mx-auto mt-14 max-w-[720px] border-t-[3px] border-ink pt-3.5">
+        <CommentSection postId={post.id} initialComments={approvedComments} />
+      </section>
     </>
   );
 }

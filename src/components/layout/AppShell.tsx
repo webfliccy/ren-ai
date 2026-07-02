@@ -1,11 +1,10 @@
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
-import styles from "./AppShell.module.css";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className={styles.page}>
-      <div className={styles.sheet}>
+    <div className="min-h-screen bg-texture-page bg-parchment px-5 pb-20 font-figtree leading-[1.6] text-ink antialiased [&_a]:text-inherit">
+      <div className="mx-auto max-w-[1180px]">
         <SiteHeader />
         {children}
         <SiteFooter />
