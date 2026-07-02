@@ -1,5 +1,3 @@
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
 import SubscribeForm from "@/components/SubscribeForm";
 import { ToolCard } from "@/components/ToolCard";
 import { SidebarPost } from "@/components/SidebarPost";
@@ -63,12 +61,8 @@ export default async function Home() {
     allPosts.length > 4 ? allPosts.slice(4, 7) : allPosts.slice(1, 4);
 
   return (
-    <div className={styles.page}>
-      <div className={styles.sheet}>
-
-        <SiteHeader activePath="/" />
-
-        {/* ════════ LEAD / HERO ════════ */}
+    <>
+      {/* ════════ LEAD / HERO ════════ */}
         <section className={styles.leadGrid} data-screen-label="Lead feature">
           <div className={styles.leadMain}>
             <span className={styles.kicker}>
@@ -253,10 +247,6 @@ export default async function Home() {
             No tracking pixels. No model trained on your inbox. Just letters.
           </div>
         </section>
-
-        <SiteFooter />
-
-      </div>
-    </div>
+    </>
   );
 }

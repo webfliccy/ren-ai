@@ -1,7 +1,7 @@
 import type { FieldNote } from "@/db/schema";
 import { formatDate } from "@/lib/formatters";
 import Link from "next/link";
-import styles from "@/app/homepage.module.css";
+import styles from "@/app/(site)/homepage.module.css";
 
 export function FieldNoteCard({ note }: { note: FieldNote }) {
   return (

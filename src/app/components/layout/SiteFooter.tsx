@@ -15,22 +15,17 @@ export default function SiteFooter() {
         <div className={styles.colophonCols}>
           <div className={styles.colophonCol}>
             <h5>The Paper</h5>
-            <Link href="/">Dispatches</Link>
-            <Link href="/#tools">Tools &amp; Contraptions</Link>
+            <Link href="/dispatches">Dispatches</Link>
+            <Link href="/tools">Tools &amp; Contraptions</Link>
             <Link href="/issues">The Archive</Link>
           </div>
           <div className={styles.colophonCol}>
             <h5>The Fan</h5>
             <Link href="/about">About</Link>
-            <a href="#">Colophon</a>
-            <a href="#">How this is made</a>
-            <a href="#">Corrections</a>
           </div>
           <div className={styles.colophonCol}>
             <h5>Elsewhere</h5>
             <Link href="/feed.xml">RSS, the honest feed</Link>
-            <a href="#">Email the Editor</a>
-            <a href="#">Source &amp; licence</a>
           </div>
         </div>
       </div>

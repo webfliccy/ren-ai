@@ -1,5 +1,5 @@
 import type { Tool } from "@/db/schema";
-import styles from "@/app/homepage.module.css";
+import styles from "@/app/(site)/homepage.module.css";
 
 export function ToolCard({ tool }: { tool: Tool }) {
   const inner = (

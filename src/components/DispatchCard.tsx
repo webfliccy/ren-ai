@@ -2,7 +2,7 @@ import type { Post } from "@/db/schema";
 import { firstTag } from "@/lib/tags";
 import { formatDate } from "@/lib/formatters";
 import Link from "next/link";
-import styles from "@/app/homepage.module.css";
+import styles from "@/app/(site)/homepage.module.css";
 
 export function DispatchCard({ post }: { post: Post }) {
   return (

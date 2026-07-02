@@ -1,7 +1,5 @@
 import CommentSection from "@/components/CommentSection";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
 import { getPostWithComments } from "@/services/posts";
 import { parseJson } from "@/lib/parse";
 import { parseRefs } from "@/lib/references";
@@ -74,11 +72,7 @@ export default async function PostPage({ params }: Props) {
     "Write me something true and uncomfortable about artificial intelligence. Sign the register on the way out.";
 
   return (
-    <div className={styles.page}>
-      <div className={styles.sheet}>
-
-        <SiteHeader activePath="/" />
-
+    <>
         <div style={{ height: 4 }} />
         <div className={styles.ruleThin} />
 
@@ -194,10 +188,6 @@ export default async function PostPage({ params }: Props) {
         <section className={styles.commentsSection}>
           <CommentSection postId={post.id} initialComments={approvedComments} />
         </section>
-
-        <SiteFooter />
-
-      </div>
-    </div>
+    </>
   );
 }

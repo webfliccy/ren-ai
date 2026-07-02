@@ -1,6 +1,6 @@
 import type { FieldNote } from "@/db/schema";
 import Link from "next/link";
-import styles from "@/app/homepage.module.css";
+import styles from "@/app/(site)/homepage.module.css";
 
 export function SidebarFieldNote({ note, num }: { note: FieldNote; num: string }) {
   return (

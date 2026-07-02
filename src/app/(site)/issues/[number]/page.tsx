@@ -1,5 +1,3 @@
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
 import SubscribeForm from "@/components/SubscribeForm";
 import { SidebarPost } from "@/components/SidebarPost";
 import { DispatchCard } from "@/components/DispatchCard";
@@ -57,14 +55,7 @@ export default async function IssuePage({ params }: Props) {
     issuePosts.length > 4 ? issuePosts.slice(4, 7) : issuePosts.slice(1, 4);
 
   return (
-    <div className={styles.page}>
-      <div className={styles.sheet}>
-
-        <SiteHeader
-          activePath="/issues"
-          stamp={`Vol. I · No. ${issue.number} · ${issue.title.toUpperCase()} · AD MMXXVI`}
-        />
-
+    <>
         {/* ════════ LEAD / HERO ════════ */}
         {lead && (
           <section className={styles.leadGrid} data-screen-label="Lead feature">
@@ -225,10 +216,6 @@ export default async function IssuePage({ params }: Props) {
             No tracking pixels. No model trained on your inbox. Just letters.
           </div>
         </section>
-
-        <SiteFooter />
-
-      </div>
-    </div>
+    </>
   );
 }

@@ -1,5 +1,3 @@
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
 import { sitePages } from "@/db/schema";
 import { renderMarkdown } from "@/lib/markdown";
@@ -24,11 +22,7 @@ export default async function AboutPage() {
   const updatedDate = page?.updatedAt ? formatDate(new Date(page.updatedAt)) : null;
 
   return (
-    <div className={styles.page}>
-      <div className={styles.sheet}>
-
-        <SiteHeader activePath="/about" />
-
+    <>
         <div style={{ height: 4 }} />
         <div className={styles.ruleThin} />
 
@@ -104,10 +98,6 @@ export default async function AboutPage() {
           </section>
 
         </article>
-
-        <SiteFooter />
-
-      </div>
-    </div>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { padCount } from "@/lib/formatters";
-import styles from "@/app/homepage.module.css";
+import styles from "@/app/(site)/homepage.module.css";
 
 export type SidebarPostProps = {
   title: string;

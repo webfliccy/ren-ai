@@ -3,33 +3,40 @@ import { issues } from "@/db/schema";
 import { RenaiLogo } from "@/components/RenaiLogo";
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
+import { headers } from "next/headers";
+import { NavLinks } from "./NavLinks";
 import styles from "./SiteHeader.module.css";
 
-const NAV = [
-  { label: "Dispatches & Field Notes", href: "/field-notes" },
-  { label: "Tools & Contraptions", href: "/tools" },
-  { label: "The Archive", href: "/issues" },
-  { label: "About the Fan", href: "/about" },
-] as const;
-
-interface Props {
-  activePath?: string;
-  stamp?: string;
+function formatStamp(issue: { number: number; title: string }): string {
+  return `Vol. I · No. ${issue.number} · ${issue.title.toUpperCase()} · AD MMXXVI`;
 }
 
-export default async function SiteHeader({ activePath, stamp }: Props) {
-  let topbarStamp = stamp;
-  if (!topbarStamp) {
-    const [current] = await db
+async function getTopbarStamp(): Promise<string> {
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const issueNumberMatch = pathname.match(/^\/issues\/(\d+)$/);
+
+  if (issueNumberMatch) {
+    const [issue] = await db
       .select({ number: issues.number, title: issues.title })
       .from(issues)
-      .where(eq(issues.status, "published"))
-      .orderBy(desc(issues.number))
-      .limit(1);
-    topbarStamp = current
-      ? `Vol. I · No. ${current.number} · ${current.title.toUpperCase()} · AD MMXXVI`
-      : "Vol. I · Est. by a Fool with Wi-Fi · AD MMXXVI";
+      .where(eq(issues.number, Number(issueNumberMatch[1])));
+    if (issue) return formatStamp(issue);
   }
+
+  const [current] = await db
+    .select({ number: issues.number, title: issues.title })
+    .from(issues)
+    .where(eq(issues.status, "published"))
+    .orderBy(desc(issues.number))
+    .limit(1);
+
+  return current
+    ? formatStamp(current)
+    : "Vol. I · Est. by a Fool with Wi-Fi · AD MMXXVI";
+}
+
+export default async function SiteHeader() {
+  const topbarStamp = await getTopbarStamp();
 
   return (
     <header>
@@ -59,17 +66,7 @@ export default async function SiteHeader({ activePath, stamp }: Props) {
       <div style={{ height: 2 }} />
       <div className={styles.ruleThick} />
 
-      <nav className={styles.nav}>
-        {NAV.map(({ label, href }) => (
-          <Link
-            key={href}
-            href={href}
-            className={activePath === href ? styles.navActive : undefined}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <NavLinks />
     </header>
   );
 }

@@ -1,5 +1,3 @@
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
 import { db } from "@/db";
 import { issues } from "@/db/schema";
 import { and, desc, eq, lt } from "drizzle-orm";
@@ -32,11 +30,7 @@ export default async function ArchivePage() {
     : [];
 
   return (
-    <div className={styles.page}>
-      <div className={styles.sheet}>
-
-        <SiteHeader activePath="/issues" />
-
+    <>
         <div style={{ height: 4 }} />
         <div className={styles.ruleThin} />
 
@@ -85,10 +79,6 @@ export default async function ArchivePage() {
             </div>
           )}
         </article>
-
-        <SiteFooter />
-
-      </div>
-    </div>
+    </>
   );
 }
