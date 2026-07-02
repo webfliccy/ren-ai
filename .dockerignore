@@ -2,7 +2,6 @@
 !.env.example
 .next/
 node_modules/
-*.db
 *.db-shm
 *.db-wal
 public/uploads/

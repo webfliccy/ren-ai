@@ -63,6 +63,12 @@ resource "aws_autoscaling_group" "app" {
     propagate_at_launch = true
   }
 
+  tag {
+    key                 = "Project"
+    value               = "ren-ai"
+    propagate_at_launch = true
+  }
+
   lifecycle {
     ignore_changes = [desired_capacity]
   }

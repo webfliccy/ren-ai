@@ -8,6 +8,8 @@ ECS_ENABLE_CONTAINER_METADATA=true
 EOF
 
 # Install nginx (reverse-proxies port 80 → container port 3000)
+# AL2's base repos don't carry nginx; it's only available via amazon-linux-extras.
+amazon-linux-extras install -y nginx1
 yum install -y nginx
 
 cat > /etc/nginx/nginx.conf <<'NGINXEOF'
@@ -56,6 +58,8 @@ systemctl start nginx
 # map_public_ip_on_launch gives the instance an ephemeral public IP first,
 # enabling the API call below; the EIP then takes over and the ephemeral IP
 # is released.
+# The ECS-optimized AL2 AMI doesn't ship the AWS CLI; install it too.
+amazon-linux-extras install -y awscli1
 INSTANCE_ID=$(curl -sf http://169.254.169.254/latest/meta-data/instance-id)
 aws ec2 associate-address \
   --instance-id "$INSTANCE_ID" \
