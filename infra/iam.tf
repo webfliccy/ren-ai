@@ -121,3 +121,81 @@ resource "aws_iam_instance_profile" "ec2" {
   name = "ren-ai-ec2"
   role = aws_iam_role.ec2_instance.name
 }
+
+# ── GitHub Actions OIDC deploy role ────────────────────────────────────────────
+# Lets .github/workflows/deploy.yml assume a role via short-lived OIDC tokens
+# instead of long-lived IAM user keys. Trust is scoped to pushes to main on
+# this repo only — no other branch or repo can assume this role.
+
+resource "aws_iam_openid_connect_provider" "github_actions" {
+  url            = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
+
+  # GitHub's OIDC root CA thumbprint. AWS validates against its own trusted
+  # CA store for this well-known provider, but the field is still required.
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+data "aws_iam_policy_document" "github_actions_assume" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.github_actions.arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:webfliccy/ren-ai:ref:refs/heads/main"]
+    }
+  }
+}
+
+resource "aws_iam_role" "github_actions_deploy" {
+  name               = "ren-ai-github-actions-deploy"
+  assume_role_policy = data.aws_iam_policy_document.github_actions_assume.json
+}
+
+resource "aws_iam_role_policy" "github_actions_deploy" {
+  name = "ren-ai-deploy"
+  role = aws_iam_role.github_actions_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        # Not resource-scopable — ECR requires "*" for this action.
+        Sid      = "EcrAuth"
+        Effect   = "Allow"
+        Action   = ["ecr:GetAuthorizationToken"]
+        Resource = "*"
+      },
+      {
+        Sid    = "EcrPush"
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+        ]
+        Resource = aws_ecr_repository.ren_ai.arn
+      },
+      {
+        Sid      = "EcsDeploy"
+        Effect   = "Allow"
+        Action   = ["ecs:UpdateService", "ecs:DescribeServices"]
+        Resource = aws_ecs_service.app.id
+      }
+    ]
+  })
+}

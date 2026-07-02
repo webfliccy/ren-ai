@@ -37,3 +37,8 @@ output "app_url" {
   description = "Production URL — https://<domain> once DNS has propagated"
   value       = "https://${var.domain_name}"
 }
+
+output "github_actions_role_arn" {
+  description = "Set as the AWS_DEPLOY_ROLE_ARN GitHub Actions secret"
+  value       = aws_iam_role.github_actions_deploy.arn
+}

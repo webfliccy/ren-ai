@@ -1,0 +1,62 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+
+# Rapid merges cancel each other's in-progress run — only the last commit in
+# a burst reaches the deploy step, so a burst of merges causes one downtime
+# window instead of one per merge.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ECS_CLUSTER: ren-ai
+  ECS_SERVICE: ren-ai
+  ECR_REPOSITORY: ren-ai
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Debounce: cancellation above only takes effect once a newer run has
+      # started. This sleep holds every run at the starting line so a
+      # same-burst merge has time to arrive and cancel it before it does any
+      # real (irreversible) work.
+      - name: Debounce rapid merges
+        run: sleep 60
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+        run: |
+          docker build \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
+            .
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+      - name: Force new ECS deployment
+        run: |
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --force-new-deployment
