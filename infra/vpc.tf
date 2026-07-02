@@ -36,8 +36,12 @@ data "aws_ec2_managed_prefix_list" "cloudfront" {
 # Inbound HTTP restricted to CloudFront's origin-facing IP ranges — the
 # public internet reaches the app only via the CloudFront edge (HTTPS).
 resource "aws_security_group" "ec2" {
-  name        = "ren-ai-ec2"
-  description = "HTTP inbound to EC2 host, restricted to CloudFront"
+  name = "ren-ai-ec2"
+  # NOTE: description is immutable in AWS once the SG is created (ForceNew) —
+  # do not edit this string, it would force replacement of a security group
+  # still attached to the running EC2 host's ENI and fail with a
+  # DependencyViolation. Change ingress/egress rules instead.
+  description = "HTTP inbound to EC2 host"
   vpc_id      = aws_vpc.main.id
 
   ingress {

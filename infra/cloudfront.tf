@@ -65,7 +65,9 @@ resource "aws_cloudfront_distribution" "app" {
   aliases         = [var.domain_name]
 
   origin {
-    domain_name = aws_eip.app.public_ip
+    # CloudFront custom origins require a DNS name, not an IP literal — the
+    # EIP's public_dns always resolves to its current public_ip.
+    domain_name = aws_eip.app.public_dns
     origin_id   = "ec2"
 
     custom_origin_config {
