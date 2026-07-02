@@ -19,6 +19,7 @@ env:
   ECS_CLUSTER: ren-ai
   ECS_SERVICE: ren-ai
   ECR_REPOSITORY: ren-ai
+  AWS_REGION: us-east-1
 
 jobs:
   deploy:
@@ -38,7 +39,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
