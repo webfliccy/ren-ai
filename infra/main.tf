@@ -31,3 +31,16 @@ provider "aws" {
     }
   }
 }
+
+# ACM certificates for CloudFront must be requested in us-east-1 regardless of
+# where the rest of the stack lives.
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+
+  default_tags {
+    tags = {
+      Project = "ren-ai"
+    }
+  }
+}

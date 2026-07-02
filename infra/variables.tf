@@ -16,6 +16,12 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "domain_name" {
+  description = "Apex domain the app is served from (ACM cert, Route 53 zone, CloudFront alias)"
+  type        = string
+  default     = "ren-ai.dev"
+}
+
 variable "app_secrets" {
   description = "Secret env-var values written to SSM; never committed — copy terraform.tfvars.example to terraform.tfvars and fill in real values"
   type        = map(string)

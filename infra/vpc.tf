@@ -29,18 +29,23 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# Inbound HTTP from anywhere; CloudFront prefix-list lock-down comes in a later slice
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# Inbound HTTP restricted to CloudFront's origin-facing IP ranges — the
+# public internet reaches the app only via the CloudFront edge (HTTPS).
 resource "aws_security_group" "ec2" {
   name        = "ren-ai-ec2"
-  description = "HTTP inbound to EC2 host"
+  description = "HTTP inbound to EC2 host, restricted to CloudFront"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "HTTP from CloudFront"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
   }
 
   egress {

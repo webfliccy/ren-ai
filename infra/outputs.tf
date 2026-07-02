@@ -22,3 +22,18 @@ output "ecr_repository_arn" {
   description = "ARN of the ECR repository"
   value       = aws_ecr_repository.ren_ai.arn
 }
+
+output "route53_name_servers" {
+  description = "Delegate the domain's NS records at the registrar to these — required before ACM DNS validation and public DNS resolution will work"
+  value       = aws_route53_zone.main.name_servers
+}
+
+output "cloudfront_domain_name" {
+  description = "CloudFront distribution domain (CNAME target if you also want a www alias)"
+  value       = aws_cloudfront_distribution.app.domain_name
+}
+
+output "app_url" {
+  description = "Production URL — https://<domain> once DNS has propagated"
+  value       = "https://${var.domain_name}"
+}
