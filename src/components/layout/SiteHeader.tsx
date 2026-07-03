@@ -53,7 +53,7 @@ export default async function SiteHeader() {
       <div className="relative flex items-center justify-center pt-5 pb-4">
         <Link className="absolute left-0 flex items-center gap-3.5 no-underline" href="/" aria-label="The RenAIssance Fan — home">
           <RenaiLogo className="block h-[58px] w-auto max-tablet:h-[42px]" />
-          <span className="h-11 w-px bg-ink opacity-20" />
+          <span className="h-11 w-px bg-ink opacity-20 hidden md:block" />
         </Link>
         <Link
           href="/"

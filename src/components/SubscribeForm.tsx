@@ -53,7 +53,7 @@ export default function SubscribeForm({ formClass, inputClass, buttonClass, sour
   return (
     <>
       <h3 className="mb-2 font-cormorant text-[40px] font-semibold leading-[1.05]">Get each issue, footnotes and all.</h3>
-      <p className="font-newsreader mb-6 text-[17px] leading-[1.5] text-ink-light max-w-[550px] mx-auto">
+      <p className="font-newsreader mb-6 text-[17px] leading-[1.5] text-ink-light max-w-[550px] mx-auto italic">
         One dispatch when there&apos;s something worth saying — never on a
         schedule, always with receipts. Unsubscribing is one click and no hard feelings.
       </p>

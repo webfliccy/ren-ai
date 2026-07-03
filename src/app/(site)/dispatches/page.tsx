@@ -38,7 +38,7 @@ export default async function DispatchesAndFieldNotesPage() {
           Essays &amp; experiment logs
         </h1>
         <p className="mb-10 font-newsreader text-lg italic leading-[1.55] text-ink-light">
-          Arguments, observations, and running notes from the ren&middot;ai research process.
+          Incomplete thoughts and observations.
         </p>
       </div>
 
