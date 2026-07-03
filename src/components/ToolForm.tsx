@@ -3,6 +3,7 @@
 import { Issue, Tool } from "@/db/schema";
 import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass, selectClass } from "@/lib/styles";
 import { FormField } from "./FormField";
+import { sanitizeSvg } from "@/lib/sanitize";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -162,7 +163,7 @@ export default function ToolForm({
             <span className="text-xs text-gray-400">Preview:</span>
             <div
               className="rounded border border-gray-100 bg-[#FAF6EE] p-2"
-              dangerouslySetInnerHTML={{ __html: illustration }}
+              dangerouslySetInnerHTML={{ __html: sanitizeSvg(illustration) }}
             />
           </div>
         )}

@@ -291,6 +291,11 @@ figure.plate figcaption {
   border-radius: 3px;
   color: var(--color-ink);
 }
+/* Typography plugin adds literal backticks around inline code by default */
+.prose code::before,
+.prose code::after {
+  content: none;
+}
 
 /* Code block (TipTap standard: pre > code) */
 .prose pre {

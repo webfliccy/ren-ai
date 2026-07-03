@@ -1,4 +1,5 @@
 import type { Tool } from "@/db/schema";
+import { sanitizeSvg } from "@/lib/sanitize";
 
 export function ToolCard({ tool }: { tool: Tool }) {
   const inner = (
@@ -11,7 +12,7 @@ export function ToolCard({ tool }: { tool: Tool }) {
       {tool.illustration && (
         <div
           className="flex justify-center border-b border-ink bg-texture-graph p-6"
-          dangerouslySetInnerHTML={{ __html: tool.illustration }}
+          dangerouslySetInnerHTML={{ __html: sanitizeSvg(tool.illustration) }}
         />
       )}
       <div className="flex flex-1 flex-col px-4 pt-4 pb-5">

@@ -7,6 +7,7 @@ import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass
 import { FormField } from "./FormField";
 import { ReferenceList } from "./ReferenceList";
 import { TagInput } from "./TagInput";
+import { sanitizeSvg } from "@/lib/sanitize";
 import { parseTags } from "@/lib/tags";
 import { createPostAction, updatePostAction, deletePostAction } from "@/actions/posts";
 import dynamic from "next/dynamic";
@@ -152,7 +153,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-3">
             <div
               className="flex items-center justify-center [&>svg]:max-h-40 [&>svg]:w-full"
-              dangerouslySetInnerHTML={{ __html: figSvg }}
+              dangerouslySetInnerHTML={{ __html: sanitizeSvg(figSvg) }}
             />
             <button
               type="button"

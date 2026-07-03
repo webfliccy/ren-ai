@@ -32,6 +32,7 @@
     "@tiptap/starter-kit": "^3.27.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
+    "isomorphic-dompurify": "^3.18.0",
     "katex": "^0.17.0",
     "marked": "^18.0.5",
     "marked-katex-extension": "^5.1.10",
