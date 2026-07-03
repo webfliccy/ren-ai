@@ -393,6 +393,12 @@ figure.plate figcaption {
 }
 .prose tr:last-child td { border-bottom: none; }
 
+@media (max-width: 759px) {
+  .prose th { font-size: 9px; overflow-wrap: break-word; word-break: break-word; }
+  .prose td { font-size: 11.5px; overflow-wrap: break-word; word-break: break-word; }
+  .bib a { overflow-wrap: break-word; word-break: break-word; }
+}
+
 /* ════════ BIBLIOGRAPHY (shared by article + field-note refs blocks) ════════ */
 .bib {
   counter-reset: bib;

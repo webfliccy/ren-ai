@@ -200,12 +200,12 @@ export default async function Home() {
 
       {/* ════════ TOOLS & CONTRAPTIONS ════════ */}
       <section id="tools" data-screen-label="Tools">
-        <div className="mt-14 mb-7 flex items-baseline gap-4 border-t-[3px] border-ink pt-3.5">
+        <div className="mt-14 mb-7 flex items-baseline gap-4 border-t-[3px] border-ink pt-3.5 max-mobile:flex-col max-mobile:items-start max-mobile:gap-1.5">
           <h3 className="whitespace-nowrap font-cormorant text-[30px] font-semibold">Tools &amp; Contraptions</h3>
           <span className="font-newsreader text-[13px] italic text-ink-light">
             small machines that make the big machine behave
           </span>
-          <span className="ml-auto whitespace-nowrap font-courier text-[10px] uppercase tracking-1 text-muted">
+          <span className="ml-auto whitespace-nowrap font-courier text-[10px] uppercase tracking-1 text-muted max-mobile:ml-0">
             {issueTools.length > 0
               ? `${padCount(issueTools.length)} IN THE WORKSHOP`
               : "03 IN THE WORKSHOP"}
