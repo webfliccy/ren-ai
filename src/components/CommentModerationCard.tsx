@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/formatters";
 
 interface Props {
   id: number;
@@ -36,7 +37,7 @@ export default function CommentModerationCard({ id, authorName, postTitle, body,
         </span>
         {createdAt && (
           <time className="shrink-0 text-xs text-gray-400">
-            {new Date(createdAt).toLocaleDateString()}
+            {formatDate(new Date(createdAt))}
           </time>
         )}
       </div>
