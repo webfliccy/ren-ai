@@ -2,9 +2,15 @@ locals {
   # Maps container env-var name → SSM parameter path.
   # Includes the three S3 vars not in the original table but required for
   # the S3 upload acceptance criterion (storage.ts requires explicit creds).
+  # AUTH_URL is required because the standalone server always builds its
+  # internal request URL from HOSTNAME/PORT (0.0.0.0:3000), never the
+  # incoming Host header — Auth.js reads that URL to build OAuth callback
+  # URLs, so without AUTH_URL every provider redirect points at
+  # 0.0.0.0:3000 instead of the real domain.
   ssm_paths = {
     ADMIN_SECRET          = "/ren-ai/admin-secret"
     AUTH_SECRET           = "/ren-ai/auth-secret"
+    AUTH_URL              = "/ren-ai/auth-url"
     AUTH_GITHUB_ID        = "/ren-ai/auth-github-id"
     AUTH_GITHUB_SECRET    = "/ren-ai/auth-github-secret"
     AUTH_GOOGLE_ID        = "/ren-ai/auth-google-id"
