@@ -1,4 +1,5 @@
 import CommentSection from "@/components/CommentSection";
+import { ContinueReading } from "@/components/ContinueReading";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
 import { Kicker } from "@/components/ui/Kicker";
 import { Byline, BylineDot, BylineWho, BylineBadge } from "@/components/ui/Byline";
@@ -6,6 +7,7 @@ import { SpecCard } from "@/components/ui/SpecCard";
 import { SpecRow } from "@/components/ui/SpecRow";
 import { RefsSection } from "@/components/ui/RefsSection";
 import { getPostWithComments } from "@/services/posts";
+import { getIssueById, getIssueSiblings } from "@/services/issues";
 import { parseJson } from "@/lib/parse";
 import { parseRefs } from "@/lib/references";
 import { cache } from "react";
@@ -75,6 +77,13 @@ export default async function PostPage({ params }: Props) {
   const specPrompt =
     post.prompt ??
     "Write me something true and uncomfortable about artificial intelligence. Sign the register on the way out.";
+
+  const [issue, siblingItems] = post.issueId
+    ? await Promise.all([
+        getIssueById(post.issueId),
+        getIssueSiblings(post.issueId, { kind: "post", id: post.id }),
+      ])
+    : [null, []];
 
   const specRows: { label: string; value: ReactNode; full?: boolean }[] = [
     { label: "Author", value: "The Editor, human" },
@@ -161,6 +170,11 @@ export default async function PostPage({ params }: Props) {
             ))}
           </ol>
         </RefsSection>
+      )}
+
+      {/* ── Continue Reading ────────────────────────── */}
+      {issue && siblingItems.length > 0 && (
+        <ContinueReading items={siblingItems} issueNumber={issue.number} />
       )}
 
       {/* ── Comments ────────────────────────────────── */}

@@ -1,4 +1,5 @@
 import CommentSection from "@/components/CommentSection";
+import { ContinueReading } from "@/components/ContinueReading";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
 import { Kicker } from "@/components/ui/Kicker";
 import { Byline, BylineDot, BylineBadge } from "@/components/ui/Byline";
@@ -14,6 +15,7 @@ import { OUTCOME_STATUS_LABELS } from "@/lib/outcome-status";
 import { parseJson } from "@/lib/parse";
 import { parseRefs } from "@/lib/references";
 import { fileExt, formatSize } from "@/lib/file-utils";
+import { getIssueById, getIssueSiblings } from "@/services/issues";
 import { and, asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
@@ -61,6 +63,13 @@ export default async function FieldNoteDetailPage({ params }: Props) {
     .leftJoin(users, eq(comments.authorId, users.id))
     .where(and(eq(comments.fieldNoteId, note.id), eq(comments.approved, true)))
     .orderBy(asc(comments.createdAt));
+
+  const [issue, siblingItems] = note.issueId
+    ? await Promise.all([
+        getIssueById(note.issueId),
+        getIssueSiblings(note.issueId, { kind: "fieldNote", id: note.id }),
+      ])
+    : [null, []];
 
   const publishedDate = note.publishedAt ? formatDate(new Date(note.publishedAt)) : null;
   const closedDate = note.outcomeDateClosed ? formatDate(new Date(note.outcomeDateClosed)) : null;
@@ -226,6 +235,11 @@ export default async function FieldNoteDetailPage({ params }: Props) {
           </RefsSection>
         )}
       </article>
+
+      {/* ── Continue Reading ────────────────────────── */}
+      {issue && siblingItems.length > 0 && (
+        <ContinueReading items={siblingItems} issueNumber={issue.number} />
+      )}
 
       <section className="mx-auto mt-14 max-w-[720px] border-t-[3px] border-ink pt-3.5">
         <CommentSection fieldNoteId={note.id} initialComments={approvedComments} />
