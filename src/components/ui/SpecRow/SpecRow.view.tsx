@@ -33,14 +33,14 @@ export function SpecRowView({
       style={{ gridTemplateColumns: `${keyWidth}px 1fr` }}
     >
       <span
-        className={`whitespace-nowrap font-courier font-bold uppercase text-muted ${
+        className={`font-courier font-bold whitespace-nowrap text-muted uppercase ${
           compact ? "text-[8.5px] tracking-[0.08em]" : "text-[9.5px] tracking-1"
         }`}
       >
         {label}
       </span>
       <span
-        className={`font-courier text-ink leading-[1.45] ${italic ? "italic" : ""}`}
+        className={`font-courier leading-[1.45] text-ink ${italic ? "italic" : ""}`}
         style={{ fontSize: compact ? 11 : valueSize }}
       >
         {value}

@@ -10,7 +10,11 @@ export const metadata = {
 };
 
 function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default async function ArchivePage() {
@@ -25,7 +29,12 @@ export default async function ArchivePage() {
     ? await db
         .select()
         .from(issues)
-        .where(and(eq(issues.status, "published"), lt(issues.number, current.number)))
+        .where(
+          and(
+            eq(issues.status, "published"),
+            lt(issues.number, current.number),
+          ),
+        )
         .orderBy(desc(issues.number))
     : [];
 
@@ -36,40 +45,52 @@ export default async function ArchivePage() {
           <Kicker tag="Archive" crumb="EVERY PAST ISSUE, IN ORDER" />
         </div>
 
-        <h1 className="mb-5 text-balance font-cormorant text-[60px] font-semibold leading-[1.02] tracking-[-0.015em] text-ink max-mobile:text-[40px]">
+        <h1 className="mb-5 font-cormorant text-[60px] leading-[1.02] font-semibold tracking-[-0.015em] text-balance text-ink max-mobile:text-[40px]">
           The Archive
         </h1>
 
         {current && (
-          <p className="mb-[26px] text-pretty font-newsreader text-[21px] italic leading-[1.5] text-ink-light">
-            The current issue is <Link href="/">№ {current.number} — {current.title}</Link>.
-            Past issues are below.
+          <p className="mb-[26px] font-newsreader text-[21px] leading-[1.5] text-pretty text-ink-light italic">
+            The current issue is{" "}
+            <Link href="/">
+              № {current.number} — {current.title}
+            </Link>
+            . Past issues are below.
           </p>
         )}
 
         {pastIssues.length === 0 ? (
           <div className="prose">
-            <p>No past issues yet. The archive fills as new issues are published.</p>
+            <p>
+              No past issues yet. The archive fills as new issues are published.
+            </p>
           </div>
         ) : (
           <div className="mt-10">
             {pastIssues.map((issue, i) => (
               <div key={issue.id}>
                 {i > 0 && <div className="my-8 h-px bg-border" />}
-                <Link href={`/issues/${issue.number}`} className="block no-underline">
+                <Link
+                  href={`/issues/${issue.number}`}
+                  className="block no-underline"
+                >
                   <div className="mb-2 flex items-baseline gap-4">
-                    <span className="font-courier text-[11px] font-bold uppercase tracking-[0.15em] text-accent">
+                    <span className="font-courier text-[11px] font-bold tracking-[0.15em] text-accent uppercase">
                       № {String(issue.number).padStart(2, "0")}
                     </span>
-                    <h2 className="font-cormorant text-[32px] font-semibold leading-[1.1] text-ink">{issue.title}</h2>
+                    <h2 className="font-cormorant text-[32px] leading-[1.1] font-semibold text-ink">
+                      {issue.title}
+                    </h2>
                   </div>
                   {issue.description && (
-                    <p className="mb-2.5 font-newsreader text-[17px] italic leading-[1.5] text-ink-light">
+                    <p className="mb-2.5 font-newsreader text-[17px] leading-[1.5] text-ink-light italic">
                       {issue.description}
                     </p>
                   )}
-                  <span className="font-courier text-[10px] uppercase tracking-1 text-muted">
-                    {issue.publishedAt ? formatDate(new Date(issue.publishedAt)) : ""}
+                  <span className="font-courier text-[10px] tracking-1 text-muted uppercase">
+                    {issue.publishedAt
+                      ? formatDate(new Date(issue.publishedAt))
+                      : ""}
                     {" · Read the issue →"}
                   </span>
                 </Link>

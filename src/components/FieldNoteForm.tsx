@@ -2,14 +2,25 @@
 
 import { Artefact, ExperimentRecord, FieldNote, Issue } from "@/db/schema";
 import { slugify } from "@/lib/slug";
-import { btnPrimary, btnSecondary, errorBanner, inputClass, labelClass, selectClass } from "@/lib/styles";
+import {
+  btnPrimary,
+  btnSecondary,
+  errorBanner,
+  inputClass,
+  labelClass,
+  selectClass,
+} from "@/lib/styles";
 import { FormField } from "./FormField";
 import { ArtefactList } from "./ArtefactList";
 import { ReferenceList } from "./ReferenceList";
 import { TagInput } from "./TagInput";
 import { parseTags } from "@/lib/tags";
 import { ChicagoWebRef, parseRefs } from "@/lib/references";
-import { OutcomeStatus, OUTCOME_STATUS_LABELS, OUTCOME_STATUS_COLOURS } from "@/lib/outcome-status";
+import {
+  OutcomeStatus,
+  OUTCOME_STATUS_LABELS,
+  OUTCOME_STATUS_COLOURS,
+} from "@/lib/outcome-status";
 import { parseExperiment } from "@/lib/experiment";
 import { toDateInputValue } from "@/lib/formatters";
 import { parseJson } from "@/lib/parse";
@@ -19,8 +30,13 @@ import { useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
 
-
-export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote; issues?: Pick<Issue, "id" | "number" | "title">[] }) {
+export default function FieldNoteForm({
+  note,
+  issues = [],
+}: {
+  note?: FieldNote;
+  issues?: Pick<Issue, "id" | "number" | "title">[];
+}) {
   const router = useRouter();
   const isEditing = !!note;
 
@@ -30,40 +46,42 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
   const [content, setContent] = useState(note?.content ?? "");
   const [excerpt, setExcerpt] = useState(note?.excerpt ?? "");
   const [issueId, setIssueId] = useState<number | null>(note?.issueId ?? null);
-  const [status, setStatus] = useState<"draft" | "published">(note?.status ?? "draft");
+  const [status, setStatus] = useState<"draft" | "published">(
+    note?.status ?? "draft",
+  );
   const [tags, setTags] = useState<string[]>(parseTags(note?.tags ?? "[]"));
 
   // Outcome
   const [outcomeStatus, setOutcomeStatus] = useState<OutcomeStatus | "">(
-    (note?.outcomeStatus as OutcomeStatus) ?? ""
+    (note?.outcomeStatus as OutcomeStatus) ?? "",
   );
   const [outcomeDateClosed, setOutcomeDateClosed] = useState(
-    toDateInputValue(note?.outcomeDateClosed)
+    toDateInputValue(note?.outcomeDateClosed),
   );
   const [outcomeRuns, setOutcomeRuns] = useState<string>(
-    note?.outcomeRuns != null ? String(note.outcomeRuns) : ""
+    note?.outcomeRuns != null ? String(note.outcomeRuns) : "",
   );
 
   // Experimentation record
   const [experiment, setExperiment] = useState<ExperimentRecord>(
-    parseExperiment(note?.experiment ?? "{}")
+    parseExperiment(note?.experiment ?? "{}"),
   );
 
   // Artefacts
   const [artefacts, setArtefacts] = useState<Artefact[]>(
-    parseJson(note?.artefacts ?? "[]", [] as Artefact[])
+    parseJson(note?.artefacts ?? "[]", [] as Artefact[]),
   );
   const [uploading, setUploading] = useState(false);
 
   // References
   const [references, setReferences] = useState<ChicagoWebRef[]>(() =>
-    parseRefs(note?.references ?? "[]")
+    parseRefs(note?.references ?? "[]"),
   );
 
   // Hindsight
   const [hindsight, setHindsight] = useState(note?.hindsight ?? "");
   const [hindsightAddedAt, setHindsightAddedAt] = useState(
-    toDateInputValue(note?.hindsightAddedAt)
+    toDateInputValue(note?.hindsightAddedAt),
   );
 
   const [saving, setSaving] = useState(false);
@@ -74,7 +92,10 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     if (!slugManuallyEdited) setSlug(slugify(value));
   }
 
-  function setExperimentField<K extends keyof ExperimentRecord>(key: K, value: ExperimentRecord[K]) {
+  function setExperimentField<K extends keyof ExperimentRecord>(
+    key: K,
+    value: ExperimentRecord[K],
+  ) {
     setExperiment((e) => ({ ...e, [key]: value }));
   }
 
@@ -93,7 +114,13 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       const data = await res.json();
       setArtefacts((a) => [
         ...a,
-        { name: data.name, description: "", url: data.url, type: data.type, size: data.size },
+        {
+          name: data.name,
+          description: "",
+          url: data.url,
+          type: data.type,
+          size: data.size,
+        },
       ]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -103,8 +130,14 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     }
   }
 
-  function updateArtefact(i: number, field: keyof Artefact, value: string | number | null) {
-    setArtefacts((a) => a.map((x, j) => j === i ? { ...x, [field]: value } : x));
+  function updateArtefact(
+    i: number,
+    field: keyof Artefact,
+    value: string | number | null,
+  ) {
+    setArtefacts((a) =>
+      a.map((x, j) => (j === i ? { ...x, [field]: value } : x)),
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -113,7 +146,13 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     setError("");
 
     const payload = {
-      title, slug, content, excerpt, status, tags, issueId: issueId ?? null,
+      title,
+      slug,
+      content,
+      excerpt,
+      status,
+      tags,
+      issueId: issueId ?? null,
       outcomeStatus: outcomeStatus || null,
       outcomeDateClosed: outcomeDateClosed || null,
       outcomeRuns: outcomeRuns !== "" ? Number(outcomeRuns) : null,
@@ -147,7 +186,8 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
   }
 
   async function handleDelete() {
-    if (!note || !confirm("Delete this field note? This cannot be undone.")) return;
+    if (!note || !confirm("Delete this field note? This cannot be undone."))
+      return;
     await fetch(`/api/field-notes/${note.id}`, { method: "DELETE" });
     router.push("/admin/field-notes");
     router.refresh();
@@ -157,9 +197,7 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className={errorBanner}>{error}</div>
-      )}
+      {error && <div className={errorBanner}>{error}</div>}
 
       {/* ── Core fields ──────────────────────────────────────────────── */}
       <FormField label="Title">
@@ -177,7 +215,10 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
         <input
           type="text"
           value={slug}
-          onChange={(e) => { setSlug(e.target.value); setSlugManuallyEdited(true); }}
+          onChange={(e) => {
+            setSlug(e.target.value);
+            setSlugManuallyEdited(true);
+          }}
           required
           placeholder="experiment-title"
           className={`${inputClass} font-mono`}
@@ -201,21 +242,31 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
 
       {/* ── Outcome ──────────────────────────────────────────────────── */}
       <fieldset className={sectionClass}>
-        <legend className="px-1 text-sm font-semibold text-gray-800">Outcome</legend>
+        <legend className="px-1 text-sm font-semibold text-gray-800">
+          Outcome
+        </legend>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <FormField label="Status">
             <select
               value={outcomeStatus}
-              onChange={(e) => setOutcomeStatus(e.target.value as OutcomeStatus | "")}
+              onChange={(e) =>
+                setOutcomeStatus(e.target.value as OutcomeStatus | "")
+              }
               className={inputClass}
             >
               <option value="">— Not set —</option>
-              {(Object.keys(OUTCOME_STATUS_LABELS) as OutcomeStatus[]).map((s) => (
-                <option key={s} value={s}>{OUTCOME_STATUS_LABELS[s]}</option>
-              ))}
+              {(Object.keys(OUTCOME_STATUS_LABELS) as OutcomeStatus[]).map(
+                (s) => (
+                  <option key={s} value={s}>
+                    {OUTCOME_STATUS_LABELS[s]}
+                  </option>
+                ),
+              )}
             </select>
             {outcomeStatus && (
-              <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${OUTCOME_STATUS_COLOURS[outcomeStatus]}`}>
+              <span
+                className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${OUTCOME_STATUS_COLOURS[outcomeStatus]}`}
+              >
                 {OUTCOME_STATUS_LABELS[outcomeStatus]}
               </span>
             )}
@@ -245,7 +296,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
 
       {/* ── Experimentation Record ───────────────────────────────────── */}
       <fieldset className={sectionClass}>
-        <legend className="px-1 text-sm font-semibold text-gray-800">Experimentation Record</legend>
+        <legend className="px-1 text-sm font-semibold text-gray-800">
+          Experimentation Record
+        </legend>
 
         <FormField label="Hypothesis">
           <textarea
@@ -283,7 +336,12 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
               type="number"
               min={0}
               value={experiment.trials ?? ""}
-              onChange={(e) => setExperimentField("trials", e.target.value === "" ? null : Number(e.target.value))}
+              onChange={(e) =>
+                setExperimentField(
+                  "trials",
+                  e.target.value === "" ? null : Number(e.target.value),
+                )
+              }
               placeholder="0"
               className={inputClass}
             />
@@ -323,7 +381,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
 
       {/* ── Artefacts ────────────────────────────────────────────────── */}
       <fieldset className={sectionClass}>
-        <legend className="px-1 text-sm font-semibold text-gray-800">Artefacts</legend>
+        <legend className="px-1 text-sm font-semibold text-gray-800">
+          Artefacts
+        </legend>
         <ArtefactList
           artefacts={artefacts}
           onUpdate={updateArtefact}
@@ -338,10 +398,12 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
 
       {/* ── Hindsight ────────────────────────────────────────────────── */}
       <fieldset className={sectionClass}>
-        <legend className="px-1 text-sm font-semibold text-gray-800">Hindsight</legend>
+        <legend className="px-1 text-sm font-semibold text-gray-800">
+          Hindsight
+        </legend>
         <p className="text-xs text-gray-400">
-          Post-release amendment shown at the top of the page. Leave empty to omit; the
-          publish date is never changed.
+          Post-release amendment shown at the top of the page. Leave empty to
+          omit; the publish date is never changed.
         </p>
         <FormField label="Note">
           <RichEditor content={hindsight} onChange={setHindsight} />
@@ -379,7 +441,9 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           <label className={labelClass}>Issue</label>
           <select
             value={issueId ?? ""}
-            onChange={(e) => setIssueId(e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) =>
+              setIssueId(e.target.value ? Number(e.target.value) : null)
+            }
             className={selectClass}
           >
             <option value="">— No issue —</option>
@@ -395,12 +459,12 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       {/* ── Actions ──────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between pt-2">
         <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className={btnPrimary}
-          >
-            {saving ? "Saving…" : isEditing ? "Update field note" : "Create field note"}
+          <button type="submit" disabled={saving} className={btnPrimary}>
+            {saving
+              ? "Saving…"
+              : isEditing
+                ? "Update field note"
+                : "Create field note"}
           </button>
           <button
             type="button"
@@ -411,7 +475,11 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
           </button>
         </div>
         {isEditing && (
-          <button type="button" onClick={handleDelete} className="text-sm text-red-600 hover:underline">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="text-sm text-red-600 hover:underline"
+          >
             Delete field note
           </button>
         )}

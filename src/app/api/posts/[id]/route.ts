@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const post = await getPostById(Number(id));
@@ -14,14 +14,30 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin();
   if (authError) return authError;
 
   const { id } = await params;
   const body = await request.json();
-  const { title, content, excerpt, prompt, figSvg, status, featured, slug, tags, issueId, tokens, references, seoTitle, seoDescription, ogImage } = body;
+  const {
+    title,
+    content,
+    excerpt,
+    prompt,
+    figSvg,
+    status,
+    featured,
+    slug,
+    tags,
+    issueId,
+    tokens,
+    references,
+    seoTitle,
+    seoDescription,
+    ogImage,
+  } = body;
 
   const updated = await updatePost(Number(id), {
     title,
@@ -47,7 +63,7 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin();
   if (authError) return authError;

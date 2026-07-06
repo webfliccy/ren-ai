@@ -9,7 +9,13 @@ import { SpecRow } from "@/components/ui/SpecRow";
 import { OutcomeBadge } from "@/components/ui/OutcomeBadge";
 import { RefsSection } from "@/components/ui/RefsSection";
 import { db } from "@/db";
-import { Artefact, ExperimentRecord, comments, fieldNotes, users } from "@/db/schema";
+import {
+  Artefact,
+  ExperimentRecord,
+  comments,
+  fieldNotes,
+  users,
+} from "@/db/schema";
 import { formatDate } from "@/lib/formatters";
 import { formatIntervalOn } from "@/lib/hindsight";
 import { MarkdownHtml } from "@/components/MarkdownHtml";
@@ -29,7 +35,10 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const [note] = await db.select().from(fieldNotes).where(eq(fieldNotes.slug, slug));
+  const [note] = await db
+    .select()
+    .from(fieldNotes)
+    .where(eq(fieldNotes.slug, slug));
   if (!note) return {};
   return {
     title: `${note.title} — Field Notes — ren·ai`,
@@ -39,13 +48,21 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function FieldNoteDetailPage({ params }: Props) {
   const { slug } = await params;
-  const [note] = await db.select().from(fieldNotes).where(eq(fieldNotes.slug, slug));
+  const [note] = await db
+    .select()
+    .from(fieldNotes)
+    .where(eq(fieldNotes.slug, slug));
 
   if (!note || note.status !== "published") notFound();
 
   const experiment = parseJson<ExperimentRecord>(note.experiment, {
-    hypothesis: "", method: "", model: "", trials: null,
-    duration: "", scoredBy: "", outcome: "",
+    hypothesis: "",
+    method: "",
+    model: "",
+    trials: null,
+    duration: "",
+    scoredBy: "",
+    outcome: "",
   });
   const artefacts = parseJson<Artefact[]>(note.artefacts, []);
   const refs = parseRefs(note.references);
@@ -73,28 +90,62 @@ export default async function FieldNoteDetailPage({ params }: Props) {
       ])
     : [null, []];
 
-  const publishedDate = note.publishedAt ? formatDate(new Date(note.publishedAt)) : null;
-  const closedDate = note.outcomeDateClosed ? formatDate(new Date(note.outcomeDateClosed)) : null;
+  const publishedDate = note.publishedAt
+    ? formatDate(new Date(note.publishedAt))
+    : null;
+  const closedDate = note.outcomeDateClosed
+    ? formatDate(new Date(note.outcomeDateClosed))
+    : null;
   const outcome = note.outcomeStatus;
 
-  const hasExperiment = experiment.hypothesis || experiment.method || experiment.model ||
-    experiment.trials != null || experiment.duration || experiment.scoredBy || experiment.outcome;
+  const hasExperiment =
+    experiment.hypothesis ||
+    experiment.method ||
+    experiment.model ||
+    experiment.trials != null ||
+    experiment.duration ||
+    experiment.scoredBy ||
+    experiment.outcome;
 
   const hasOutcome = outcome || closedDate || note.outcomeRuns != null;
 
-  const specRows: { label: string; value: ReactNode; full?: boolean; italic?: boolean }[] = [];
-  if (experiment.hypothesis) specRows.push({ label: "Hypothesis", value: experiment.hypothesis, full: true, italic: true });
-  if (experiment.model) specRows.push({ label: "Model", value: <span className="text-accent">{experiment.model}</span> });
-  if (experiment.trials != null) specRows.push({ label: "Trials", value: experiment.trials });
-  if (experiment.duration) specRows.push({ label: "Duration", value: experiment.duration });
-  if (experiment.scoredBy) specRows.push({ label: "Scored by", value: experiment.scoredBy });
-  if (experiment.method) specRows.push({ label: "Method", value: experiment.method });
-  if (experiment.outcome) specRows.push({ label: "Outcome", value: experiment.outcome });
+  const specRows: {
+    label: string;
+    value: ReactNode;
+    full?: boolean;
+    italic?: boolean;
+  }[] = [];
+  if (experiment.hypothesis)
+    specRows.push({
+      label: "Hypothesis",
+      value: experiment.hypothesis,
+      full: true,
+      italic: true,
+    });
+  if (experiment.model)
+    specRows.push({
+      label: "Model",
+      value: <span className="text-accent">{experiment.model}</span>,
+    });
+  if (experiment.trials != null)
+    specRows.push({ label: "Trials", value: experiment.trials });
+  if (experiment.duration)
+    specRows.push({ label: "Duration", value: experiment.duration });
+  if (experiment.scoredBy)
+    specRows.push({ label: "Scored by", value: experiment.scoredBy });
+  if (experiment.method)
+    specRows.push({ label: "Method", value: experiment.method });
+  if (experiment.outcome)
+    specRows.push({ label: "Outcome", value: experiment.outcome });
 
   const outcomeRows: { label: string; value: ReactNode }[] = [
     {
       label: "Status",
-      value: outcome ? <OutcomeBadge outcome={outcome} /> : <span className="text-muted">—</span>,
+      value: outcome ? (
+        <OutcomeBadge outcome={outcome} />
+      ) : (
+        <span className="text-muted">—</span>
+      ),
     },
     {
       label: "Date closed",
@@ -117,24 +168,34 @@ export default async function FieldNoteDetailPage({ params }: Props) {
           />
         </div>
 
-        <h1 className="mb-5 text-balance font-cormorant text-[60px] font-semibold leading-[1.02] tracking-[-0.015em] text-ink max-mobile:text-[40px]">
+        <h1 className="mb-5 font-cormorant text-[60px] leading-[1.02] font-semibold tracking-[-0.015em] text-balance text-ink max-mobile:text-[40px]">
           {note.title}
         </h1>
 
         {note.excerpt && (
-          <p className="mb-[26px] text-pretty font-newsreader text-[21px] italic leading-[1.5] text-ink-light">
+          <p className="mb-[26px] font-newsreader text-[21px] leading-[1.5] text-pretty text-ink-light italic">
             {note.excerpt}
           </p>
         )}
 
         <Byline variant="full">
-          {outcome && <BylineBadge variant="ink">{OUTCOME_STATUS_LABELS[outcome] ?? outcome}</BylineBadge>}
+          {outcome && (
+            <BylineBadge variant="ink">
+              {OUTCOME_STATUS_LABELS[outcome] ?? outcome}
+            </BylineBadge>
+          )}
           {outcome && publishedDate && <BylineDot />}
-          {publishedDate && <time dateTime={note.publishedAt?.toISOString()}>{publishedDate}</time>}
+          {publishedDate && (
+            <time dateTime={note.publishedAt?.toISOString()}>
+              {publishedDate}
+            </time>
+          )}
           {note.outcomeRuns != null && (
             <>
               <BylineDot />
-              <span>{note.outcomeRuns} run{note.outcomeRuns !== 1 ? "s" : ""}</span>
+              <span>
+                {note.outcomeRuns} run{note.outcomeRuns !== 1 ? "s" : ""}
+              </span>
             </>
           )}
         </Byline>
@@ -148,7 +209,10 @@ export default async function FieldNoteDetailPage({ params }: Props) {
               addedIso={note.hindsightAddedAt.toISOString()}
               interval={
                 note.publishedAt
-                  ? formatIntervalOn(new Date(note.publishedAt), new Date(note.hindsightAddedAt))
+                  ? formatIntervalOn(
+                      new Date(note.publishedAt),
+                      new Date(note.hindsightAddedAt),
+                    )
                   : null
               }
             />
@@ -176,7 +240,10 @@ export default async function FieldNoteDetailPage({ params }: Props) {
         )}
 
         {note.content && (
-          <MarkdownHtml className="prose prose-dispatch" markdown={note.content} />
+          <MarkdownHtml
+            className="prose-dispatch prose"
+            markdown={note.content}
+          />
         )}
 
         {/* ── Outcome ───────────────────────────────── */}
@@ -209,24 +276,28 @@ export default async function FieldNoteDetailPage({ params }: Props) {
                     key={i}
                     className="flex items-baseline gap-3 border-b border-dashed border-border px-3.5 py-2.5 last:border-b-0"
                   >
-                    <span className="min-w-[60px] whitespace-nowrap font-courier text-[9px] font-bold uppercase tracking-1 text-muted">
+                    <span className="min-w-[60px] font-courier text-[9px] font-bold tracking-1 whitespace-nowrap text-muted uppercase">
                       {fileExt(art.name)}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <span className="font-courier text-[13px] font-bold text-ink">{art.name}</span>
+                      <span className="font-courier text-[13px] font-bold text-ink">
+                        {art.name}
+                      </span>
                       {art.description && (
-                        <p className="mt-0.5 font-figtree text-xs text-ink-light">{art.description}</p>
+                        <p className="mt-0.5 font-figtree text-xs text-ink-light">
+                          {art.description}
+                        </p>
                       )}
                     </div>
                     {art.size != null && (
-                      <span className="flex-shrink-0 whitespace-nowrap font-courier text-[10px] text-muted">
+                      <span className="flex-shrink-0 font-courier text-[10px] whitespace-nowrap text-muted">
                         {formatSize(art.size)}
                       </span>
                     )}
                     <a
                       href={art.url}
                       download
-                      className="flex-shrink-0 whitespace-nowrap border border-border px-2 py-0.5 font-courier text-[9px] font-bold uppercase tracking-[0.08em] text-ink no-underline hover:border-accent hover:text-accent"
+                      className="flex-shrink-0 border border-border px-2 py-0.5 font-courier text-[9px] font-bold tracking-[0.08em] whitespace-nowrap text-ink uppercase no-underline hover:border-accent hover:text-accent"
                     >
                       Download
                     </a>
@@ -257,7 +328,10 @@ export default async function FieldNoteDetailPage({ params }: Props) {
       )}
 
       <section className="mx-auto mt-14 max-w-[720px] border-t-[3px] border-ink pt-3.5">
-        <CommentSection fieldNoteId={note.id} initialComments={approvedComments} />
+        <CommentSection
+          fieldNoteId={note.id}
+          initialComments={approvedComments}
+        />
       </section>
     </>
   );

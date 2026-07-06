@@ -7,6 +7,7 @@ export function formatSize(bytes: number | null): string {
 
 export function fileExt(name: string): string {
   const dot = name.lastIndexOf(".");
-  if (dot !== -1 && dot < name.length - 1) return name.slice(dot + 1).toUpperCase();
+  if (dot !== -1 && dot < name.length - 1)
+    return name.slice(dot + 1).toUpperCase();
   return "FILE";
 }

@@ -13,8 +13,14 @@ export default async function EditFieldNotePage({
 }) {
   const { id } = await params;
   const [[note], allIssues] = await Promise.all([
-    db.select().from(fieldNotes).where(eq(fieldNotes.id, Number(id))),
-    db.select({ id: issues.id, number: issues.number, title: issues.title }).from(issues).orderBy(desc(issues.number)),
+    db
+      .select()
+      .from(fieldNotes)
+      .where(eq(fieldNotes.id, Number(id))),
+    db
+      .select({ id: issues.id, number: issues.number, title: issues.title })
+      .from(issues)
+      .orderBy(desc(issues.number)),
   ]);
 
   if (!note) notFound();

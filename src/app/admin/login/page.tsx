@@ -35,10 +35,11 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm space-y-6">
         <h1 className="text-center text-2xl font-bold text-gray-900">Admin</h1>
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 rounded-xl border border-gray-200 bg-white p-8 shadow-sm"
+        >
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Secret</label>
             <input
@@ -47,7 +48,7 @@ export default function LoginPage() {
               onChange={(e) => setSecret(e.target.value)}
               required
               autoFocus
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <button

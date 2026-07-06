@@ -35,12 +35,18 @@ export async function GET(request: NextRequest) {
   }
 
   if (!postId && !fieldNoteId) {
-    return Response.json({ error: "postId or fieldNoteId required" }, { status: 400 });
+    return Response.json(
+      { error: "postId or fieldNoteId required" },
+      { status: 400 },
+    );
   }
 
   const condition = postId
     ? and(eq(comments.postId, Number(postId)), eq(comments.approved, true))
-    : and(eq(comments.fieldNoteId, Number(fieldNoteId)), eq(comments.approved, true));
+    : and(
+        eq(comments.fieldNoteId, Number(fieldNoteId)),
+        eq(comments.approved, true),
+      );
 
   const rows = await db
     .select({
@@ -70,10 +76,16 @@ export async function POST(request: NextRequest) {
   const { postId, fieldNoteId, body, parentId } = await request.json();
 
   if (!body?.trim()) {
-    return Response.json({ error: "Comment body is required" }, { status: 400 });
+    return Response.json(
+      { error: "Comment body is required" },
+      { status: 400 },
+    );
   }
   if (!postId && !fieldNoteId) {
-    return Response.json({ error: "postId or fieldNoteId required" }, { status: 400 });
+    return Response.json(
+      { error: "postId or fieldNoteId required" },
+      { status: 400 },
+    );
   }
 
   const [comment] = await db

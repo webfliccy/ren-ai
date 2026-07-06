@@ -39,7 +39,7 @@ export async function getPublishedPosts(opts?: {
   }
 
   query = query.orderBy(
-    opts?.all ? desc(posts.createdAt) : desc(posts.publishedAt)
+    opts?.all ? desc(posts.createdAt) : desc(posts.publishedAt),
   );
 
   if (opts?.limit) {
@@ -68,7 +68,7 @@ export async function getPostById(id: number): Promise<Post | null> {
 }
 
 export async function getPostWithComments(
-  slug: string
+  slug: string,
 ): Promise<PostWithComments | null> {
   const [post] = await db.select().from(posts).where(eq(posts.slug, slug));
   if (!post || post.status !== "published") return null;
@@ -149,7 +149,7 @@ export async function createPost(input: CreatePostInput): Promise<Post> {
 
 export async function updatePost(
   id: number,
-  input: UpdatePostInput
+  input: UpdatePostInput,
 ): Promise<Post | null> {
   const [existing] = await db.select().from(posts).where(eq(posts.id, id));
   if (!existing) return null;

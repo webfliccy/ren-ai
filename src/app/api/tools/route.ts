@@ -6,9 +6,16 @@ import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const issueId = request.nextUrl.searchParams.get("issueId");
-  const query = db.select().from(tools).orderBy(asc(tools.sortOrder), asc(tools.createdAt));
+  const query = db
+    .select()
+    .from(tools)
+    .orderBy(asc(tools.sortOrder), asc(tools.createdAt));
   const rows = issueId
-    ? await db.select().from(tools).where(eq(tools.issueId, Number(issueId))).orderBy(asc(tools.sortOrder), asc(tools.createdAt))
+    ? await db
+        .select()
+        .from(tools)
+        .where(eq(tools.issueId, Number(issueId)))
+        .orderBy(asc(tools.sortOrder), asc(tools.createdAt))
     : await query;
   return Response.json(rows);
 }
@@ -17,11 +24,22 @@ export async function POST(request: NextRequest) {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const { issueId, category, name, illustration, descriptor, url, status, sortOrder } =
-    await request.json();
+  const {
+    issueId,
+    category,
+    name,
+    illustration,
+    descriptor,
+    url,
+    status,
+    sortOrder,
+  } = await request.json();
 
   if (!issueId || !name?.trim()) {
-    return Response.json({ error: "issueId and name are required" }, { status: 400 });
+    return Response.json(
+      { error: "issueId and name are required" },
+      { status: 400 },
+    );
   }
 
   const [tool] = await db

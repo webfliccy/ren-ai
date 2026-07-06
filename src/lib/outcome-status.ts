@@ -1,4 +1,5 @@
-export type OutcomeStatus = "pending" | "success" | "partial" | "failure" | "inconclusive";
+export type OutcomeStatus =
+  "pending" | "success" | "partial" | "failure" | "inconclusive";
 
 export const OUTCOME_STATUS_LABELS: Record<OutcomeStatus, string> = {
   pending: "Pending",

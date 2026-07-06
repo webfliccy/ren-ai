@@ -4,7 +4,9 @@ import { inputClass, labelBlockClass } from "@/lib/styles";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
-const RichEditor = dynamic(() => import("@/components/RichEditor"), { ssr: false });
+const RichEditor = dynamic(() => import("@/components/RichEditor"), {
+  ssr: false,
+});
 
 interface Props {
   initialTitle: string;
@@ -13,12 +15,19 @@ interface Props {
   initialPrompt: string;
 }
 
-export default function AboutForm({ initialTitle, initialContent, initialTokens, initialPrompt }: Props) {
+export default function AboutForm({
+  initialTitle,
+  initialContent,
+  initialTokens,
+  initialPrompt,
+}: Props) {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [tokens, setTokens] = useState(initialTokens);
   const [prompt, setPrompt] = useState(initialPrompt);
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
+    "idle",
+  );
 
   async function handleSave() {
     setStatus("saving");

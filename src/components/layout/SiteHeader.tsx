@@ -41,7 +41,7 @@ export default async function SiteHeader() {
     <header>
       <div className="mb-1 flex w-full items-center gap-3.5 pt-6">
         <div className="h-px flex-1 bg-rule" />
-        <div className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.24em] text-ink opacity-60">
+        <div className="text-[9px] font-bold tracking-[0.24em] whitespace-nowrap text-ink uppercase opacity-60">
           {topbarStamp}
         </div>
         <div className="h-px flex-1 bg-rule" />
@@ -51,16 +51,20 @@ export default async function SiteHeader() {
       <div className="h-px bg-ink" />
 
       <div className="relative flex items-center justify-center pt-5 pb-4">
-        <Link className="absolute left-0 flex items-center gap-3.5 no-underline" href="/" aria-label="The RenAIssance Fan — home">
+        <Link
+          className="absolute left-0 flex items-center gap-3.5 no-underline"
+          href="/"
+          aria-label="The RenAIssance Fan — home"
+        >
           <RenaiLogo className="block h-[58px] w-auto max-tablet:h-[42px]" />
-          <span className="h-11 w-px bg-ink opacity-20 hidden md:block" />
+          <span className="hidden h-11 w-px bg-ink opacity-20 md:block" />
         </Link>
         <Link
           href="/"
-          className="text-center font-cormorant text-[52px] font-medium italic leading-none tracking-[-0.01em] text-inherit no-underline max-tablet:text-[32px]"
+          className="text-center font-cormorant text-[52px] leading-none font-medium tracking-[-0.01em] text-inherit italic no-underline max-tablet:text-[32px]"
         >
           The Ren<span className="text-accent">AI</span>ssance Fan
-          <span className="mt-2 block text-[9.5px] font-semibold uppercase tracking-[0.34em] text-ink-light opacity-70">
+          <span className="mt-2 block text-[9.5px] font-semibold tracking-[0.34em] text-ink-light uppercase opacity-70">
             Fallibly Human, Artificially Divine
           </span>
         </Link>

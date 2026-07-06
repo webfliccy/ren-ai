@@ -12,7 +12,10 @@ export const metadata = { title: "Edit issue — ren·ai" };
 
 export default async function EditIssuePage({ params }: Props) {
   const { id } = await params;
-  const [issue] = await db.select().from(issues).where(eq(issues.id, Number(id)));
+  const [issue] = await db
+    .select()
+    .from(issues)
+    .where(eq(issues.id, Number(id)));
   if (!issue) notFound();
 
   return (

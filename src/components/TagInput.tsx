@@ -31,11 +31,14 @@ export function TagInput({ tags, onChange }: TagInputProps) {
   return (
     <>
       <div
-        className="flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1.5 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text"
+        className="flex min-h-9 w-full cursor-text flex-wrap items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1.5 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500"
         onClick={() => tagInputRef.current?.focus()}
       >
         {tags.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+          <span
+            key={tag}
+            className="flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700"
+          >
             {tag}
             <button
               type="button"

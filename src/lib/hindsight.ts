@@ -4,21 +4,34 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // it never touches publishedAt.
 export function resolveHindsight(
   input: { hindsight?: string | null; hindsightAddedAt?: string | null },
-  existing?: { hindsight: string; hindsightAddedAt: Date | null }
+  existing?: { hindsight: string; hindsightAddedAt: Date | null },
 ): { hindsight: string; hindsightAddedAt: Date | null } {
   const hindsight =
-    input.hindsight !== undefined ? input.hindsight ?? "" : existing?.hindsight ?? "";
+    input.hindsight !== undefined
+      ? (input.hindsight ?? "")
+      : (existing?.hindsight ?? "");
   if (!hindsight) return { hindsight: "", hindsightAddedAt: null };
 
   const hindsightAddedAt = input.hindsightAddedAt
     ? new Date(input.hindsightAddedAt)
-    : existing?.hindsightAddedAt ?? new Date();
+    : (existing?.hindsightAddedAt ?? new Date());
   return { hindsight, hindsightAddedAt };
 }
 
 const WORDS = [
-  "zero", "one", "two", "three", "four", "five", "six",
-  "seven", "eight", "nine", "ten", "eleven", "twelve",
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
 ];
 
 function spell(n: number): string {
@@ -33,7 +46,9 @@ function unit(n: number, noun: string): string {
 // midnight) while publication carries a time of day, so an elapsed-hours diff
 // would undercount by a day.
 function utcDayNumber(d: Date): number {
-  return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / DAY_MS);
+  return Math.floor(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / DAY_MS,
+  );
 }
 
 /**

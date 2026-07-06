@@ -31,9 +31,11 @@ beforeAll(async () => {
 
 afterAll(() => cleanup?.());
 
-async function insertPost(overrides: Partial<typeof schema.posts.$inferInsert> = {}) {
-  const [post] = await container.db!
-    .insert(schema.posts)
+async function insertPost(
+  overrides: Partial<typeof schema.posts.$inferInsert> = {},
+) {
+  const [post] = await container
+    .db!.insert(schema.posts)
     .values({
       title: "Test Post",
       slug: `test-post-${Math.random().toString(36).slice(2)}`,
@@ -70,7 +72,9 @@ describe("getPublishedPosts", () => {
   });
 
   test("filters by tag", async () => {
-    const matched = await insertPost({ tags: JSON.stringify(["rare-tag-xyz"]) });
+    const matched = await insertPost({
+      tags: JSON.stringify(["rare-tag-xyz"]),
+    });
     const unmatched = await insertPost({ tags: JSON.stringify(["other"]) });
 
     const results = await getPublishedPosts({ tag: "rare-tag-xyz" });
@@ -103,7 +107,10 @@ describe("getPostWithComments", () => {
 
 describe("createPost", () => {
   test("sets publishedAt when status is published", async () => {
-    const post = await createPost({ title: "Published Article", status: "published" });
+    const post = await createPost({
+      title: "Published Article",
+      status: "published",
+    });
     expect(post.publishedAt).not.toBeNull();
   });
 
@@ -118,7 +125,10 @@ describe("createPost", () => {
   });
 
   test("round-trips tags as a JSON array", async () => {
-    const created = await createPost({ title: "Tagged Article", tags: ["foo", "bar"] });
+    const created = await createPost({
+      title: "Tagged Article",
+      tags: ["foo", "bar"],
+    });
     const fetched = await getPostById(created.id);
     expect(fetched).not.toBeNull();
     expect(JSON.parse(fetched!.tags)).toEqual(["foo", "bar"]);
@@ -127,7 +137,10 @@ describe("createPost", () => {
 
 describe("updatePost", () => {
   test("does not overwrite publishedAt on re-publish", async () => {
-    const post = await createPost({ title: "Stable Date", status: "published" });
+    const post = await createPost({
+      title: "Stable Date",
+      status: "published",
+    });
     const original = post.publishedAt!.getTime();
 
     await new Promise((r) => setTimeout(r, 50));
@@ -145,7 +158,11 @@ describe("updatePost", () => {
     const post = await createPost({ title: "Goes Live", status: "draft" });
     expect(post.publishedAt).toBeNull();
 
-    const updated = await updatePost(post.id, { title: post.title, status: "published", tags: [] });
+    const updated = await updatePost(post.id, {
+      title: post.title,
+      status: "published",
+      tags: [],
+    });
     expect(updated!.publishedAt).not.toBeNull();
   });
 
@@ -157,7 +174,10 @@ describe("updatePost", () => {
 
 describe("hindsight", () => {
   test("adding hindsight stamps hindsightAddedAt without touching publishedAt", async () => {
-    const post = await createPost({ title: "Amended Later", status: "published" });
+    const post = await createPost({
+      title: "Amended Later",
+      status: "published",
+    });
     const originalPublished = post.publishedAt!.getTime();
     expect(post.hindsightAddedAt).toBeNull();
 
@@ -174,7 +194,10 @@ describe("hindsight", () => {
   });
 
   test("keeps the original hindsightAddedAt on later edits", async () => {
-    const post = await createPost({ title: "Stable Amendment", hindsight: "First note." });
+    const post = await createPost({
+      title: "Stable Amendment",
+      hindsight: "First note.",
+    });
     const stamped = post.hindsightAddedAt!.getTime();
 
     await new Promise((r) => setTimeout(r, 50));
@@ -193,12 +216,21 @@ describe("hindsight", () => {
       hindsight: "Note.",
       hindsightAddedAt: "2026-07-02",
     });
-    expect(post.hindsightAddedAt!.toISOString().slice(0, 10)).toBe("2026-07-02");
+    expect(post.hindsightAddedAt!.toISOString().slice(0, 10)).toBe(
+      "2026-07-02",
+    );
   });
 
   test("clearing hindsight clears hindsightAddedAt", async () => {
-    const post = await createPost({ title: "Retracted Amendment", hindsight: "Oops." });
-    const updated = await updatePost(post.id, { title: post.title, tags: [], hindsight: "" });
+    const post = await createPost({
+      title: "Retracted Amendment",
+      hindsight: "Oops.",
+    });
+    const updated = await updatePost(post.id, {
+      title: post.title,
+      tags: [],
+      hindsight: "",
+    });
     expect(updated!.hindsight).toBe("");
     expect(updated!.hindsightAddedAt).toBeNull();
   });

@@ -1,7 +1,15 @@
 "use client";
 
 import { Issue, Tool } from "@/db/schema";
-import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass, selectClass } from "@/lib/styles";
+import {
+  btnPrimary,
+  btnSecondary,
+  errorBanner,
+  hintText,
+  inputClass,
+  labelClass,
+  selectClass,
+} from "@/lib/styles";
 import { FormField } from "./FormField";
 import { SanitizedSvg } from "@/components/SanitizedSvg";
 import { useRouter } from "next/navigation";
@@ -28,14 +36,16 @@ export default function ToolForm({
   const isEditing = !!tool;
 
   const [issueId, setIssueId] = useState<number>(
-    tool?.issueId ?? defaultIssueId ?? issues[0]?.id ?? 0
+    tool?.issueId ?? defaultIssueId ?? issues[0]?.id ?? 0,
   );
   const [category, setCategory] = useState(tool?.category ?? "");
   const [name, setName] = useState(tool?.name ?? "");
   const [illustration, setIllustration] = useState(tool?.illustration ?? "");
   const [descriptor, setDescriptor] = useState(tool?.descriptor ?? "");
   const [url, setUrl] = useState(tool?.url ?? "");
-  const [status, setStatus] = useState<"draft" | "published">(tool?.status ?? "draft");
+  const [status, setStatus] = useState<"draft" | "published">(
+    tool?.status ?? "draft",
+  );
   const [sortOrder, setSortOrder] = useState(tool?.sortOrder ?? 0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -45,7 +55,16 @@ export default function ToolForm({
     setSaving(true);
     setError("");
 
-    const payload = { issueId, category, name, illustration, descriptor, url, status, sortOrder };
+    const payload = {
+      issueId,
+      category,
+      name,
+      illustration,
+      descriptor,
+      url,
+      status,
+      sortOrder,
+    };
 
     const res = isEditing
       ? await fetch(`/api/tools/${tool.id}`, {
@@ -78,9 +97,7 @@ export default function ToolForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className={errorBanner}>{error}</div>
-      )}
+      {error && <div className={errorBanner}>{error}</div>}
 
       {/* Issue */}
       <FormField label="Issue">
@@ -149,7 +166,16 @@ export default function ToolForm({
       </FormField>
 
       {/* Illustration (SVG) */}
-      <FormField label={<>Illustration{" "}<span className={hintText}>(raw SVG — paste the &lt;svg&gt; element)</span></>}>
+      <FormField
+        label={
+          <>
+            Illustration{" "}
+            <span className={hintText}>
+              (raw SVG — paste the &lt;svg&gt; element)
+            </span>
+          </>
+        }
+      >
         <textarea
           value={illustration}
           onChange={(e) => setIllustration(e.target.value)}
@@ -196,11 +222,7 @@ export default function ToolForm({
 
       <div className="flex items-center justify-between pt-2">
         <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className={btnPrimary}
-          >
+          <button type="submit" disabled={saving} className={btnPrimary}>
             {saving ? "Saving…" : isEditing ? "Update tool" : "Create tool"}
           </button>
           <button
@@ -212,7 +234,11 @@ export default function ToolForm({
           </button>
         </div>
         {isEditing && (
-          <button type="button" onClick={handleDelete} className="text-sm text-red-600 hover:underline">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="text-sm text-red-600 hover:underline"
+          >
             Delete tool
           </button>
         )}

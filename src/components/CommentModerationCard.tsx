@@ -11,7 +11,13 @@ interface Props {
   createdAt: Date | null;
 }
 
-export default function CommentModerationCard({ id, authorName, postTitle, body, createdAt }: Props) {
+export default function CommentModerationCard({
+  id,
+  authorName,
+  postTitle,
+  body,
+  createdAt,
+}: Props) {
   const router = useRouter();
 
   async function approve() {
@@ -41,7 +47,7 @@ export default function CommentModerationCard({ id, authorName, postTitle, body,
           </time>
         )}
       </div>
-      <p className="mb-3 whitespace-pre-wrap text-sm text-gray-600">{body}</p>
+      <p className="mb-3 text-sm whitespace-pre-wrap text-gray-600">{body}</p>
       <div className="flex gap-2">
         <button
           onClick={approve}

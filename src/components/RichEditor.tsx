@@ -19,7 +19,11 @@ interface Props {
   tables?: boolean;
 }
 
-export default function RichEditor({ content, onChange, tables = false }: Props) {
+export default function RichEditor({
+  content,
+  onChange,
+  tables = false,
+}: Props) {
   const [mode, setMode] = useState<"write" | "markdown">("write");
   const [rawMarkdown, setRawMarkdown] = useState(content);
   const [uploading, setUploading] = useState(false);
@@ -69,7 +73,8 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
       if (!res.ok) throw new Error(`Upload failed (${res.status})`);
       const data = await res.json();
       if (!data.url) throw new Error("Upload response missing url");
-      if (!editor.isDestroyed) editor.chain().focus().setImage({ src: data.url }).run();
+      if (!editor.isDestroyed)
+        editor.chain().focus().setImage({ src: data.url }).run();
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -99,25 +104,85 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
 
   const tabBtn = (active: boolean) =>
     `px-2.5 py-0.5 text-xs rounded transition-colors ${
-      active ? "bg-white shadow-sm text-gray-900 font-medium" : "text-gray-500 hover:text-gray-700"
+      active
+        ? "bg-white shadow-sm text-gray-900 font-medium"
+        : "text-gray-500 hover:text-gray-700"
     }`;
 
   return (
     <div className="rounded-md border border-gray-300 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-      <div className="flex flex-wrap items-center justify-between gap-1 border-b border-gray-200 bg-gray-50 px-2 py-1.5 rounded-t-md">
+      <div className="flex flex-wrap items-center justify-between gap-1 rounded-t-md border-b border-gray-200 bg-gray-50 px-2 py-1.5">
         {mode === "write" ? (
           <div className="flex flex-wrap gap-1">
-            <button type="button" className={btn(editor.isActive("bold"))} onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
-            <button type="button" className={btn(editor.isActive("italic"))} onClick={() => editor.chain().focus().toggleItalic().run()}><em>I</em></button>
-            <button type="button" className={btn(editor.isActive("code"))} onClick={() => editor.chain().focus().toggleCode().run()}>{"</>"}</button>
+            <button
+              type="button"
+              className={btn(editor.isActive("bold"))}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+            >
+              B
+            </button>
+            <button
+              type="button"
+              className={btn(editor.isActive("italic"))}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+            >
+              <em>I</em>
+            </button>
+            <button
+              type="button"
+              className={btn(editor.isActive("code"))}
+              onClick={() => editor.chain().focus().toggleCode().run()}
+            >
+              {"</>"}
+            </button>
             <span className="mx-1 border-l border-gray-200" />
-            <button type="button" className={btn(editor.isActive("heading", { level: 2 }))} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button>
-            <button type="button" className={btn(editor.isActive("heading", { level: 3 }))} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>H3</button>
+            <button
+              type="button"
+              className={btn(editor.isActive("heading", { level: 2 }))}
+              onClick={() =>
+                editor.chain().focus().toggleHeading({ level: 2 }).run()
+              }
+            >
+              H2
+            </button>
+            <button
+              type="button"
+              className={btn(editor.isActive("heading", { level: 3 }))}
+              onClick={() =>
+                editor.chain().focus().toggleHeading({ level: 3 }).run()
+              }
+            >
+              H3
+            </button>
             <span className="mx-1 border-l border-gray-200" />
-            <button type="button" className={btn(editor.isActive("bulletList"))} onClick={() => editor.chain().focus().toggleBulletList().run()}>• List</button>
-            <button type="button" className={btn(editor.isActive("orderedList"))} onClick={() => editor.chain().focus().toggleOrderedList().run()}>1. List</button>
-            <button type="button" className={btn(editor.isActive("blockquote"))} onClick={() => editor.chain().focus().toggleBlockquote().run()}>{"”"}</button>
-            <button type="button" className={btn(editor.isActive("codeBlock"))} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>Block</button>
+            <button
+              type="button"
+              className={btn(editor.isActive("bulletList"))}
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+            >
+              • List
+            </button>
+            <button
+              type="button"
+              className={btn(editor.isActive("orderedList"))}
+              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            >
+              1. List
+            </button>
+            <button
+              type="button"
+              className={btn(editor.isActive("blockquote"))}
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            >
+              {"”"}
+            </button>
+            <button
+              type="button"
+              className={btn(editor.isActive("codeBlock"))}
+              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            >
+              Block
+            </button>
             <span className="mx-1 border-l border-gray-200" />
             <button
               type="button"
@@ -152,7 +217,7 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
               {uploading ? "…" : "Image"}
             </button>
             {uploadError && (
-              <span className="text-xs text-red-600 ml-1">{uploadError}</span>
+              <span className="ml-1 text-xs text-red-600">{uploadError}</span>
             )}
             <span className="mx-1 border-l border-gray-200" />
             {tables && (
@@ -162,7 +227,11 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
                   type="button"
                   className={btn(editor.isActive("table"))}
                   onClick={() =>
-                    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+                    editor
+                      .chain()
+                      .focus()
+                      .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                      .run()
                   }
                   title="Insert table"
                 >
@@ -216,12 +285,24 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
             </button>
           </div>
         ) : (
-          <span className="px-1 text-xs text-gray-400 font-mono">Markdown</span>
+          <span className="px-1 font-mono text-xs text-gray-400">Markdown</span>
         )}
 
         <div className="ml-auto flex gap-0.5 rounded-md border border-gray-200 bg-gray-100 p-0.5">
-          <button type="button" onClick={switchToWrite} className={tabBtn(mode === "write")}>Write</button>
-          <button type="button" onClick={switchToMarkdown} className={tabBtn(mode === "markdown")}>Markdown</button>
+          <button
+            type="button"
+            onClick={switchToWrite}
+            className={tabBtn(mode === "write")}
+          >
+            Write
+          </button>
+          <button
+            type="button"
+            onClick={switchToMarkdown}
+            className={tabBtn(mode === "markdown")}
+          >
+            Markdown
+          </button>
         </div>
       </div>
 
@@ -234,7 +315,7 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
             setRawMarkdown(e.target.value);
             onChange(e.target.value);
           }}
-          className="w-full min-h-64 px-4 py-3 font-mono text-sm focus:outline-none resize-y"
+          className="min-h-64 w-full resize-y px-4 py-3 font-mono text-sm focus:outline-none"
           placeholder="Write markdown here…"
           spellCheck={false}
         />

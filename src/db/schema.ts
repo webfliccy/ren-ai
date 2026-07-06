@@ -1,5 +1,10 @@
 import { sql } from "drizzle-orm";
-import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  integer,
+  primaryKey,
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
 
 // ── Issues ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +32,9 @@ export type NewIssue = typeof issues.$inferInsert;
 
 export const posts = sqliteTable("posts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  issueId: integer("issue_id").references(() => issues.id, { onDelete: "set null" }),
+  issueId: integer("issue_id").references(() => issues.id, {
+    onDelete: "set null",
+  }),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull().default(""),
@@ -137,7 +144,7 @@ export const accounts = sqliteTable(
     id_token: text("id_token"),
     session_state: text("session_state"),
   },
-  (t) => [primaryKey({ columns: [t.provider, t.providerAccountId] })]
+  (t) => [primaryKey({ columns: [t.provider, t.providerAccountId] })],
 );
 
 export const sessions = sqliteTable("session", {
@@ -155,7 +162,7 @@ export const verificationTokens = sqliteTable(
     token: text("token").notNull(),
     expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
   },
-  (t) => [primaryKey({ columns: [t.identifier, t.token] })]
+  (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
 
 export type User = typeof users.$inferSelect;
@@ -164,8 +171,12 @@ export type User = typeof users.$inferSelect;
 
 export const comments = sqliteTable("comment", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  postId: integer("post_id").references(() => posts.id, { onDelete: "cascade" }),
-  fieldNoteId: integer("field_note_id").references(() => fieldNotes.id, { onDelete: "cascade" }),
+  postId: integer("post_id").references(() => posts.id, {
+    onDelete: "cascade",
+  }),
+  fieldNoteId: integer("field_note_id").references(() => fieldNotes.id, {
+    onDelete: "cascade",
+  }),
   authorId: text("author_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -212,7 +223,9 @@ export type Subscriber = typeof subscribers.$inferSelect;
 
 export const fieldNotes = sqliteTable("field_note", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  issueId: integer("issue_id").references(() => issues.id, { onDelete: "set null" }),
+  issueId: integer("issue_id").references(() => issues.id, {
+    onDelete: "set null",
+  }),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull().default(""),

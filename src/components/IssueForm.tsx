@@ -1,7 +1,14 @@
 "use client";
 
 import { Issue } from "@/db/schema";
-import { btnPrimary, btnSecondary, errorBanner, inputClass, labelClass, selectClass } from "@/lib/styles";
+import {
+  btnPrimary,
+  btnSecondary,
+  errorBanner,
+  inputClass,
+  labelClass,
+  selectClass,
+} from "@/lib/styles";
 import { FormField } from "./FormField";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,7 +20,9 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
   const [number, setNumber] = useState(issue?.number ?? "");
   const [title, setTitle] = useState(issue?.title ?? "");
   const [description, setDescription] = useState(issue?.description ?? "");
-  const [status, setStatus] = useState<"draft" | "published">(issue?.status ?? "draft");
+  const [status, setStatus] = useState<"draft" | "published">(
+    issue?.status ?? "draft",
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -47,7 +56,11 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
   }
 
   async function handleDelete() {
-    if (!issue || !confirm("Delete this issue? Posts assigned to it will be unassigned.")) return;
+    if (
+      !issue ||
+      !confirm("Delete this issue? Posts assigned to it will be unassigned.")
+    )
+      return;
     await fetch(`/api/issues/${issue.id}`, { method: "DELETE" });
     router.push("/admin");
     router.refresh();
@@ -55,9 +68,7 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className={errorBanner}>{error}</div>
-      )}
+      {error && <div className={errorBanner}>{error}</div>}
 
       <div className="grid grid-cols-4 gap-4">
         <FormField label="Issue №">
@@ -83,7 +94,16 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
         </FormField>
       </div>
 
-      <FormField label={<>Description <span className="font-normal text-gray-400">(shown in the archive and as the issue deck)</span></>}>
+      <FormField
+        label={
+          <>
+            Description{" "}
+            <span className="font-normal text-gray-400">
+              (shown in the archive and as the issue deck)
+            </span>
+          </>
+        }
+      >
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -107,11 +127,7 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
 
       <div className="flex items-center justify-between pt-2">
         <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className={btnPrimary}
-          >
+          <button type="submit" disabled={saving} className={btnPrimary}>
             {saving ? "Saving…" : isEditing ? "Update issue" : "Create issue"}
           </button>
           <button
@@ -123,7 +139,11 @@ export default function IssueForm({ issue }: { issue?: Issue }) {
           </button>
         </div>
         {isEditing && (
-          <button type="button" onClick={handleDelete} className="text-sm text-red-600 hover:underline">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="text-sm text-red-600 hover:underline"
+          >
             Delete issue
           </button>
         )}

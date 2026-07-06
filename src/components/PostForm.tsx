@@ -3,21 +3,38 @@
 import { Issue, Post } from "@/db/schema";
 import { ChicagoWebRef, parseRefs } from "@/lib/references";
 import { slugify } from "@/lib/slug";
-import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass } from "@/lib/styles";
+import {
+  btnPrimary,
+  btnSecondary,
+  errorBanner,
+  hintText,
+  inputClass,
+  labelClass,
+} from "@/lib/styles";
 import { FormField } from "./FormField";
 import { ReferenceList } from "./ReferenceList";
 import { TagInput } from "./TagInput";
 import { SanitizedSvg } from "@/components/SanitizedSvg";
 import { toDateInputValue } from "@/lib/formatters";
 import { parseTags } from "@/lib/tags";
-import { createPostAction, updatePostAction, deletePostAction } from "@/actions/posts";
+import {
+  createPostAction,
+  updatePostAction,
+  deletePostAction,
+} from "@/actions/posts";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const RichEditor = dynamic(() => import("./RichEditor"), { ssr: false });
 
-export default function PostForm({ post, issues = [] }: { post?: Post; issues?: Pick<Issue, "id" | "number" | "title">[] }) {
+export default function PostForm({
+  post,
+  issues = [],
+}: {
+  post?: Post;
+  issues?: Pick<Issue, "id" | "number" | "title">[];
+}) {
   const router = useRouter();
   const isEditing = !!post;
 
@@ -28,19 +45,23 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [prompt, setPrompt] = useState(post?.prompt ?? "");
   const [figSvg, setFigSvg] = useState(post?.figSvg ?? "");
-  const [status, setStatus] = useState<"draft" | "published">(post?.status ?? "draft");
+  const [status, setStatus] = useState<"draft" | "published">(
+    post?.status ?? "draft",
+  );
   const [featured, setFeatured] = useState(post?.featured ?? false);
   const [tags, setTags] = useState<string[]>(parseTags(post?.tags ?? "[]"));
   const [tokens, setTokens] = useState(post?.tokens ?? "");
   const [references, setReferences] = useState<ChicagoWebRef[]>(() =>
-    parseRefs(post?.references ?? "[]")
+    parseRefs(post?.references ?? "[]"),
   );
   const [hindsight, setHindsight] = useState(post?.hindsight ?? "");
   const [hindsightAddedAt, setHindsightAddedAt] = useState(
-    toDateInputValue(post?.hindsightAddedAt)
+    toDateInputValue(post?.hindsightAddedAt),
   );
   const [seoTitle, setSeoTitle] = useState(post?.seoTitle ?? "");
-  const [seoDescription, setSeoDescription] = useState(post?.seoDescription ?? "");
+  const [seoDescription, setSeoDescription] = useState(
+    post?.seoDescription ?? "",
+  );
   const [ogImage, setOgImage] = useState(post?.ogImage ?? "");
   const [seoOpen, setSeoOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -58,7 +79,14 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
     setError("");
 
     const payload = {
-      title, content, excerpt, prompt: prompt || null, figSvg: figSvg || null, status, featured, tags,
+      title,
+      content,
+      excerpt,
+      prompt: prompt || null,
+      figSvg: figSvg || null,
+      status,
+      featured,
+      tags,
       issueId: issueId ?? null,
       tokens: tokens || null,
       references,
@@ -97,9 +125,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className={errorBanner}>{error}</div>
-      )}
+      {error && <div className={errorBanner}>{error}</div>}
 
       <FormField label="Title">
         <input
@@ -116,7 +142,10 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         <input
           type="text"
           value={slug}
-          onChange={(e) => { setSlug(e.target.value); setSlugManuallyEdited(true); }}
+          onChange={(e) => {
+            setSlug(e.target.value);
+            setSlugManuallyEdited(true);
+          }}
           required
           placeholder="my-post-title"
           className={`${inputClass} font-mono`}
@@ -133,7 +162,16 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         />
       </FormField>
 
-      <FormField label={<>Prompt <span className={hintText}>(shown in Production Record — separate from excerpt)</span></>}>
+      <FormField
+        label={
+          <>
+            Prompt{" "}
+            <span className={hintText}>
+              (shown in Production Record — separate from excerpt)
+            </span>
+          </>
+        }
+      >
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -143,7 +181,14 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         />
       </FormField>
 
-      <FormField label={<>FIG. 1 — Article illustration <span className={hintText}>(.svg)</span></>}>
+      <FormField
+        label={
+          <>
+            FIG. 1 — Article illustration{" "}
+            <span className={hintText}>(.svg)</span>
+          </>
+        }
+      >
         <input
           type="file"
           accept=".svg,image/svg+xml"
@@ -151,7 +196,8 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
             const file = e.target.files?.[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (ev) => setFigSvg((ev.target?.result as string) ?? "");
+            reader.onload = (ev) =>
+              setFigSvg((ev.target?.result as string) ?? "");
             reader.readAsText(file);
           }}
           className="block w-full text-sm text-gray-500 file:mr-3 file:rounded-md file:border file:border-gray-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-50"
@@ -181,7 +227,13 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         <TagInput tags={tags} onChange={setTags} />
       </FormField>
 
-      <FormField label={<>Tokens <span className={hintText}>(e.g. ~24,000 ⟵ ~8,200)</span></>}>
+      <FormField
+        label={
+          <>
+            Tokens <span className={hintText}>(e.g. ~24,000 ⟵ ~8,200)</span>
+          </>
+        }
+      >
         <input
           type="text"
           value={tokens}
@@ -193,16 +245,27 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
 
       <ReferenceList references={references} onChange={setReferences} />
 
-      <fieldset className="rounded-md border border-gray-200 p-4 space-y-4">
-        <legend className="px-1 text-sm font-semibold text-gray-800">Hindsight</legend>
+      <fieldset className="space-y-4 rounded-md border border-gray-200 p-4">
+        <legend className="px-1 text-sm font-semibold text-gray-800">
+          Hindsight
+        </legend>
         <p className={hintText}>
-          Post-release amendment shown at the top of the article. Leave empty to omit; the
-          publish date is never changed.
+          Post-release amendment shown at the top of the article. Leave empty to
+          omit; the publish date is never changed.
         </p>
         <FormField label="Note">
           <RichEditor content={hindsight} onChange={setHindsight} />
         </FormField>
-        <FormField label={<>Added on <span className={hintText}>(defaults to today when first saved)</span></>}>
+        <FormField
+          label={
+            <>
+              Added on{" "}
+              <span className={hintText}>
+                (defaults to today when first saved)
+              </span>
+            </>
+          }
+        >
           <input
             type="date"
             value={hindsightAddedAt}
@@ -225,7 +288,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           </select>
         </div>
 
-        <label className="flex items-center gap-2 cursor-pointer select-none">
+        <label className="flex cursor-pointer items-center gap-2 select-none">
           <input
             type="checkbox"
             checked={featured}
@@ -240,7 +303,9 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           <label className={labelClass}>Issue</label>
           <select
             value={issueId ?? ""}
-            onChange={(e) => setIssueId(e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) =>
+              setIssueId(e.target.value ? Number(e.target.value) : null)
+            }
             className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
           >
             <option value="">— No issue —</option>
@@ -266,7 +331,8 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           <div className="space-y-4 border-t border-gray-200 p-4">
             <div className="space-y-1">
               <label className={labelClass}>
-                SEO title <span className={hintText}>(defaults to post title)</span>
+                SEO title{" "}
+                <span className={hintText}>(defaults to post title)</span>
               </label>
               <input
                 type="text"
@@ -278,7 +344,8 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
             </div>
             <div className="space-y-1">
               <label className={labelClass}>
-                SEO description <span className={hintText}>(defaults to excerpt)</span>
+                SEO description{" "}
+                <span className={hintText}>(defaults to excerpt)</span>
               </label>
               <textarea
                 value={seoDescription}
@@ -304,11 +371,7 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
 
       <div className="flex items-center justify-between pt-2">
         <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className={btnPrimary}
-          >
+          <button type="submit" disabled={saving} className={btnPrimary}>
             {saving ? "Saving…" : isEditing ? "Update post" : "Create post"}
           </button>
           <button
@@ -320,7 +383,11 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
           </button>
         </div>
         {isEditing && (
-          <button type="button" onClick={handleDelete} className="text-sm text-red-600 hover:underline">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="text-sm text-red-600 hover:underline"
+          >
             Delete post
           </button>
         )}

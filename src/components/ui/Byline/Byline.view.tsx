@@ -27,7 +27,9 @@ export function BylineDotView() {
 }
 
 export function BylineWhoView({ children }: { children: ReactNode }) {
-  return <span className="font-bold tracking-[0.01em] text-ink">{children}</span>;
+  return (
+    <span className="font-bold tracking-[0.01em] text-ink">{children}</span>
+  );
 }
 
 export type BylineBadgeProps = {
@@ -39,10 +41,14 @@ export type BylineBadgeProps = {
   size?: "sm" | "default";
 };
 
-export function BylineBadgeView({ children, variant = "accent", size = "default" }: BylineBadgeProps) {
+export function BylineBadgeView({
+  children,
+  variant = "accent",
+  size = "default",
+}: BylineBadgeProps) {
   return (
     <span
-      className={`inline-block border px-1.5 py-px font-courier uppercase tracking-[0.06em] ${
+      className={`inline-block border px-1.5 py-px font-courier tracking-[0.06em] uppercase ${
         size === "sm" ? "text-[9px]" : "text-[10px]"
       } ${variant === "accent" ? "border-accent text-accent" : "border-ink text-ink"}`}
     >

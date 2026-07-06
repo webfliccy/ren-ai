@@ -15,7 +15,12 @@
  * The migration itself (steps 1 & 2) is always safe to run independently.
  */
 
-import { S3Client, PutObjectCommand, HeadObjectCommand, CopyObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  HeadObjectCommand,
+  CopyObjectCommand,
+} from "@aws-sdk/client-s3";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { eq } from "drizzle-orm";
@@ -35,21 +40,36 @@ const dbUrl = process.env.TURSO_DATABASE_URL ?? "file:local.db";
 
 if (!region || !accessKeyId || !secretAccessKey || !bucket) {
   console.error(
-    "Missing required env vars: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET"
+    "Missing required env vars: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET",
   );
   process.exit(1);
 }
 
-const s3 = new S3Client({ region, credentials: { accessKeyId, secretAccessKey } });
-const db = drizzle(createClient({ url: dbUrl, authToken: process.env.TURSO_AUTH_TOKEN }));
+const s3 = new S3Client({
+  region,
+  credentials: { accessKeyId, secretAccessKey },
+});
+const db = drizzle(
+  createClient({ url: dbUrl, authToken: process.env.TURSO_AUTH_TOKEN }),
+);
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
 
 const MIME_MAP: Record<string, string> = {
-  jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif",
-  webp: "image/webp", svg: "image/svg+xml", pdf: "application/pdf",
-  md: "text/markdown", txt: "text/plain", json: "application/json",
-  py: "text/x-python", js: "text/javascript", ts: "text/typescript",
-  csv: "text/csv", zip: "application/zip",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+  svg: "image/svg+xml",
+  pdf: "application/pdf",
+  md: "text/markdown",
+  txt: "text/plain",
+  json: "application/json",
+  py: "text/x-python",
+  js: "text/javascript",
+  ts: "text/typescript",
+  csv: "text/csv",
+  zip: "application/zip",
 };
 
 function contentType(filename: string): string {
@@ -65,7 +85,8 @@ async function objectExists(key: string): Promise<boolean> {
     return true;
   } catch (err: unknown) {
     // Only treat 404 as "not found" — re-throw auth errors, network errors, etc.
-    const status = (err as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
+    const status = (err as { $metadata?: { httpStatusCode?: number } })
+      ?.$metadata?.httpStatusCode;
     if (status === 404) return false;
     throw err;
   }
@@ -85,7 +106,9 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
     filenames = dirents.filter((d) => d.isFile()).map((d) => d.name);
   } catch (err: unknown) {
     if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-      console.log("public/uploads/ does not exist or is empty — nothing to upload.");
+      console.log(
+        "public/uploads/ does not exist or is empty — nothing to upload.",
+      );
       return urlMap;
     }
     throw err;
@@ -110,7 +133,9 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
           const buffer = await readFile(path.join(uploadsDir, filename));
           const ct = contentType(filename);
 
-          const disposition = ct.startsWith("image/") ? undefined : `attachment; filename="${filename}"`;
+          const disposition = ct.startsWith("image/")
+            ? undefined
+            : `attachment; filename="${filename}"`;
           await s3.send(
             new PutObjectCommand({
               Bucket: bucket!,
@@ -119,7 +144,7 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
               ContentType: ct,
               ...(disposition ? { ContentDisposition: disposition } : {}),
               // No ACL — bucket must have a public-read bucket policy.
-            })
+            }),
           );
 
           console.log(`  uploaded: ${key}`);
@@ -129,12 +154,14 @@ async function uploadLocalFiles(): Promise<Map<string, string>> {
           console.error(`  ERROR uploading ${filename}: ${msg}`);
           uploadErrors.push(filename);
         }
-      })
-    )
+      }),
+    ),
   );
 
   if (uploadErrors.length > 0) {
-    console.warn(`\n  ${uploadErrors.length} file(s) failed to upload and will be skipped in DB rewrite:`);
+    console.warn(
+      `\n  ${uploadErrors.length} file(s) failed to upload and will be skipped in DB rewrite:`,
+    );
     uploadErrors.forEach((f) => console.warn(`    - ${f}`));
     console.warn("  Re-run the script to retry failed files.");
   }
@@ -154,7 +181,11 @@ function rewriteContent(content: string, urlMap: Map<string, string>): string {
 
 async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
   const notes = await db
-    .select({ id: fieldNotes.id, artefacts: fieldNotes.artefacts, content: fieldNotes.content })
+    .select({
+      id: fieldNotes.id,
+      artefacts: fieldNotes.artefacts,
+      content: fieldNotes.content,
+    })
     .from(fieldNotes);
 
   for (const note of notes) {
@@ -162,12 +193,16 @@ async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
     try {
       const parsed: unknown = JSON.parse(note.artefacts || "[]");
       if (!Array.isArray(parsed)) {
-        console.warn(`  WARNING: artefacts for field note ${note.id} is not an array, skipping row`);
+        console.warn(
+          `  WARNING: artefacts for field note ${note.id} is not an array, skipping row`,
+        );
         continue;
       }
       artefactList = parsed as Artefact[];
     } catch {
-      console.warn(`  WARNING: corrupted artefacts JSON for field note ${note.id}, skipping row`);
+      console.warn(
+        `  WARNING: corrupted artefacts JSON for field note ${note.id}, skipping row`,
+      );
       continue;
     }
 
@@ -180,7 +215,9 @@ async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
           art.url = newUrl;
           artefactsChanged = true;
         } else {
-          console.warn(`  WARNING: no S3 URL mapped for artefact ${art.url} (field note ${note.id})`);
+          console.warn(
+            `  WARNING: no S3 URL mapped for artefact ${art.url} (field note ${note.id})`,
+          );
         }
       }
     }
@@ -192,7 +229,9 @@ async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
       await db
         .update(fieldNotes)
         .set({
-          ...(artefactsChanged ? { artefacts: JSON.stringify(artefactList) } : {}),
+          ...(artefactsChanged
+            ? { artefacts: JSON.stringify(artefactList) }
+            : {}),
           ...(contentChanged ? { content: updatedContent } : {}),
         })
         .where(eq(fieldNotes.id, note.id));
@@ -202,12 +241,17 @@ async function rewriteFieldNotes(urlMap: Map<string, string>): Promise<void> {
 }
 
 async function rewritePostContent(urlMap: Map<string, string>): Promise<void> {
-  const allPosts = await db.select({ id: posts.id, content: posts.content }).from(posts);
+  const allPosts = await db
+    .select({ id: posts.id, content: posts.content })
+    .from(posts);
 
   for (const post of allPosts) {
     const updated = rewriteContent(post.content, urlMap);
     if (updated !== post.content) {
-      await db.update(posts).set({ content: updated }).where(eq(posts.id, post.id));
+      await db
+        .update(posts)
+        .set({ content: updated })
+        .where(eq(posts.id, post.id));
       console.log(`  updated content for post ${post.id}`);
     }
   }
@@ -215,14 +259,18 @@ async function rewritePostContent(urlMap: Map<string, string>): Promise<void> {
 
 // ── Fix Content-Disposition on already-uploaded objects ───────────────────────
 
-async function fixContentDisposition(urlMap: Map<string, string>): Promise<void> {
+async function fixContentDisposition(
+  urlMap: Map<string, string>,
+): Promise<void> {
   for (const localUrl of urlMap.keys()) {
     const filename = localUrl.replace("/uploads/", "");
     const key = `uploads/${filename}`;
     const ct = contentType(filename);
     if (ct.startsWith("image/")) continue;
 
-    const head = await s3.send(new HeadObjectCommand({ Bucket: bucket!, Key: key }));
+    const head = await s3.send(
+      new HeadObjectCommand({ Bucket: bucket!, Key: key }),
+    );
     if (head.ContentDisposition) continue;
 
     const disposition = `attachment; filename="${filename}"`;
@@ -234,7 +282,7 @@ async function fixContentDisposition(urlMap: Map<string, string>): Promise<void>
         ContentType: ct,
         ContentDisposition: disposition,
         MetadataDirective: "REPLACE",
-      })
+      }),
     );
     console.log(`  fixed headers: ${key}`);
   }
@@ -278,10 +326,14 @@ async function main() {
 
   if (process.argv.includes("--check")) {
     console.log(`\nStep 3: link check…`);
-    console.log("(Note: requires public-read bucket policy to be applied — 403s mean policy is missing, not that migration failed)");
+    console.log(
+      "(Note: requires public-read bucket policy to be applied — 403s mean policy is missing, not that migration failed)",
+    );
     const ok = await linkCheck(urlMap);
     if (!ok) {
-      console.error("\nLink check failed — see output above. Migration data is intact.");
+      console.error(
+        "\nLink check failed — see output above. Migration data is intact.",
+      );
       process.exit(1);
     }
     console.log("\nAll links ok.");

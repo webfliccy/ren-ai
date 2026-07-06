@@ -13,10 +13,21 @@ export async function PATCH(request: NextRequest, { params }: Props) {
   if (authError) return authError;
 
   const { id } = await params;
-  const { issueId, category, name, illustration, descriptor, url, status, sortOrder } =
-    await request.json();
+  const {
+    issueId,
+    category,
+    name,
+    illustration,
+    descriptor,
+    url,
+    status,
+    sortOrder,
+  } = await request.json();
 
-  const [existing] = await db.select().from(tools).where(eq(tools.id, Number(id)));
+  const [existing] = await db
+    .select()
+    .from(tools)
+    .where(eq(tools.id, Number(id)));
   if (!existing) return Response.json({ error: "Not found" }, { status: 404 });
 
   const [updated] = await db
@@ -25,7 +36,10 @@ export async function PATCH(request: NextRequest, { params }: Props) {
       issueId: issueId !== undefined ? Number(issueId) : existing.issueId,
       category: category ?? existing.category,
       name: name?.trim() ?? existing.name,
-      illustration: illustration !== undefined ? illustration || null : existing.illustration,
+      illustration:
+        illustration !== undefined
+          ? illustration || null
+          : existing.illustration,
       descriptor: descriptor ?? existing.descriptor,
       url: url !== undefined ? url || null : existing.url,
       status: status ?? existing.status,

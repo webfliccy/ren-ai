@@ -18,7 +18,7 @@ export default async function ToolsPage() {
   return (
     <>
       {allTools.length === 0 ? (
-        <p className="mx-auto my-15 max-w-[720px] font-newsreader text-[17px] italic text-muted">
+        <p className="mx-auto my-15 max-w-[720px] font-newsreader text-[17px] text-muted italic">
           Nothing in the workshop yet.
         </p>
       ) : (

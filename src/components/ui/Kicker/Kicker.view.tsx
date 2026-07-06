@@ -5,17 +5,26 @@ export type KickerProps = {
   inline?: boolean;
 };
 
-export function KickerView({ tag, crumb, variant = "accent", inline = false }: KickerProps) {
+export function KickerView({
+  tag,
+  crumb,
+  variant = "accent",
+  inline = false,
+}: KickerProps) {
   return (
     <div className={`${inline ? "inline-flex" : "flex"} items-center gap-2.5`}>
       <span
-        className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-white ${
+        className={`px-2.5 py-1 text-[9px] font-bold tracking-[0.18em] text-white uppercase ${
           variant === "accent" ? "bg-accent" : "bg-ink"
         }`}
       >
         {tag}
       </span>
-      {crumb && <span className="font-courier text-[11px] tracking-[0.04em] text-ink-light">{crumb}</span>}
+      {crumb && (
+        <span className="font-courier text-[11px] tracking-[0.04em] text-ink-light">
+          {crumb}
+        </span>
+      )}
     </div>
   );
 }

@@ -19,7 +19,11 @@ type Props =
   | { postId: number; fieldNoteId?: never; initialComments: CommentRow[] }
   | { fieldNoteId: number; postId?: never; initialComments: CommentRow[] };
 
-export default function CommentSection({ postId, fieldNoteId, initialComments }: Props) {
+export default function CommentSection({
+  postId,
+  fieldNoteId,
+  initialComments,
+}: Props) {
   const { data: session, status } = useSession();
   const [list] = useState(initialComments);
   const [body, setBody] = useState("");
@@ -46,77 +50,82 @@ export default function CommentSection({ postId, fieldNoteId, initialComments }:
 
   return (
     <>
-    <section className="mt-6 mb-6 border-[3px] border-ink bg-paper p-10 text-center shadow-[4px_5px_0_rgba(58,46,28,0.08)]">
-      <h2 className="mb-3 text-[10px] font-bold uppercase tracking-4 text-accent">In the margins</h2>
-      
-      {status === "loading" ? null : session ? (
-        submitted ? (
-          <p className="text-sm">
-            Be patient. Around here we still let humans decide.
-          </p>
+      <section className="mt-6 mb-6 border-[3px] border-ink bg-paper p-10 text-center shadow-[4px_5px_0_rgba(58,46,28,0.08)]">
+        <h2 className="mb-3 text-[10px] font-bold tracking-4 text-accent uppercase">
+          In the margins
+        </h2>
+
+        {status === "loading" ? null : session ? (
+          submitted ? (
+            <p className="text-sm">
+              Be patient. Around here we still let humans decide.
+            </p>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="flex items-center gap-2">
+                {session.user?.image && (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name ?? ""}
+                    width={28}
+                    height={28}
+                    className="h-7 w-7 rounded-full"
+                  />
+                )}
+                <span className="text-sm">{session.user?.name}</span>
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="ml-auto text-xs"
+                >
+                  Sign out
+                </button>
+              </div>
+              <textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                rows={3}
+                placeholder="All additions welcome. No deductions tolerated."
+                required
+                className="w-full flex-1 border-[1.5px] border-ink bg-parchment px-3.5 py-3 text-ink outline-none placeholder:text-muted"
+              />
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={submitting || !body.trim()}
+                  className="cursor-pointer border-[1.5px] border-accent bg-accent px-6 py-3 font-figtree text-[11px] font-bold tracking-2 text-white uppercase transition-transform duration-100 ease-out hover:-translate-y-px"
+                >
+                  {submitting ? "Sharpening pencils…" : "Contribute"}
+                </button>
+                <p className="text-xs text-gray-400">
+                  Comments appear after moderation.
+                </p>
+              </div>
+            </form>
+          )
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="flex items-center gap-2">
-              {session.user?.image && (
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name ?? ""}
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 rounded-full"
-                />
-              )}
-              <span className="text-sm">{session.user?.name}</span>
+          <div className="">
+            <p className="mb-3 text-sm">Sign in to contribute.</p>
+            <div className="display inline-flex justify-center gap-2">
               <button
-                type="button"
-                onClick={() => signOut()}
-                className="ml-auto text-xs"
+                onClick={() => signIn("github")}
+                className="cursor-pointer border-[1.5px] border-accent bg-accent px-6 py-3 font-figtree text-[11px] font-bold tracking-2 text-white uppercase transition-transform duration-100 ease-out hover:-translate-y-px"
               >
-                Sign out
+                GitHub
+              </button>
+              <button
+                onClick={() => signIn("google")}
+                className="cursor-pointer border-[1.5px] border-accent bg-accent px-6 py-3 font-figtree text-[11px] font-bold tracking-2 text-white uppercase transition-transform duration-100 ease-out hover:-translate-y-px"
+              >
+                Google
               </button>
             </div>
-            <textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={3}
-              placeholder="All additions welcome. No deductions tolerated."
-              required
-              className="w-full flex-1 border-[1.5px] border-ink bg-parchment px-3.5 py-3 text-ink outline-none placeholder:text-muted"
-            />
-            <div className="flex items-center gap-3">
-              <button
-                type="submit"
-                disabled={submitting || !body.trim()}
-                className="cursor-pointer border-[1.5px] border-accent bg-accent px-6 py-3 font-figtree text-[11px] font-bold uppercase tracking-2 text-white transition-transform duration-100 ease-out hover:-translate-y-px"
-              >
-                {submitting ? "Sharpening pencils…" : "Contribute"}
-              </button>
-              <p className="text-xs text-gray-400">Comments appear after moderation.</p>
-            </div>
-          </form>
-        )
-      ) : (
-        <div className="">
-          <p className="mb-3 text-sm">Sign in to contribute.</p>
-          <div className="gap-2 display inline-flex justify-center">
-            <button
-              onClick={() => signIn("github")}
-              className="cursor-pointer border-[1.5px] border-accent bg-accent px-6 py-3 font-figtree text-[11px] font-bold uppercase tracking-2 text-white transition-transform duration-100 ease-out hover:-translate-y-px"
-            >
-              GitHub
-            </button>
-            <button
-              onClick={() => signIn("google")}
-              className="cursor-pointer border-[1.5px] border-accent bg-accent px-6 py-3 font-figtree text-[11px] font-bold uppercase tracking-2 text-white transition-transform duration-100 ease-out hover:-translate-y-px"
-            >
-              Google
-            </button>
           </div>
-        </div>
-      )}
-    </section>
-    <h3 className="mb-6 text-[10px] font-bold uppercase tracking-4 text-accent">
-        {list.length !== 0 ? `${list.length} ` : "No "}Contribution{list.length !== 1 ? "s" : ""}
+        )}
+      </section>
+      <h3 className="mb-6 text-[10px] font-bold tracking-4 text-accent uppercase">
+        {list.length !== 0 ? `${list.length} ` : "No "}Contribution
+        {list.length !== 1 ? "s" : ""}
       </h3>
 
       {list.length > 0 && (
@@ -138,9 +147,7 @@ export default function CommentSection({ postId, fieldNoteId, initialComments }:
                 <p className="text-sm font-medium">
                   {c.authorName ?? "Anonymous"}
                 </p>
-                <p className="mt-1 whitespace-pre-wrap text-sm">
-                  {c.body}
-                </p>
+                <p className="mt-1 text-sm whitespace-pre-wrap">{c.body}</p>
                 <time className="mt-1 block text-xs">
                   {new Date(c.createdAt).toLocaleDateString("en-GB", {
                     day: "numeric",
@@ -153,6 +160,6 @@ export default function CommentSection({ postId, fieldNoteId, initialComments }:
           ))}
         </div>
       )}
-</>
+    </>
   );
 }

@@ -3,7 +3,12 @@ import { ContinueReading } from "@/components/ContinueReading";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
 import { HindsightNote } from "@/components/ui/HindsightNote";
 import { Kicker } from "@/components/ui/Kicker";
-import { Byline, BylineDot, BylineWho, BylineBadge } from "@/components/ui/Byline";
+import {
+  Byline,
+  BylineDot,
+  BylineWho,
+  BylineBadge,
+} from "@/components/ui/Byline";
 import { SpecCard } from "@/components/ui/SpecCard";
 import { SpecRow } from "@/components/ui/SpecRow";
 import { RefsSection } from "@/components/ui/RefsSection";
@@ -72,7 +77,9 @@ export default async function PostPage({ params }: Props) {
   const refs = parseRefs(post.references);
   const tags = parseJson<string[]>(post.tags, []);
 
-  const publishedDate = post.publishedAt ? formatDate(new Date(post.publishedAt)) : null;
+  const publishedDate = post.publishedAt
+    ? formatDate(new Date(post.publishedAt))
+    : null;
   const kickerTag = tags[0] ?? "Dispatches";
   const kickerCrumb = post.slug.replace(/-/g, " ").toUpperCase().slice(0, 44);
 
@@ -90,7 +97,10 @@ export default async function PostPage({ params }: Props) {
   const specRows: { label: string; value: ReactNode; full?: boolean }[] = [
     { label: "Author", value: "The Editor, human" },
     { label: "Assisted by", value: "Claude Sonnet 4.6" },
-    { label: "Model ver.", value: <span className="text-accent">claude-sonnet-4-6</span> },
+    {
+      label: "Model ver.",
+      value: <span className="text-accent">claude-sonnet-4-6</span>,
+    },
     {
       label: "Tokens",
       value: post.tokens ? post.tokens : <span className="text-muted">—</span>,
@@ -108,12 +118,12 @@ export default async function PostPage({ params }: Props) {
           <Kicker tag={kickerTag} crumb={kickerCrumb} />
         </div>
 
-        <h1 className="mb-5 text-balance font-cormorant text-[60px] font-semibold leading-[1.02] tracking-[-0.015em] text-ink max-mobile:text-[40px]">
+        <h1 className="mb-5 font-cormorant text-[60px] leading-[1.02] font-semibold tracking-[-0.015em] text-balance text-ink max-mobile:text-[40px]">
           {post.title}
         </h1>
 
         {post.excerpt && (
-          <p className="mb-[26px] text-pretty font-newsreader text-[21px] italic leading-[1.5] text-ink-light">
+          <p className="mb-[26px] font-newsreader text-[21px] leading-[1.5] text-pretty text-ink-light italic">
             {post.excerpt}
           </p>
         )}
@@ -126,7 +136,9 @@ export default async function PostPage({ params }: Props) {
           {publishedDate && (
             <>
               <BylineDot />
-              <time dateTime={post.publishedAt?.toISOString()}>{publishedDate}</time>
+              <time dateTime={post.publishedAt?.toISOString()}>
+                {publishedDate}
+              </time>
             </>
           )}
           {post.readingTime > 0 && (
@@ -146,7 +158,10 @@ export default async function PostPage({ params }: Props) {
               addedIso={post.hindsightAddedAt.toISOString()}
               interval={
                 post.publishedAt
-                  ? formatIntervalOn(new Date(post.publishedAt), new Date(post.hindsightAddedAt))
+                  ? formatIntervalOn(
+                      new Date(post.publishedAt),
+                      new Date(post.hindsightAddedAt),
+                    )
                   : null
               }
             />
@@ -158,7 +173,10 @@ export default async function PostPage({ params }: Props) {
 
         {/* ── Specification Sheet ─────────────────── */}
         <section className="mt-14" aria-label="Article provenance">
-          <SpecCard title="Production Record — Specification Sheet" fig="FIG. 1-A">
+          <SpecCard
+            title="Production Record — Specification Sheet"
+            fig="FIG. 1-A"
+          >
             <div className="grid grid-cols-2 max-mobile:grid-cols-1">
               {specRows.map((row, i) => (
                 <SpecRow

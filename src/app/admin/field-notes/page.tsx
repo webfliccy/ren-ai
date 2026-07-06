@@ -37,22 +37,30 @@ export default async function FieldNotesAdminPage() {
       ) : (
         <ul className="divide-y divide-gray-100">
           {notes.map((note) => {
-            const outcome = note.outcomeStatus as keyof typeof STATUS_COLOURS | null;
+            const outcome = note.outcomeStatus as
+              keyof typeof STATUS_COLOURS | null;
             return (
-              <li key={note.id} className="flex items-center justify-between py-3 gap-3">
+              <li
+                key={note.id}
+                className="flex items-center justify-between gap-3 py-3"
+              >
                 <div className="min-w-0">
                   <Link
                     href={`/admin/field-notes/${note.id}/edit`}
-                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block"
+                    className="block truncate text-sm font-medium text-gray-900 hover:text-blue-600"
                   >
                     {note.title}
                   </Link>
                   <div className="mt-0.5 flex items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${note.status === "published" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${note.status === "published" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}
+                    >
                       {note.status}
                     </span>
                     {outcome && (
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOURS[outcome]}`}>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOURS[outcome]}`}
+                      >
                         {outcome}
                       </span>
                     )}
@@ -71,7 +79,10 @@ export default async function FieldNotesAdminPage() {
       )}
 
       <div className="mt-8">
-        <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-700">
+        <Link
+          href="/admin"
+          className="text-sm text-gray-400 hover:text-gray-700"
+        >
           ← Admin
         </Link>
       </div>

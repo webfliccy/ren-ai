@@ -28,7 +28,7 @@ export type ContinueReadingItem = {
 export async function getIssueSiblings(
   issueId: number,
   exclude: { kind: "post" | "fieldNote"; id: number },
-  limit = 3
+  limit = 3,
 ): Promise<ContinueReadingItem[]> {
   const [issuePosts, issueFieldNotes] = await Promise.all([
     getPostsByIssue(issueId),
@@ -56,10 +56,12 @@ export async function getIssueSiblings(
         outcomeStatus: note.outcomeStatus,
       },
     })),
-  ].filter(({ item }) => !(item.kind === exclude.kind && item.id === exclude.id));
+  ].filter(
+    ({ item }) => !(item.kind === exclude.kind && item.id === exclude.id),
+  );
 
   merged.sort(
-    (a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0)
+    (a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0),
   );
 
   return merged.slice(0, limit).map(({ item }) => item);

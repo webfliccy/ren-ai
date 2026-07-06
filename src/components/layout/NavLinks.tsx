@@ -23,8 +23,8 @@ export function NavLinks() {
             href={href}
             className={
               active
-                ? "text-[10.5px] font-bold uppercase tracking-[0.15em] text-accent bg-[var(--color-highlight)]"
-                : "text-[10.5px] font-bold uppercase tracking-[0.15em] text-ink no-underline opacity-[0.78] hover:text-accent hover:opacity-100"
+                ? "bg-[var(--color-highlight)] text-[10.5px] font-bold tracking-[0.15em] text-accent uppercase"
+                : "text-[10.5px] font-bold tracking-[0.15em] text-ink uppercase no-underline opacity-[0.78] hover:text-accent hover:opacity-100"
             }
           >
             {label}

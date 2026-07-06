@@ -18,12 +18,15 @@ function getConfig(): S3Config {
 
     if (!region || !accessKeyId || !secretAccessKey || !bucket) {
       throw new Error(
-        "Missing required AWS environment variables: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET"
+        "Missing required AWS environment variables: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET",
       );
     }
 
     config = {
-      client: new S3Client({ region, credentials: { accessKeyId, secretAccessKey } }),
+      client: new S3Client({
+        region,
+        credentials: { accessKeyId, secretAccessKey },
+      }),
       bucket,
       region,
     };
@@ -34,7 +37,7 @@ function getConfig(): S3Config {
 export async function uploadToS3(
   buffer: Buffer,
   filename: string,
-  contentType: string
+  contentType: string,
 ): Promise<string> {
   if (!filename.trim()) throw new Error("File must have a name");
 
@@ -55,7 +58,7 @@ export async function uploadToS3(
       ContentType: contentType,
       ...(disposition ? { ContentDisposition: disposition } : {}),
       // No ACL — bucket must have a public-read bucket policy for anonymous GET access.
-    })
+    }),
   );
 
   return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;

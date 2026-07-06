@@ -13,7 +13,10 @@ interface Props {
 
 export default async function EditToolPage({ params }: Props) {
   const { id } = await params;
-  const [tool] = await db.select().from(tools).where(eq(tools.id, Number(id)));
+  const [tool] = await db
+    .select()
+    .from(tools)
+    .where(eq(tools.id, Number(id)));
   if (!tool) notFound();
 
   const allIssues = await db
@@ -24,7 +27,10 @@ export default async function EditToolPage({ params }: Props) {
   return (
     <main className="mx-auto max-w-2xl space-y-8 px-4 py-12">
       <div className="flex items-center gap-3">
-        <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600">
+        <Link
+          href="/admin"
+          className="text-sm text-gray-400 hover:text-gray-600"
+        >
           ← Admin
         </Link>
         <span className="text-gray-300">/</span>

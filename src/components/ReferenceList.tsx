@@ -34,9 +34,13 @@ export function ReferenceList({ references, onChange }: ReferenceListProps) {
         </button>
       </div>
       {references.length > 0 && (
-        <ol className="space-y-4 list-none">
+        <ol className="list-none space-y-4">
           {references.map((ref, i) => {
-            const field = (key: keyof ChicagoWebRef, placeholder: string, label: string) => (
+            const field = (
+              key: keyof ChicagoWebRef,
+              placeholder: string,
+              label: string,
+            ) => (
               <div className="space-y-0.5">
                 <span className="text-xs text-gray-400">{label}</span>
                 <input
@@ -44,24 +48,31 @@ export function ReferenceList({ references, onChange }: ReferenceListProps) {
                   value={ref[key]}
                   onChange={(e) =>
                     onChange((r) =>
-                      r.map((v, j) => j === i ? { ...v, [key]: e.target.value } : v)
+                      r.map((v, j) =>
+                        j === i ? { ...v, [key]: e.target.value } : v,
+                      ),
                     )
                   }
                   placeholder={placeholder}
-                  className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             );
             return (
-              <li key={i} className="rounded-md border border-gray-200 p-3 space-y-2">
+              <li
+                key={i}
+                className="space-y-2 rounded-md border border-gray-200 p-3"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-gray-400 select-none">{i + 1}.</span>
+                    <span className="font-mono text-xs text-gray-400 select-none">
+                      {i + 1}.
+                    </span>
                     <button
                       type="button"
                       onClick={() => moveReference(i, -1)}
                       disabled={i === 0}
-                      className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400 text-xs leading-none"
+                      className="text-xs leading-none text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400"
                       aria-label="Move reference up"
                     >
                       ▲
@@ -70,7 +81,7 @@ export function ReferenceList({ references, onChange }: ReferenceListProps) {
                       type="button"
                       onClick={() => moveReference(i, 1)}
                       disabled={i === references.length - 1}
-                      className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400 text-xs leading-none"
+                      className="text-xs leading-none text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400"
                       aria-label="Move reference down"
                     >
                       ▼
@@ -79,7 +90,7 @@ export function ReferenceList({ references, onChange }: ReferenceListProps) {
                   <button
                     type="button"
                     onClick={() => onChange((r) => r.filter((_, j) => j !== i))}
-                    className="text-gray-400 hover:text-red-500 text-lg leading-none"
+                    className="text-lg leading-none text-gray-400 hover:text-red-500"
                     aria-label="Remove reference"
                   >
                     ×
@@ -89,9 +100,21 @@ export function ReferenceList({ references, onChange }: ReferenceListProps) {
                   {field("authorLast", "Doe", "Author last name")}
                   {field("authorFirst", "John", "Author first name")}
                 </div>
-                {field("pageTitle", "The History of Chicago Architecture", "Title of webpage")}
-                {field("siteName", "Chicago Historical Society", "Name of website")}
-                {field("date", "Last modified October 12, 2025", "Publication / revision date")}
+                {field(
+                  "pageTitle",
+                  "The History of Chicago Architecture",
+                  "Title of webpage",
+                )}
+                {field(
+                  "siteName",
+                  "Chicago Historical Society",
+                  "Name of website",
+                )}
+                {field(
+                  "date",
+                  "Last modified October 12, 2025",
+                  "Publication / revision date",
+                )}
                 {field("url", "chicagohistory.org/...", "URL")}
               </li>
             );
@@ -99,7 +122,9 @@ export function ReferenceList({ references, onChange }: ReferenceListProps) {
         </ol>
       )}
       {references.length === 0 && (
-        <p className="text-xs text-gray-400">No references yet — click &quot;+ Add reference&quot; to begin.</p>
+        <p className="text-xs text-gray-400">
+          No references yet — click &quot;+ Add reference&quot; to begin.
+        </p>
       )}
     </div>
   );

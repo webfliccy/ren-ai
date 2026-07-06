@@ -15,7 +15,11 @@ export function ReferenceCitation({ reference }: { reference: ChicagoWebRef }) {
     <>
       {author && <>{author} </>}
       {reference.pageTitle && <>&ldquo;{reference.pageTitle}.&rdquo; </>}
-      {reference.siteName && <><em>{reference.siteName}</em>. </>}
+      {reference.siteName && (
+        <>
+          <em>{reference.siteName}</em>.{" "}
+        </>
+      )}
       {reference.date && <>{reference.date}. </>}
       {reference.url && (
         <>

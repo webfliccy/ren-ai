@@ -15,16 +15,27 @@ export async function PATCH(request: NextRequest, { params }: Props) {
   const { id } = await params;
   const { number, title, description, status } = await request.json();
 
-  const [existing] = await db.select().from(issues).where(eq(issues.id, Number(id)));
+  const [existing] = await db
+    .select()
+    .from(issues)
+    .where(eq(issues.id, Number(id)));
   if (!existing) return Response.json({ error: "Not found" }, { status: 404 });
 
   const isNowPublished = status === "published";
   const wasPublished = existing.status === "published";
-  const publishedAt = isNowPublished && !wasPublished ? new Date() : existing.publishedAt;
+  const publishedAt =
+    isNowPublished && !wasPublished ? new Date() : existing.publishedAt;
 
   const [updated] = await db
     .update(issues)
-    .set({ number, title, description: description || null, status, publishedAt, updatedAt: new Date() })
+    .set({
+      number,
+      title,
+      description: description || null,
+      status,
+      publishedAt,
+      updatedAt: new Date(),
+    })
     .where(eq(issues.id, Number(id)))
     .returning();
 

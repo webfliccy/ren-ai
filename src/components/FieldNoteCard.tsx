@@ -17,13 +17,28 @@ export function FieldNoteCard({ note, layout = "grid" }: FieldNoteCardProps) {
 
   return (
     <article className={wrapperClasses}>
-      <div className="mb-2.5 font-courier text-[9.5px] font-bold uppercase tracking-1 text-accent">Field Note</div>
-      <h4 className="mb-2.5 text-balance font-cormorant text-[28px] font-semibold leading-[1.04]">
-        <Link className="no-underline hover:text-accent" href={`/dispatches/${note.slug}`}>{note.title}</Link>
+      <div className="mb-2.5 font-courier text-[9.5px] font-bold tracking-1 text-accent uppercase">
+        Field Note
+      </div>
+      <h4 className="mb-2.5 font-cormorant text-[28px] leading-[1.04] font-semibold text-balance">
+        <Link
+          className="no-underline hover:text-accent"
+          href={`/dispatches/${note.slug}`}
+        >
+          {note.title}
+        </Link>
       </h4>
-      {note.excerpt && <p className="mb-3.5 font-newsreader text-[15px] leading-[1.55] text-ink-light">{note.excerpt}</p>}
+      {note.excerpt && (
+        <p className="mb-3.5 font-newsreader text-[15px] leading-[1.55] text-ink-light">
+          {note.excerpt}
+        </p>
+      )}
       <div className="mt-auto flex justify-between gap-2 border-t border-dashed border-border pt-3 font-courier text-[9.5px] tracking-[0.04em] text-muted">
-        {note.outcomeStatus && <span className="text-accent">{note.outcomeStatus.toUpperCase()}</span>}
+        {note.outcomeStatus && (
+          <span className="text-accent">
+            {note.outcomeStatus.toUpperCase()}
+          </span>
+        )}
         {note.publishedAt && <span>{formatDate(note.publishedAt)}</span>}
       </div>
     </article>

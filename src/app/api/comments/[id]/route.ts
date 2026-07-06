@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin();
   if (authError) return authError;
@@ -25,7 +25,7 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin();
   if (authError) return authError;

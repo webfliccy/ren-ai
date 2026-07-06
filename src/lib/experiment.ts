@@ -11,5 +11,9 @@ export const EMPTY_EXPERIMENT: ExperimentRecord = {
 };
 
 export function parseExperiment(raw: string): ExperimentRecord {
-  try { return { ...EMPTY_EXPERIMENT, ...JSON.parse(raw) }; } catch { return { ...EMPTY_EXPERIMENT }; }
+  try {
+    return { ...EMPTY_EXPERIMENT, ...JSON.parse(raw) };
+  } catch {
+    return { ...EMPTY_EXPERIMENT };
+  }
 }

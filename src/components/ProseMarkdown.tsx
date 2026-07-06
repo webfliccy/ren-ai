@@ -9,7 +9,9 @@ import { marked, type Token, type Tokens } from "marked";
 const SAFE_HREF = /^(https?:|mailto:|[/#])/i;
 
 function renderTokens(tokens: Token[]): ReactNode {
-  return tokens.map((token, i) => <Fragment key={i}>{renderToken(token)}</Fragment>);
+  return tokens.map((token, i) => (
+    <Fragment key={i}>{renderToken(token)}</Fragment>
+  ));
 }
 
 function renderToken(token: Token): ReactNode {
@@ -17,12 +19,18 @@ function renderToken(token: Token): ReactNode {
     case "paragraph":
       return <p>{renderTokens(token.tokens ?? [])}</p>;
     case "heading":
-      return createElement(`h${(token as Tokens.Heading).depth}`, null, renderTokens(token.tokens ?? []));
+      return createElement(
+        `h${(token as Tokens.Heading).depth}`,
+        null,
+        renderTokens(token.tokens ?? []),
+      );
     case "blockquote":
       return <blockquote>{renderTokens(token.tokens ?? [])}</blockquote>;
     case "list": {
       const list = token as Tokens.List;
-      const items = list.items.map((item, i) => <li key={i}>{renderTokens(item.tokens)}</li>);
+      const items = list.items.map((item, i) => (
+        <li key={i}>{renderTokens(item.tokens)}</li>
+      ));
       return list.ordered ? <ol>{items}</ol> : <ul>{items}</ul>;
     }
     case "em":

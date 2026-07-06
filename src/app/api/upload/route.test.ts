@@ -6,9 +6,11 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 vi.mock("@/lib/storage", () => ({
-  uploadToS3: vi.fn().mockResolvedValue(
-    "https://test-bucket.s3.us-east-1.amazonaws.com/uploads/123_photo.jpg"
-  ),
+  uploadToS3: vi
+    .fn()
+    .mockResolvedValue(
+      "https://test-bucket.s3.us-east-1.amazonaws.com/uploads/123_photo.jpg",
+    ),
 }));
 
 import { POST } from "@/app/api/upload/route";
@@ -16,7 +18,8 @@ import { uploadToS3 } from "@/lib/storage";
 
 const mockedUploadToS3 = vi.mocked(uploadToS3);
 
-const FAKE_S3_URL = "https://test-bucket.s3.us-east-1.amazonaws.com/uploads/123_photo.jpg";
+const FAKE_S3_URL =
+  "https://test-bucket.s3.us-east-1.amazonaws.com/uploads/123_photo.jpg";
 
 function makeRequest(file?: File): NextRequest {
   const form = new FormData();
@@ -70,7 +73,7 @@ describe("POST /api/upload", () => {
     expect(mockedUploadToS3).toHaveBeenCalledWith(
       expect.any(Buffer),
       "my photo (1).jpg",
-      "image/jpeg"
+      "image/jpeg",
     );
   });
 });

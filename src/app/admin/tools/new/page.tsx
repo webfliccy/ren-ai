@@ -21,13 +21,19 @@ export default async function NewToolPage({ searchParams }: Props) {
   return (
     <main className="mx-auto max-w-2xl space-y-8 px-4 py-12">
       <div className="flex items-center gap-3">
-        <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600">
+        <Link
+          href="/admin"
+          className="text-sm text-gray-400 hover:text-gray-600"
+        >
           ← Admin
         </Link>
         <span className="text-gray-300">/</span>
         <h1 className="text-xl font-bold text-gray-900">New tool</h1>
       </div>
-      <ToolForm issues={allIssues} defaultIssueId={issueId ? Number(issueId) : undefined} />
+      <ToolForm
+        issues={allIssues}
+        defaultIssueId={issueId ? Number(issueId) : undefined}
+      />
     </main>
   );
 }

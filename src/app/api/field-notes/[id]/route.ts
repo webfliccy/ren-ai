@@ -7,17 +7,20 @@ import { NextRequest } from "next/server";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const [note] = await db.select().from(fieldNotes).where(eq(fieldNotes.id, Number(id)));
+  const [note] = await db
+    .select()
+    .from(fieldNotes)
+    .where(eq(fieldNotes.id, Number(id)));
   if (!note) return Response.json({ error: "Not found" }, { status: 404 });
   return Response.json(note);
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin();
   if (authError) return authError;
@@ -25,18 +28,33 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json();
   const {
-    title, slug, content, excerpt, status, tags, issueId,
-    outcomeStatus, outcomeDateClosed, outcomeRuns,
-    experiment, artefacts, references,
-    hindsight, hindsightAddedAt,
+    title,
+    slug,
+    content,
+    excerpt,
+    status,
+    tags,
+    issueId,
+    outcomeStatus,
+    outcomeDateClosed,
+    outcomeRuns,
+    experiment,
+    artefacts,
+    references,
+    hindsight,
+    hindsightAddedAt,
   } = body;
 
-  const [existing] = await db.select().from(fieldNotes).where(eq(fieldNotes.id, Number(id)));
+  const [existing] = await db
+    .select()
+    .from(fieldNotes)
+    .where(eq(fieldNotes.id, Number(id)));
   if (!existing) return Response.json({ error: "Not found" }, { status: 404 });
 
   const isNowPublished = status === "published";
   const wasPublished = existing.status === "published";
-  const publishedAt = isNowPublished && !wasPublished ? new Date() : existing.publishedAt;
+  const publishedAt =
+    isNowPublished && !wasPublished ? new Date() : existing.publishedAt;
 
   const [updated] = await db
     .update(fieldNotes)
@@ -66,7 +84,7 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin();
   if (authError) return authError;

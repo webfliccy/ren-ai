@@ -42,7 +42,10 @@ export async function GET() {
       publishedAt: n.publishedAt,
     })),
   ]
-    .sort((a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0))
+    .sort(
+      (a, b) =>
+        (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0),
+    )
     .slice(0, 20);
 
   const items = entries
@@ -52,14 +55,16 @@ export async function GET() {
         `    <title>${escapeXml(e.title)}</title>`,
         `    <link>${e.link}</link>`,
         `    <guid isPermaLink="true">${e.link}</guid>`,
-        e.excerpt ? `    <description>${escapeXml(e.excerpt)}</description>` : "",
+        e.excerpt
+          ? `    <description>${escapeXml(e.excerpt)}</description>`
+          : "",
         e.publishedAt
           ? `    <pubDate>${new Date(e.publishedAt).toUTCString()}</pubDate>`
           : "",
         `  </item>`,
       ]
         .filter(Boolean)
-        .join("\n")
+        .join("\n"),
     )
     .join("\n");
 

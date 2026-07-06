@@ -1,6 +1,14 @@
 import CommentModerationCard from "@/components/CommentModerationCard";
 import { db } from "@/db";
-import { comments, fieldNotes, issues, posts, subscribers, tools, users } from "@/db/schema";
+import {
+  comments,
+  fieldNotes,
+  issues,
+  posts,
+  subscribers,
+  tools,
+  users,
+} from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 
@@ -8,7 +16,14 @@ export const metadata = { title: "Admin — ren·ai" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const [allIssues, allPosts, allTools, allFieldNotes, pendingComments, allSubscribers] = await Promise.all([
+  const [
+    allIssues,
+    allPosts,
+    allTools,
+    allFieldNotes,
+    pendingComments,
+    allSubscribers,
+  ] = await Promise.all([
     db.select().from(issues).orderBy(desc(issues.number)),
     db.select().from(posts).orderBy(desc(posts.updatedAt)),
     db
@@ -24,7 +39,15 @@ export default async function AdminPage() {
       .from(tools)
       .leftJoin(issues, eq(tools.issueId, issues.id))
       .orderBy(desc(issues.number), asc(tools.sortOrder)),
-    db.select({ id: fieldNotes.id, title: fieldNotes.title, status: fieldNotes.status, outcomeStatus: fieldNotes.outcomeStatus }).from(fieldNotes).orderBy(desc(fieldNotes.createdAt)),
+    db
+      .select({
+        id: fieldNotes.id,
+        title: fieldNotes.title,
+        status: fieldNotes.status,
+        outcomeStatus: fieldNotes.outcomeStatus,
+      })
+      .from(fieldNotes)
+      .orderBy(desc(fieldNotes.createdAt)),
     db
       .select({
         id: comments.id,
@@ -46,7 +69,10 @@ export default async function AdminPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Admin</h1>
         <form action="/api/auth/logout" method="post">
-          <button type="submit" className="text-sm text-gray-400 hover:text-gray-600">
+          <button
+            type="submit"
+            className="text-sm text-gray-400 hover:text-gray-600"
+          >
             Sign out
           </button>
         </form>
@@ -67,7 +93,10 @@ export default async function AdminPage() {
         ) : (
           <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
             {allIssues.map((issue) => (
-              <div key={issue.id} className="flex items-center justify-between px-5 py-4">
+              <div
+                key={issue.id}
+                className="flex items-center justify-between px-5 py-4"
+              >
                 <div className="min-w-0">
                   <Link
                     href={`/admin/issues/${issue.id}/edit`}
@@ -76,7 +105,9 @@ export default async function AdminPage() {
                     № {issue.number} — {issue.title}
                   </Link>
                   {issue.description && (
-                    <p className="mt-0.5 truncate text-xs text-gray-400">{issue.description}</p>
+                    <p className="mt-0.5 truncate text-xs text-gray-400">
+                      {issue.description}
+                    </p>
                   )}
                 </div>
                 <span
@@ -96,7 +127,9 @@ export default async function AdminPage() {
 
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Tools &amp; Contraptions</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Tools &amp; Contraptions
+          </h2>
           <Link
             href="/admin/tools/new"
             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -109,7 +142,10 @@ export default async function AdminPage() {
         ) : (
           <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
             {allTools.map((tool) => (
-              <div key={tool.id} className="flex items-center justify-between px-5 py-4">
+              <div
+                key={tool.id}
+                className="flex items-center justify-between px-5 py-4"
+              >
                 <div className="min-w-0">
                   <Link
                     href={`/admin/tools/${tool.id}/edit`}
@@ -174,7 +210,10 @@ export default async function AdminPage() {
         ) : (
           <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
             {allPosts.map((post) => (
-              <div key={post.id} className="flex items-center justify-between px-5 py-4">
+              <div
+                key={post.id}
+                className="flex items-center justify-between px-5 py-4"
+              >
                 <div className="min-w-0">
                   <Link
                     href={`/admin/posts/${post.id}/edit`}
@@ -214,7 +253,10 @@ export default async function AdminPage() {
         ) : (
           <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
             {allFieldNotes.map((note) => (
-              <div key={note.id} className="flex items-center justify-between px-5 py-4">
+              <div
+                key={note.id}
+                className="flex items-center justify-between px-5 py-4"
+              >
                 <div className="min-w-0">
                   <Link
                     href={`/admin/field-notes/${note.id}/edit`}
@@ -223,7 +265,9 @@ export default async function AdminPage() {
                     {note.title}
                   </Link>
                   {note.outcomeStatus && (
-                    <p className="mt-0.5 text-xs text-gray-400 capitalize">{note.outcomeStatus}</p>
+                    <p className="mt-0.5 text-xs text-gray-400 capitalize">
+                      {note.outcomeStatus}
+                    </p>
                   )}
                 </div>
                 <span
@@ -240,7 +284,10 @@ export default async function AdminPage() {
           </div>
         )}
         <div className="mt-2">
-          <Link href="/admin/field-notes" className="text-xs text-gray-400 hover:text-gray-700">
+          <Link
+            href="/admin/field-notes"
+            className="text-xs text-gray-400 hover:text-gray-700"
+          >
             View all field notes →
           </Link>
         </div>
@@ -258,8 +305,13 @@ export default async function AdminPage() {
         ) : (
           <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm">
             {allSubscribers.map((sub) => (
-              <div key={sub.id} className="flex items-center justify-between px-5 py-3">
-                <span className="font-mono text-sm text-gray-900">{sub.email}</span>
+              <div
+                key={sub.id}
+                className="flex items-center justify-between px-5 py-3"
+              >
+                <span className="font-mono text-sm text-gray-900">
+                  {sub.email}
+                </span>
                 <span className="text-xs text-gray-400">
                   {sub.subscribedAt
                     ? new Intl.DateTimeFormat("en-GB", {

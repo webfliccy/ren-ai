@@ -12,7 +12,7 @@ md.use(
     // Render bad LaTeX as an inline error span instead of throwing, so a
     // single malformed equation never takes down a whole page render.
     throwOnError: false,
-  })
+  }),
 );
 
 // Renders post markdown to HTML, with `$…$` (inline) and `$$…$$` (block)

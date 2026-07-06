@@ -20,10 +20,20 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const {
-    title, content, excerpt, status, tags, issueId,
-    outcomeStatus, outcomeDateClosed, outcomeRuns,
-    experiment, artefacts, references,
-    hindsight, hindsightAddedAt,
+    title,
+    content,
+    excerpt,
+    status,
+    tags,
+    issueId,
+    outcomeStatus,
+    outcomeDateClosed,
+    outcomeRuns,
+    experiment,
+    artefacts,
+    references,
+    hindsight,
+    hindsightAddedAt,
   } = body;
 
   if (!title?.trim()) {

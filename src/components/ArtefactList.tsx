@@ -4,19 +4,32 @@ import { Artefact } from "@/db/schema";
 
 interface ArtefactListProps {
   artefacts: Artefact[];
-  onUpdate: (i: number, field: keyof Artefact, value: string | number | null) => void;
+  onUpdate: (
+    i: number,
+    field: keyof Artefact,
+    value: string | number | null,
+  ) => void;
   onRemove: (i: number) => void;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   uploading: boolean;
 }
 
-export function ArtefactList({ artefacts, onUpdate, onRemove, onUpload, uploading }: ArtefactListProps) {
+export function ArtefactList({
+  artefacts,
+  onUpdate,
+  onRemove,
+  onUpload,
+  uploading,
+}: ArtefactListProps) {
   return (
     <>
       {artefacts.length > 0 && (
-        <ol className="space-y-3 list-none">
+        <ol className="list-none space-y-3">
           {artefacts.map((art, i) => (
-            <li key={i} className="rounded border border-gray-200 p-3 space-y-2">
+            <li
+              key={i}
+              className="space-y-2 rounded border border-gray-200 p-3"
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">
@@ -27,7 +40,7 @@ export function ArtefactList({ artefacts, onUpdate, onRemove, onUpload, uploadin
                       href={art.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-medium text-blue-600 hover:underline truncate"
+                      className="truncate text-sm font-medium text-blue-600 hover:underline"
                     >
                       {art.name}
                     </a>
@@ -36,8 +49,8 @@ export function ArtefactList({ artefacts, onUpdate, onRemove, onUpload, uploadin
                         {art.size < 1024
                           ? `${art.size} B`
                           : art.size < 1048576
-                          ? `${(art.size / 1024).toFixed(1)} KB`
-                          : `${(art.size / 1048576).toFixed(1)} MB`}
+                            ? `${(art.size / 1024).toFixed(1)} KB`
+                            : `${(art.size / 1048576).toFixed(1)} MB`}
                       </span>
                     )}
                   </div>
@@ -52,7 +65,7 @@ export function ArtefactList({ artefacts, onUpdate, onRemove, onUpload, uploadin
                 <button
                   type="button"
                   onClick={() => onRemove(i)}
-                  className="text-gray-400 hover:text-red-500 text-lg leading-none flex-shrink-0"
+                  className="flex-shrink-0 text-lg leading-none text-gray-400 hover:text-red-500"
                   aria-label="Remove artefact"
                 >
                   ×
@@ -64,7 +77,9 @@ export function ArtefactList({ artefacts, onUpdate, onRemove, onUpload, uploadin
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Upload artefact</label>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Upload artefact
+        </label>
         <input
           type="file"
           onChange={onUpload}
