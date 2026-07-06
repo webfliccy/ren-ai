@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { comments, posts, users } from "@/db/schema";
 import type { Post } from "@/db/schema";
+import { resolveHindsight } from "@/lib/hindsight";
 import { calculateReadingTime } from "@/lib/reading-time";
 import { generateSlug } from "@/lib/slug";
 import { and, asc, desc, eq, like, sql } from "drizzle-orm";
@@ -108,6 +109,8 @@ export type CreatePostInput = {
   seoTitle?: string | null;
   seoDescription?: string | null;
   ogImage?: string | null;
+  hindsight?: string | null;
+  hindsightAddedAt?: string | null;
 };
 
 export type UpdatePostInput = Partial<CreatePostInput> & { slug?: string };
@@ -135,6 +138,7 @@ export async function createPost(input: CreatePostInput): Promise<Post> {
       seoTitle: input.seoTitle ?? null,
       seoDescription: input.seoDescription ?? null,
       ogImage: input.ogImage ?? null,
+      ...resolveHindsight(input),
       readingTime,
       publishedAt,
     })
@@ -176,6 +180,7 @@ export async function updatePost(
       seoTitle: input.seoTitle,
       seoDescription: input.seoDescription,
       ogImage: input.ogImage,
+      ...resolveHindsight(input, existing),
       readingTime,
       publishedAt,
       updatedAt: new Date(),

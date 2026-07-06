@@ -154,3 +154,52 @@ describe("updatePost", () => {
     expect(result).toBeNull();
   });
 });
+
+describe("hindsight", () => {
+  test("adding hindsight stamps hindsightAddedAt without touching publishedAt", async () => {
+    const post = await createPost({ title: "Amended Later", status: "published" });
+    const originalPublished = post.publishedAt!.getTime();
+    expect(post.hindsightAddedAt).toBeNull();
+
+    const updated = await updatePost(post.id, {
+      title: post.title,
+      status: "published",
+      tags: [],
+      hindsight: "A reader pointed out an earlier source.",
+    });
+
+    expect(updated!.hindsight).toBe("A reader pointed out an earlier source.");
+    expect(updated!.hindsightAddedAt).not.toBeNull();
+    expect(updated!.publishedAt!.getTime()).toBe(originalPublished);
+  });
+
+  test("keeps the original hindsightAddedAt on later edits", async () => {
+    const post = await createPost({ title: "Stable Amendment", hindsight: "First note." });
+    const stamped = post.hindsightAddedAt!.getTime();
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    const updated = await updatePost(post.id, {
+      title: post.title,
+      tags: [],
+      hindsight: "First note, reworded.",
+    });
+    expect(updated!.hindsightAddedAt!.getTime()).toBe(stamped);
+  });
+
+  test("respects an explicit hindsightAddedAt date", async () => {
+    const post = await createPost({
+      title: "Backdated Amendment",
+      hindsight: "Note.",
+      hindsightAddedAt: "2026-07-02",
+    });
+    expect(post.hindsightAddedAt!.toISOString().slice(0, 10)).toBe("2026-07-02");
+  });
+
+  test("clearing hindsight clears hindsightAddedAt", async () => {
+    const post = await createPost({ title: "Retracted Amendment", hindsight: "Oops." });
+    const updated = await updatePost(post.id, { title: post.title, tags: [], hindsight: "" });
+    expect(updated!.hindsight).toBe("");
+    expect(updated!.hindsightAddedAt).toBeNull();
+  });
+});

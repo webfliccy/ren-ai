@@ -1,6 +1,7 @@
 import CommentSection from "@/components/CommentSection";
 import { ContinueReading } from "@/components/ContinueReading";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
+import { HindsightNote } from "@/components/ui/HindsightNote";
 import { Kicker } from "@/components/ui/Kicker";
 import { Byline, BylineDot, BylineBadge } from "@/components/ui/Byline";
 import { SpecCard } from "@/components/ui/SpecCard";
@@ -10,6 +11,7 @@ import { RefsSection } from "@/components/ui/RefsSection";
 import { db } from "@/db";
 import { Artefact, ExperimentRecord, comments, fieldNotes, users } from "@/db/schema";
 import { formatDate } from "@/lib/formatters";
+import { formatIntervalOn } from "@/lib/hindsight";
 import { renderMarkdown } from "@/lib/markdown";
 import { OUTCOME_STATUS_LABELS } from "@/lib/outcome-status";
 import { parseJson } from "@/lib/parse";
@@ -136,6 +138,22 @@ export default async function FieldNoteDetailPage({ params }: Props) {
             </>
           )}
         </Byline>
+
+        {/* ── Hindsight amendment ────────────────────── */}
+        {note.hindsight && note.hindsightAddedAt && (
+          <div className="mt-9">
+            <HindsightNote
+              html={renderMarkdown(note.hindsight)}
+              formattedDate={formatDate(new Date(note.hindsightAddedAt))}
+              addedIso={note.hindsightAddedAt.toISOString()}
+              interval={
+                note.publishedAt
+                  ? formatIntervalOn(new Date(note.publishedAt), new Date(note.hindsightAddedAt))
+                  : null
+              }
+            />
+          </div>
+        )}
 
         {/* ── Experimentation Record ─────────────────── */}
         {hasExperiment && (

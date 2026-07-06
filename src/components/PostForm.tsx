@@ -8,6 +8,7 @@ import { FormField } from "./FormField";
 import { ReferenceList } from "./ReferenceList";
 import { TagInput } from "./TagInput";
 import { sanitizeSvg } from "@/lib/sanitize";
+import { toDateInputValue } from "@/lib/formatters";
 import { parseTags } from "@/lib/tags";
 import { createPostAction, updatePostAction, deletePostAction } from "@/actions/posts";
 import dynamic from "next/dynamic";
@@ -34,6 +35,10 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
   const [references, setReferences] = useState<ChicagoWebRef[]>(() =>
     parseRefs(post?.references ?? "[]")
   );
+  const [hindsight, setHindsight] = useState(post?.hindsight ?? "");
+  const [hindsightAddedAt, setHindsightAddedAt] = useState(
+    toDateInputValue(post?.hindsightAddedAt)
+  );
   const [seoTitle, setSeoTitle] = useState(post?.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(post?.seoDescription ?? "");
   const [ogImage, setOgImage] = useState(post?.ogImage ?? "");
@@ -57,6 +62,8 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
       issueId: issueId ?? null,
       tokens: tokens || null,
       references,
+      hindsight,
+      hindsightAddedAt: hindsightAddedAt || null,
       seoTitle: seoTitle || null,
       seoDescription: seoDescription || null,
       ogImage: ogImage || null,
@@ -185,6 +192,25 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
       </FormField>
 
       <ReferenceList references={references} onChange={setReferences} />
+
+      <fieldset className="rounded-md border border-gray-200 p-4 space-y-4">
+        <legend className="px-1 text-sm font-semibold text-gray-800">Hindsight</legend>
+        <p className={hintText}>
+          Post-release amendment shown at the top of the article. Leave empty to omit; the
+          publish date is never changed.
+        </p>
+        <FormField label="Note">
+          <RichEditor content={hindsight} onChange={setHindsight} />
+        </FormField>
+        <FormField label={<>Added on <span className={hintText}>(defaults to today when first saved)</span></>}>
+          <input
+            type="date"
+            value={hindsightAddedAt}
+            onChange={(e) => setHindsightAddedAt(e.target.value)}
+            className={inputClass}
+          />
+        </FormField>
+      </fieldset>
 
       <div className="flex flex-wrap items-center gap-6">
         <div className="flex items-center gap-3">

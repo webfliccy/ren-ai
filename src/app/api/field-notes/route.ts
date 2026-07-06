@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { fieldNotes } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
+import { resolveHindsight } from "@/lib/hindsight";
 import { generateSlug } from "@/lib/slug";
 import { desc } from "drizzle-orm";
 import { NextRequest } from "next/server";
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
     title, content, excerpt, status, tags, issueId,
     outcomeStatus, outcomeDateClosed, outcomeRuns,
     experiment, artefacts, references,
+    hindsight, hindsightAddedAt,
   } = body;
 
   if (!title?.trim()) {
@@ -47,6 +49,7 @@ export async function POST(request: NextRequest) {
       experiment: JSON.stringify(experiment ?? {}),
       artefacts: JSON.stringify(artefacts ?? []),
       references: JSON.stringify(references ?? []),
+      ...resolveHindsight({ hindsight, hindsightAddedAt }),
       publishedAt,
     })
     .returning();

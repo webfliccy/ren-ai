@@ -43,6 +43,9 @@ export const posts = sqliteTable("posts", {
   ogImage: text("og_image"),
   tokens: text("tokens"),
   references: text("references").notNull().default("[]"),
+  // Hindsight amendment (markdown), added post-release without touching publishedAt
+  hindsight: text("hindsight").notNull().default(""),
+  hindsightAddedAt: integer("hindsight_added_at", { mode: "timestamp" }),
   featured: integer("featured", { mode: "boolean" }).notNull().default(false),
   readingTime: integer("reading_time").notNull().default(1),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -230,6 +233,9 @@ export const fieldNotes = sqliteTable("field_note", {
   artefacts: text("artefacts").notNull().default("[]"),
   // References (JSON array of Chicago web refs)
   references: text("references").notNull().default("[]"),
+  // Hindsight amendment (markdown), added post-release without touching publishedAt
+  hindsight: text("hindsight").notNull().default(""),
+  hindsightAddedAt: integer("hindsight_added_at", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),

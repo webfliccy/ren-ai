@@ -1,6 +1,7 @@
 import CommentSection from "@/components/CommentSection";
 import { ContinueReading } from "@/components/ContinueReading";
 import { ReferenceCitation } from "@/components/ReferenceCitation";
+import { HindsightNote } from "@/components/ui/HindsightNote";
 import { Kicker } from "@/components/ui/Kicker";
 import { Byline, BylineDot, BylineWho, BylineBadge } from "@/components/ui/Byline";
 import { SpecCard } from "@/components/ui/SpecCard";
@@ -10,6 +11,7 @@ import { getPostWithComments } from "@/services/posts";
 import { getIssueById, getIssueSiblings } from "@/services/issues";
 import { parseJson } from "@/lib/parse";
 import { parseRefs } from "@/lib/references";
+import { formatIntervalOn } from "@/lib/hindsight";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
@@ -134,6 +136,22 @@ export default async function PostPage({ params }: Props) {
             </>
           )}
         </Byline>
+
+        {/* ── Hindsight amendment ─────────────────── */}
+        {post.hindsight && post.hindsightAddedAt && (
+          <div className="mt-9">
+            <HindsightNote
+              html={renderMarkdown(post.hindsight)}
+              formattedDate={formatDate(new Date(post.hindsightAddedAt))}
+              addedIso={post.hindsightAddedAt.toISOString()}
+              interval={
+                post.publishedAt
+                  ? formatIntervalOn(new Date(post.publishedAt), new Date(post.hindsightAddedAt))
+                  : null
+              }
+            />
+          </div>
+        )}
 
         {/* ── Prose body ──────────────────────────── */}
         <div

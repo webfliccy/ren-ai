@@ -9,6 +9,7 @@
   --color-ink-light: #6B5D4A;
   --color-muted:     #9A8E78;
   --color-accent:    #ED1C2E;
+  --color-hindsight: #E8C84A;
   --color-border:    #C9BB9E;
   --color-rule:      rgba(58, 46, 28, 0.35);
   --color-highlight: rgba(58, 46, 28, 0.07);
@@ -50,6 +51,16 @@ html {
   background-image:
     repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(58, 46, 28, 0.05) 15px, rgba(58, 46, 28, 0.05) 16px),
     repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(58, 46, 28, 0.05) 15px, rgba(58, 46, 28, 0.05) 16px);
+}
+
+@utility bg-texture-hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 13px,
+    rgba(58, 46, 28, 0.045) 13px,
+    rgba(58, 46, 28, 0.045) 14px
+  );
 }
 
 @utility shadow-paper {

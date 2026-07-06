@@ -60,6 +60,12 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
     parseRefs(note?.references ?? "[]")
   );
 
+  // Hindsight
+  const [hindsight, setHindsight] = useState(note?.hindsight ?? "");
+  const [hindsightAddedAt, setHindsightAddedAt] = useState(
+    toDateInputValue(note?.hindsightAddedAt)
+  );
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -114,6 +120,8 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
       experiment,
       artefacts,
       references,
+      hindsight,
+      hindsightAddedAt: hindsightAddedAt || null,
     };
 
     const res = isEditing
@@ -327,6 +335,26 @@ export default function FieldNoteForm({ note, issues = [] }: { note?: FieldNote;
 
       {/* ── References ───────────────────────────────────────────────── */}
       <ReferenceList references={references} onChange={setReferences} />
+
+      {/* ── Hindsight ────────────────────────────────────────────────── */}
+      <fieldset className={sectionClass}>
+        <legend className="px-1 text-sm font-semibold text-gray-800">Hindsight</legend>
+        <p className="text-xs text-gray-400">
+          Post-release amendment shown at the top of the page. Leave empty to omit; the
+          publish date is never changed.
+        </p>
+        <FormField label="Note">
+          <RichEditor content={hindsight} onChange={setHindsight} />
+        </FormField>
+        <FormField label="Added on">
+          <input
+            type="date"
+            value={hindsightAddedAt}
+            onChange={(e) => setHindsightAddedAt(e.target.value)}
+            className={inputClass}
+          />
+        </FormField>
+      </fieldset>
 
       {/* ── Tags ─────────────────────────────────────────────────────── */}
       <FormField label="Tags">

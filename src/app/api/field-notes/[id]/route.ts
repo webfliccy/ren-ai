@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { fieldNotes } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
+import { resolveHindsight } from "@/lib/hindsight";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
@@ -27,6 +28,7 @@ export async function PATCH(
     title, slug, content, excerpt, status, tags, issueId,
     outcomeStatus, outcomeDateClosed, outcomeRuns,
     experiment, artefacts, references,
+    hindsight, hindsightAddedAt,
   } = body;
 
   const [existing] = await db.select().from(fieldNotes).where(eq(fieldNotes.id, Number(id)));
@@ -52,6 +54,7 @@ export async function PATCH(
       experiment: JSON.stringify(experiment ?? {}),
       artefacts: JSON.stringify(artefacts ?? []),
       references: JSON.stringify(references ?? []),
+      ...resolveHindsight({ hindsight, hindsightAddedAt }, existing),
       publishedAt,
       updatedAt: new Date(),
     })
