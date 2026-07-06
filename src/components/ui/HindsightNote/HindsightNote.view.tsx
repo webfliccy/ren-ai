@@ -32,7 +32,7 @@ export function HindsightNoteView({ html, formattedDate, addedIso, interval }: H
       </header>
       <div className="bg-texture-hatch px-7 py-6 max-mobile:px-4">
         <div
-          className="prose mt-0! [&_p:last-child]:mb-0!"
+          className="prose prose-no-dropcap mt-0! [&_p:last-child]:mb-0!"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>

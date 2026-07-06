@@ -116,6 +116,18 @@ html {
   color: var(--color-accent);
 }
 
+/* Call-outs (e.g. the Hindsight module) opt out of the drop cap */
+.prose.prose-no-dropcap > p:first-child { font-size: 19px; }
+.prose.prose-no-dropcap > p:first-child::first-letter {
+  float: none;
+  margin: 0;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
 .prose h2 {
   font-family: var(--font-cormorant);
   font-size: 34px;
