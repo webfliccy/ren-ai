@@ -3,9 +3,9 @@
 
   "defaultModel": "claude-sonnet-5",
 
-  "billingMode": "api",
-  "$billingMode": "api = multiply tokens by per-MTok prices below. subscription = flat-rate plan (Claude Pro/Max, ChatGPT Plus, etc.); tokens are still tracked but cost is reported as 0 with the plan name shown.",
-  "subscriptionPlanName": "",
+  "billingMode": "subscription",
+  "$billingMode": "api = multiply tokens by per-MTok prices below. subscription = flat-rate plan (Claude Pro/Max, ChatGPT Plus, etc.); costs are still computed and shown at API rates (the API-equivalent of the usage), labelled api-equiv since the plan's marginal cost is $0.",
+  "subscriptionPlanName": "Claude Code plan",
 
   "models": {
     "claude-fable-5":    { "inputPerMTok": 10.0, "outputPerMTok": 50.0 },
