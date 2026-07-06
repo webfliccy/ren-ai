@@ -15,7 +15,15 @@
     "db:migrate": "drizzle-kit migrate",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate:s3": "tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts"
+    "migrate:s3": "tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,mjs,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix --max-warnings 0 --no-warn-ignored"
+    ],
+    "*.{json,css,md,yml,yaml}": "prettier --write"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",
@@ -58,7 +66,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.8",
     "prettier": "^3.9.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",

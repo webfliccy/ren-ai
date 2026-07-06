@@ -1,0 +1,2 @@
+# Ported from .git/hooks/post-commit when husky took over hooksPath.
+node scripts/token-cost/token-cost.mjs record || true
