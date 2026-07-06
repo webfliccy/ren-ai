@@ -15,7 +15,7 @@ import { formatIntervalOn } from "@/lib/hindsight";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
-import { renderMarkdown } from "@/lib/markdown";
+import { MarkdownHtml } from "@/components/MarkdownHtml";
 import type { ReactNode } from "react";
 
 interface Props {
@@ -154,10 +154,7 @@ export default async function PostPage({ params }: Props) {
         )}
 
         {/* ── Prose body ──────────────────────────── */}
-        <div
-          className="prose"
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
-        />
+        <MarkdownHtml className="prose" markdown={post.content} />
 
         {/* ── Specification Sheet ─────────────────── */}
         <section className="mt-14" aria-label="Article provenance">

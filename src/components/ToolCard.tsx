@@ -1,5 +1,5 @@
 import type { Tool } from "@/db/schema";
-import { sanitizeSvg } from "@/lib/sanitize";
+import { SanitizedSvg } from "@/components/SanitizedSvg";
 
 export function ToolCard({ tool }: { tool: Tool }) {
   const inner = (
@@ -10,9 +10,9 @@ export function ToolCard({ tool }: { tool: Tool }) {
         </div>
       )}
       {tool.illustration && (
-        <div
+        <SanitizedSvg
           className="flex justify-center border-b border-ink bg-texture-graph p-6"
-          dangerouslySetInnerHTML={{ __html: sanitizeSvg(tool.illustration) }}
+          svg={tool.illustration}
         />
       )}
       <div className="flex flex-1 flex-col px-4 pt-4 pb-5">

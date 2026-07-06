@@ -12,7 +12,7 @@ import { db } from "@/db";
 import { Artefact, ExperimentRecord, comments, fieldNotes, users } from "@/db/schema";
 import { formatDate } from "@/lib/formatters";
 import { formatIntervalOn } from "@/lib/hindsight";
-import { renderMarkdown } from "@/lib/markdown";
+import { MarkdownHtml } from "@/components/MarkdownHtml";
 import { OUTCOME_STATUS_LABELS } from "@/lib/outcome-status";
 import { parseJson } from "@/lib/parse";
 import { parseRefs } from "@/lib/references";
@@ -176,10 +176,7 @@ export default async function FieldNoteDetailPage({ params }: Props) {
         )}
 
         {note.content && (
-          <div
-            className="prose prose-dispatch"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
-          />
+          <MarkdownHtml className="prose prose-dispatch" markdown={note.content} />
         )}
 
         {/* ── Outcome ───────────────────────────────── */}

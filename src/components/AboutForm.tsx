@@ -1,6 +1,6 @@
 "use client";
 
-import { btnPrimary, inputClass, labelBlockClass } from "@/lib/styles";
+import { inputClass, labelBlockClass } from "@/lib/styles";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 

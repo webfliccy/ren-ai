@@ -138,7 +138,7 @@ export default function RichEditor({ content, onChange, tables = false }: Props)
               onChange={(e) => {
                 setUploadError(null);
                 const file = e.target.files?.[0];
-                if (file) handleImageFile(file);
+                if (file) void handleImageFile(file);
                 e.target.value = "";
               }}
             />

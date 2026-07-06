@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { sitePages } from "@/db/schema";
-import { renderMarkdown } from "@/lib/markdown";
+import { MarkdownHtml } from "@/components/MarkdownHtml";
 import { Kicker } from "@/components/ui/Kicker";
 import { SpecCard } from "@/components/ui/SpecCard";
 import { SpecRow } from "@/components/ui/SpecRow";
@@ -46,7 +46,7 @@ export default async function AboutPage() {
         </h1>
 
         {content ? (
-          <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
+          <MarkdownHtml className="prose" markdown={content} />
         ) : (
           <div className="prose">
             <p>This page is yet to be written. The editor is presumably composing themselves.</p>

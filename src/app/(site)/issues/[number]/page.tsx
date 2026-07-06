@@ -13,8 +13,8 @@ import type { Post } from "@/db/schema";
 import { formatDate, padCount } from "@/lib/formatters";
 import { firstTag } from "@/lib/tags";
 import { refCount } from "@/lib/references";
-import { sanitizeSvg } from "@/lib/sanitize";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { SanitizedSvg } from "@/components/SanitizedSvg";
+import { and, asc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -82,10 +82,7 @@ export default async function IssuePage({ params }: Props) {
 
             {lead.figSvg && (
               <figure className="mb-6 border-[1.5px] border-ink bg-paper shadow-paper">
-                <div
-                  className="flex justify-center bg-texture-graph p-4"
-                  dangerouslySetInnerHTML={{ __html: sanitizeSvg(lead.figSvg) }}
-                />
+                <SanitizedSvg className="flex justify-center bg-texture-graph p-4" svg={lead.figSvg} />
                 <figcaption className="flex items-baseline gap-2.5 border-t border-ink px-3.5 py-2 font-courier text-[10px] text-ink-light">
                   <span className="whitespace-nowrap font-bold tracking-1 text-accent">FIG. 1</span>
                 </figcaption>

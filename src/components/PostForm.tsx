@@ -7,7 +7,7 @@ import { btnPrimary, btnSecondary, errorBanner, hintText, inputClass, labelClass
 import { FormField } from "./FormField";
 import { ReferenceList } from "./ReferenceList";
 import { TagInput } from "./TagInput";
-import { sanitizeSvg } from "@/lib/sanitize";
+import { SanitizedSvg } from "@/components/SanitizedSvg";
 import { toDateInputValue } from "@/lib/formatters";
 import { parseTags } from "@/lib/tags";
 import { createPostAction, updatePostAction, deletePostAction } from "@/actions/posts";
@@ -158,9 +158,9 @@ export default function PostForm({ post, issues = [] }: { post?: Post; issues?: 
         />
         {figSvg && (
           <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-3">
-            <div
+            <SanitizedSvg
               className="flex items-center justify-center [&>svg]:max-h-40 [&>svg]:w-full"
-              dangerouslySetInnerHTML={{ __html: sanitizeSvg(figSvg) }}
+              svg={figSvg}
             />
             <button
               type="button"

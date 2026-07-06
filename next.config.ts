@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.amazonaws.com",
       },
+      // OAuth avatars (GitHub and Google sign-in) rendered via next/image.
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.googleusercontent.com",
+      },
     ],
   },
   onDemandEntries: {

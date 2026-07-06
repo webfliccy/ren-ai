@@ -2,8 +2,6 @@ import SubscribeForm from "@/components/SubscribeForm";
 import { ToolCard } from "@/components/ToolCard";
 import { SidebarPost } from "@/components/SidebarPost";
 import { SidebarFieldNote } from "@/components/SidebarFieldNote";
-import { DispatchCard } from "@/components/DispatchCard";
-import { FieldNoteCard } from "@/components/FieldNoteCard";
 import { Kicker } from "@/components/ui/Kicker";
 import { Byline, BylineDot, BylineWho, BylineBadge } from "@/components/ui/Byline";
 import { SpecCard } from "@/components/ui/SpecCard";
@@ -13,10 +11,10 @@ import { db } from "@/db";
 import { issues, tools, fieldNotes } from "@/db/schema";
 import type { Issue, Post, Tool } from "@/db/schema";
 import { formatDate, padCount } from "@/lib/formatters";
-import { firstTag, parseTags } from "@/lib/tags";
+import { firstTag } from "@/lib/tags";
 import { refCount } from "@/lib/references";
-import { sanitizeSvg } from "@/lib/sanitize";
-import { PLACEHOLDER_SIDEBAR, PLACEHOLDER_DISPATCHES, PLACEHOLDER_TOOLS } from "@/app/_placeholder";
+import { SanitizedSvg } from "@/components/SanitizedSvg";
+import { PLACEHOLDER_SIDEBAR, PLACEHOLDER_TOOLS } from "@/app/_placeholder";
 import { and, asc, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 
@@ -61,8 +59,6 @@ export default async function Home() {
 
   const lead: Post | null = allPosts[0] ?? null;
   const sidebarPosts = allPosts.slice(1, 4);
-  const dispatchPosts =
-    allPosts.length > 4 ? allPosts.slice(4, 7) : allPosts.slice(1, 4);
 
   return (
     <>
@@ -98,10 +94,7 @@ export default async function Home() {
 
           {lead?.figSvg && (
             <figure className="mb-6 border-[1.5px] border-ink bg-paper shadow-paper">
-              <div
-                className="flex justify-center bg-texture-graph p-4"
-                dangerouslySetInnerHTML={{ __html: sanitizeSvg(lead.figSvg) }}
-              />
+              <SanitizedSvg className="flex justify-center bg-texture-graph p-4" svg={lead.figSvg} />
               <figcaption className="flex items-baseline gap-2.5 border-t border-ink px-3.5 py-2 font-courier text-[10px] text-ink-light">
                 <span className="whitespace-nowrap font-bold tracking-1 text-accent">FIG. 1</span>
               </figcaption>
@@ -225,9 +218,9 @@ export default async function Home() {
                     <span className="font-courier text-[9.5px] font-bold uppercase tracking-3">{p.title}</span>
                     <span className="font-courier text-[8.5px] tracking-1 opacity-65">{p.version}</span>
                   </div>
-                  <div
+                  <SanitizedSvg
                     className="flex justify-center border-b border-ink bg-texture-graph p-6"
-                    dangerouslySetInnerHTML={{ __html: sanitizeSvg(p.svgContent) }}
+                    svg={p.svgContent}
                   />
                   <div className="flex flex-1 flex-col px-4 pt-4 pb-5">
                     <h4 className="mb-2 font-cormorant text-[26px] font-semibold leading-[1.05]">{p.title}</h4>

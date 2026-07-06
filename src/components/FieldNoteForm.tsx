@@ -10,7 +10,7 @@ import { TagInput } from "./TagInput";
 import { parseTags } from "@/lib/tags";
 import { ChicagoWebRef, parseRefs } from "@/lib/references";
 import { OutcomeStatus, OUTCOME_STATUS_LABELS, OUTCOME_STATUS_COLOURS } from "@/lib/outcome-status";
-import { EMPTY_EXPERIMENT, parseExperiment } from "@/lib/experiment";
+import { parseExperiment } from "@/lib/experiment";
 import { toDateInputValue } from "@/lib/formatters";
 import { parseJson } from "@/lib/parse";
 import dynamic from "next/dynamic";

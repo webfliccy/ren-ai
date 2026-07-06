@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface CommentRow {
@@ -57,9 +58,11 @@ export default function CommentSection({ postId, fieldNoteId, initialComments }:
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex items-center gap-2">
               {session.user?.image && (
-                <img
+                <Image
                   src={session.user.image}
                   alt={session.user.name ?? ""}
+                  width={28}
+                  height={28}
                   className="h-7 w-7 rounded-full"
                 />
               )}
@@ -121,9 +124,11 @@ export default function CommentSection({ postId, fieldNoteId, initialComments }:
           {list.map((c) => (
             <div key={c.id} className="flex gap-3">
               {c.authorImage ? (
-                <img
+                <Image
                   src={c.authorImage}
                   alt={c.authorName ?? ""}
+                  width={32}
+                  height={32}
                   className="h-8 w-8 shrink-0 rounded-full"
                 />
               ) : (
