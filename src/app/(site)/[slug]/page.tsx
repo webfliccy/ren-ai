@@ -141,7 +141,7 @@ export default async function PostPage({ params }: Props) {
         {post.hindsight && post.hindsightAddedAt && (
           <div className="mt-9">
             <HindsightNote
-              html={renderMarkdown(post.hindsight)}
+              markdown={post.hindsight}
               formattedDate={formatDate(new Date(post.hindsightAddedAt))}
               addedIso={post.hindsightAddedAt.toISOString()}
               interval={

@@ -1,6 +1,8 @@
+import { ProseMarkdown } from "@/components/ProseMarkdown";
+
 export type HindsightNoteProps = {
-  /** Sanitized HTML rendered from the hindsight markdown. */
-  html: string;
+  /** The hindsight note as markdown. */
+  markdown: string;
   /** e.g. "2 July 2026" */
   formattedDate: string;
   addedIso?: string;
@@ -8,12 +10,12 @@ export type HindsightNoteProps = {
   interval?: string | null;
 };
 
-export function HindsightNoteView({ html, formattedDate, addedIso, interval }: HindsightNoteProps) {
+export function HindsightNoteView({ markdown, formattedDate, addedIso, interval }: HindsightNoteProps) {
   const dateline = interval ? `Added ${formattedDate} — ${interval}` : `Added ${formattedDate}`;
 
   return (
     <aside
-      className="border-[1.5px] border-l-[5px] border-ink bg-paper shadow-paper"
+      className="border-[1.5px] border-l-[5px] border-ink shadow-paper"
       aria-label="Hindsight"
     >
       <header className="flex items-center gap-4 border-b border-border py-1.5 pl-1.5 pr-2.5">
@@ -30,11 +32,8 @@ export function HindsightNoteView({ html, formattedDate, addedIso, interval }: H
           20:20
         </span>
       </header>
-      <div className="bg-texture-hatch px-7 py-6 max-mobile:px-4">
-        <div
-          className="prose prose-no-dropcap mt-0! [&_p:last-child]:mb-0!"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+      <div className="bg-texture-hatch px-7 py-6 max-mobile:px-4 font-cormorant">
+          <ProseMarkdown markdown={markdown} />
       </div>
     </aside>
   );

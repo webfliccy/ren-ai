@@ -143,7 +143,7 @@ export default async function FieldNoteDetailPage({ params }: Props) {
         {note.hindsight && note.hindsightAddedAt && (
           <div className="mt-9">
             <HindsightNote
-              html={renderMarkdown(note.hindsight)}
+              markdown={note.hindsight}
               formattedDate={formatDate(new Date(note.hindsightAddedAt))}
               addedIso={note.hindsightAddedAt.toISOString()}
               interval={
