@@ -2,6 +2,7 @@
   "name": "ren-ai",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.10.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -15,7 +16,6 @@
     "db:migrate": "drizzle-kit migrate",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate:s3": "tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts",
     "prepare": "husky"
   },
   "lint-staged": {
