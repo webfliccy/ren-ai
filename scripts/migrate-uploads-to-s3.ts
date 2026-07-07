@@ -5,10 +5,10 @@
  * Idempotent: files already present in S3 under the correct key are skipped.
  *
  * Usage:
- *   npx tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts
+ *   pnpm dlx tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts
  *
  * To also verify all migrated URLs are publicly accessible after migration:
- *   npx tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts --check
+ *   pnpm dlx tsx --env-file=.env.local scripts/migrate-uploads-to-s3.ts --check
  *
  * Note: --check requires the S3 bucket public-read policy to already be applied.
  * If the policy isn't in place yet, HEAD requests return 403 and the check fails.
