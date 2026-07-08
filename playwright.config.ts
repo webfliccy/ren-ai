@@ -8,7 +8,6 @@ import {
 
 export default defineConfig({
   testDir: "./e2e",
-  globalSetup: "./e2e/global-setup",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -25,7 +24,7 @@ export default defineConfig({
     // .next/static, then `node server.js`) so the suite runs the same
     // server `next start` warns is incompatible with `output: "standalone"`.
     command:
-      "pnpm exec tsx e2e/seed.ts && pnpm run build && " +
+      "pnpm exec tsx e2e/global-setup.ts && pnpm run build && " +
       "cp -r public .next/standalone/public && " +
       "cp -r .next/static .next/standalone/.next/static && " +
       "node .next/standalone/server.js",

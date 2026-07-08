@@ -27,3 +27,15 @@ export default async function globalSetup() {
 
   client.close();
 }
+
+// Playwright's `globalSetup` config hook runs after `webServer.command`
+// starts, but `next build` (part of that command) queries the database
+// while building — so webServer.command invokes this file directly via tsx
+// instead of registering it as globalSetup, which would reseed a second
+// time on every run for no benefit.
+if (require.main === module) {
+  globalSetup().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
