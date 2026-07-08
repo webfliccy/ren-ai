@@ -38,7 +38,7 @@ const eslintConfig = defineConfig([
   {
     // Standalone CommonJS eval harness; .arbor session contracts pin the
     // `node eval-mi.js` invocation, so it can't move to ESM.
-    files: ["eval-mi.js"],
+    files: ["scripts/eval-mi.js"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },

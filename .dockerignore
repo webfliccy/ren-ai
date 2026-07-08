@@ -4,15 +4,12 @@
 node_modules/
 *.db-shm
 *.db-wal
-public/uploads/
 .git/
 .gitignore
-.arbor/
 .claude/
 infra/
 scripts/
 drizzle/
-research_config.yaml
 AGENTS.md
 CLAUDE.md
 README.md
