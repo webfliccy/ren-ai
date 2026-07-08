@@ -20,8 +20,10 @@ export default async function globalSetup() {
     migrationsFolder: path.resolve(__dirname, "../drizzle"),
   });
 
-  await db.delete(posts);
-  await db.insert(posts).values(SEED_POSTS);
+  await db.transaction(async (tx) => {
+    await tx.delete(posts);
+    await tx.insert(posts).values(SEED_POSTS);
+  });
 
   client.close();
 }

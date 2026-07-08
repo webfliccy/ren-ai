@@ -36,11 +36,13 @@ test("a post can be drafted, stays private, then publishes to the public site", 
   expect(draftResponse?.status()).toBe(404);
 
   await page.goto("/");
-  await expect(page.getByRole("link", { name: TITLE })).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: TITLE, exact: true }),
+  ).toHaveCount(0);
 
   // ── Publish via the edit page ──────────────────────────────────────────────
   await page.goto("/admin");
-  await page.getByRole("link", { name: TITLE }).click();
+  await page.getByRole("link", { name: TITLE, exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/posts\/\d+\/edit/);
   await expect(page.getByPlaceholder("My post title")).toHaveValue(TITLE);
 
