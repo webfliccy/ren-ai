@@ -21,7 +21,14 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "pnpm exec tsx e2e/seed.ts && pnpm run build && pnpm run start",
+    // Mirrors the Dockerfile's runner stage (COPY public, .next/standalone,
+    // .next/static, then `node server.js`) so the suite runs the same
+    // server `next start` warns is incompatible with `output: "standalone"`.
+    command:
+      "pnpm exec tsx e2e/seed.ts && pnpm run build && " +
+      "cp -r public .next/standalone/public && " +
+      "cp -r .next/static .next/standalone/.next/static && " +
+      "node .next/standalone/server.js",
     url: E2E_BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
@@ -32,6 +39,10 @@ export default defineConfig({
       // Explicitly blank out anything from .env.local that could point the
       // server at real infrastructure.
       TURSO_AUTH_TOKEN: "",
+      AWS_REGION: "",
+      AWS_ACCESS_KEY_ID: "",
+      AWS_SECRET_ACCESS_KEY: "",
+      S3_BUCKET: "",
       ADMIN_SECRET: E2E_ADMIN_SECRET,
       AUTH_SECRET: "e2e-auth-secret",
       AUTH_GITHUB_ID: "e2e-github-id",
