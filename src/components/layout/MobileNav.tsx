@@ -61,10 +61,10 @@ export function MobileNav({ topbarStamp }: { topbarStamp: string }) {
   return (
     <div
       ref={containerRef}
-      className={`mobile:hidden ${open ? "fixed inset-0 z-50 flex flex-col bg-parchment" : ""}`}
+      className={`mobile:hidden ${open ? "fixed inset-x-5 inset-y-0 z-50 flex flex-col bg-parchment" : ""}`}
     >
       <div className="bg-parchment">
-        <div className="flex w-full items-center gap-2.5 px-5 pt-5 pb-1">
+        <div className="flex w-full items-center gap-2.5 pt-5 pb-1">
           <div className="h-px flex-1 bg-rule" />
           <div className="text-[8px] font-bold tracking-[0.2em] whitespace-nowrap text-ink uppercase opacity-60">
             {topbarStamp}
