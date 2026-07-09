@@ -58,3 +58,7 @@ infra/.terraform/
 
 # Playwright MCP tool artifacts (browser automation snapshots/screenshots)
 .playwright-mcp/
+# playwright
+/test-results/
+/playwright-report/
+/e2e/.artifacts/
