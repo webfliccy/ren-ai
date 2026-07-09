@@ -1,28 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The RenAIssance Fan
 
-## Getting Started
+> Fallibly human, artificially divine.
+
+The RenAIssance Fan is a Next.js blog/zine about AI, written by a human author with an AI sub-editor. Content is organized into **Issues** (numbered collections), each carrying **Posts**, **Dispatches**, **Field Notes**, and a curated **Tools & Contraptions** cabinet. Every published piece carries a "Production Record" spec sheet — model version, token count, and the prompt behind it — so the human/AI provenance of the writing is never hidden.
+
+## Stack
+
+- **Next.js 16** (App Router) + React 19, styled with Tailwind CSS v4
+- **Drizzle ORM** over SQLite/[libSQL](https://turso.tech) — local file DB by default, Turso in production
+- **Auth.js** (NextAuth v5) with GitHub/Google OAuth, gating the `/admin` panel
+- **TipTap** rich-text editor for authoring posts, with markdown import/export and KaTeX math
+- **S3** (via `@aws-sdk/client-s3`) for uploaded images/assets
+- Content pages render server-side; the admin app is where issues, posts, tools, and static pages get written
+
+## Getting started
 
 This repo uses **pnpm only** (pinned via the `packageManager` field in `package.json`; run `corepack enable` if you don't have pnpm). Install dependencies and run the development server:
 
 ```bash
 pnpm install
+cp .env.example .env
+pnpm db:push
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the site, and [http://localhost:3000/admin](http://localhost:3000/admin) for the editor (sign in via GitHub/Google OAuth — see `.env.example` for the required app credentials).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+By default the app uses a local SQLite file (`local.db`). To point at a hosted Turso database instead, set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in `.env`. File uploads require the four `AWS_*`/`S3_*`/`NEXT_PUBLIC_S3_URL` variables — see the comments in `.env.example` for the bucket policy uploads need.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+```bash
+pnpm dev              # start the dev server
+pnpm build / start     # production build / serve
+pnpm lint / format     # eslint / prettier
+pnpm test / test:watch # vitest unit tests
+pnpm db:push            # push schema.ts changes straight to the DB (dev)
+pnpm db:generate        # generate a migration from schema changes
+pnpm db:migrate         # apply migrations
+pnpm db:studio          # Drizzle Studio DB browser
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/app/(site)/   public pages — issues, posts, dispatches, field notes, tools, about
+src/app/admin/    authenticated editor for issues, posts, tools, and static pages
+src/app/api/      route handlers (auth, comments, uploads, subscribe, content CRUD)
+src/db/           Drizzle schema and client
+src/actions/      server actions
+src/services/     application/business logic
+src/components/   shared UI (site chrome, post cards, spec-sheet components, editor)
+drizzle/          generated SQL migrations
+scripts/          maintenance scripts, incl. token-cost tracking (see token-costs.config.json)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This is _not_ the Next.js you may know from training data — see `AGENTS.md` for what's changed and where to find the bundled docs before writing App Router code.
 
 ## AWS Infrastructure
 
