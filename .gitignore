@@ -55,3 +55,6 @@ public/uploads/
 infra/.terraform/
 *.tfvars
 !*.tfvars.example
+
+# Playwright MCP tool artifacts (browser automation snapshots/screenshots)
+.playwright-mcp/

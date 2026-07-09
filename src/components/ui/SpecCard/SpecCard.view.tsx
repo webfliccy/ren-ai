@@ -23,25 +23,59 @@ export function SpecCardView({
     : "text-[9px] tracking-2";
 
   return (
-    <section className="border-[1.5px] border-ink bg-paper shadow-paper">
-      <div
-        className={`flex items-center justify-between bg-ink text-parchment ${
-          compact ? "px-3 py-[7px]" : "px-3.5 py-2"
-        }`}
+    <>
+      <details
+        className="group mobile-collapsible border-[1.5px] border-ink bg-paper shadow-paper"
+        suppressHydrationWarning
       >
-        <span className={`font-courier font-bold uppercase ${titleClasses}`}>
-          {title}
-        </span>
-        {fig && (
-          <span className={`font-courier opacity-70 ${figClasses}`}>{fig}</span>
-        )}
-      </div>
-      {children}
-      {footer && (
-        <div className="flex items-center gap-2 border-t border-ink px-3.5 py-[7px] font-courier text-[9.5px] text-ink-light">
-          {footer}
+        <summary
+          className={`flex cursor-pointer list-none items-center justify-between bg-ink text-parchment ${
+            compact ? "px-3 py-[7px]" : "px-3.5 py-2"
+          }`}
+        >
+          <span className={`font-courier font-bold uppercase ${titleClasses}`}>
+            {title}
+          </span>
+          <span className="flex items-center gap-2">
+            {fig && (
+              <span className={`font-courier opacity-70 ${figClasses}`}>
+                {fig}
+              </span>
+            )}
+            <svg
+              className="h-2.5 w-2.5 shrink-0 text-parchment/70 transition-transform duration-200 group-open:rotate-180"
+              viewBox="0 0 12 12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M2.5 4.5L6 8l3.5-3.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </summary>
+        <div>
+          {children}
+          {footer && (
+            <div className="flex items-center gap-2 border-t border-ink px-3.5 py-[7px] font-courier text-[9.5px] text-ink-light">
+              {footer}
+            </div>
+          )}
         </div>
-      )}
-    </section>
+      </details>
+      {/* Defaults open above the mobile breakpoint. Setting the real `open`
+          attribute (rather than faking visibility with CSS) is required:
+          Chromium's <details> wraps closed content in an internal
+          ::details-content node that author CSS cannot force-display. */}
+      <script suppressHydrationWarning>
+        {
+          'document.currentScript.previousElementSibling.open = window.matchMedia("(min-width: 760px)").matches;'
+        }
+      </script>
+    </>
   );
 }

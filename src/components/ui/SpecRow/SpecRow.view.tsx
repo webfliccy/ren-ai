@@ -29,7 +29,7 @@ export function SpecRowView({
     <div
       className={`grid items-baseline ${compact ? "gap-2 px-3 py-[7px]" : "gap-2.5 px-3.5 py-[9px]"} ${
         borderBottom ? "border-b border-dashed border-border" : ""
-      } ${borderRight ? "border-r border-dashed border-border" : ""} ${colSpanFull ? "col-span-2" : ""}`}
+      } ${borderRight ? "border-r border-dashed border-border" : ""} ${colSpanFull ? "col-span-full" : ""}`}
       style={{ gridTemplateColumns: `${keyWidth}px 1fr` }}
     >
       <span

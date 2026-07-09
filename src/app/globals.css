@@ -478,6 +478,17 @@ figure.plate figcaption {
   }
 }
 
+/* ════════ MOBILE-COLLAPSIBLE RECORD BOXES (SpecCard) ════════
+   Closed by default (native <details>) so long record boxes don't
+   interrupt the reading flow on phones. A same-element inline script
+   (see SpecCard.view.tsx) sets the real `open` attribute above the
+   mobile breakpoint — genuinely open and still toggleable, not a
+   CSS-faked visual state, since Chromium hides closed <details>
+   content in an internal node author CSS can't force-display. */
+.mobile-collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
 /* ════════ BIBLIOGRAPHY (shared by article + field-note refs blocks) ════════ */
 .bib {
   counter-reset: bib;
