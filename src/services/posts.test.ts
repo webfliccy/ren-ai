@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { createTestDb } from "@/test/db";
+import { makePost } from "@/test/factories";
 import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import * as schema from "@/db/schema";
 
@@ -36,16 +37,7 @@ async function insertPost(
 ) {
   const [post] = await container
     .db!.insert(schema.posts)
-    .values({
-      title: "Test Post",
-      slug: `test-post-${Math.random().toString(36).slice(2)}`,
-      content: "word ".repeat(200),
-      status: "published",
-      tags: JSON.stringify(["ai", "tech"]),
-      references: "[]",
-      readingTime: 1,
-      ...overrides,
-    })
+    .values(makePost(overrides))
     .returning();
   return post;
 }
